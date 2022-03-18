@@ -2,7 +2,6 @@
   <v-app dark>
     <Snackbar />
     <v-navigation-drawer
-      v-if="drawer"
       v-model="drawer"
       :clipped="true"
       fixed

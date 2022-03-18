@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center" align="center" class="mt-16">
-    <v-col cols="12" sm="6">
+    <v-col cols="12" sm="10">
       <p class="text-h1 font-weight-bold">
         Welcome to {{ $app_config.title }}
       </p>

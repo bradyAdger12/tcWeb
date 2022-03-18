@@ -45,7 +45,7 @@ export default {
       password: "foobar",
       seePassword: false,
       rules: {
-        min: (v) => v.length >= 4 || "Min 8 characters",
+        min: (v) => v.length >= 4 || "Min 4 characters",
       },
     };
   },
@@ -62,7 +62,7 @@ export default {
           color: "green",
           timeout: 3500,
         });
-        this.$router.push("/");
+        this.$router.push("/profile");
       } catch (e) {}
     },
   },
