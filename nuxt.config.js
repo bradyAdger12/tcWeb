@@ -1,9 +1,10 @@
 import colors from 'vuetify/es5/util/colors'
+require('dotenv').config()
 
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s',
+    titleTemplate: '%s - Training Club',
     title: 'Training Club',
     htmlAttrs: {
       lang: 'en'
@@ -23,8 +24,14 @@ export default {
   css: [
   ],
 
+  //middleware
+  middelware: ['auth'],
+
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/local-storage',
+    '~/plugins/config',
+    '~/plugins/axios'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -34,11 +41,18 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
+    '@nuxtjs/dotenv'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxtjs/axios',
+    'cookie-universal-nuxt'
   ],
+
+  axios: {
+    baseURL: 'http://localhost:8080', // Used as fallback if no runtime config is provided
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
@@ -59,7 +73,8 @@ export default {
     }
   },
 
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+  },
 }

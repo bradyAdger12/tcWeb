@@ -1,19 +1,22 @@
 <template>
   <v-row justify="center" align="center" class="mt-16">
-    <v-col cols="12" sm="5" class="text-center">
+    <v-col cols="12" sm="4" class="text-center">
       <div class="mb-12">
-        <p class="white--text text-h2">Login</p>
+        <p class="white--text text-h2">Register an Accont</p>
+        <p class="mt-7">
+          Begin your fitness journey by creating an account with us.
+        </p>
       </div>
       <v-text-field
         v-model="email"
         label="Email"
-        placeholder="Enter email"
+        placeholder="Placeholder"
         color="white"
       />
       <v-text-field
         v-model="password"
         label="Password"
-        placeholder="Enter password"
+        placeholder="Placeholder"
         color="white"
         :rules="[rules.min]"
         :type="seePassword ? 'text' : 'password'"
@@ -26,8 +29,8 @@
         <v-btn @click="login"> Login </v-btn>
       </div>
       <p class="text-left mt-10">
-        Dont have an account? register
-        <NuxtLink to="/register" class="white--text">here</NuxtLink>
+        Already have an account? login
+        <NuxtLink to="/login" class="white--text">here</NuxtLink>
       </p>
     </v-col>
   </v-row>
@@ -35,35 +38,31 @@
 
 <script>
 import { mapActions } from "vuex";
+import axios from "axios";
 export default {
   head: {
-    title: "Login",
+    title: "Register",
   },
   data() {
     return {
-      email: "brady.adger12@gmail.com",
-      password: "foobar",
+      email: "",
+      password: "",
       seePassword: false,
       rules: {
-        min: (v) => v.length >= 4 || "Min 8 characters",
+        min: (v) => v.length >= 8 || "Min 8 characters",
       },
     };
   },
-  name: "LoginPage",
+  name: "RegisterPage",
   methods: {
     ...mapActions("snackbar", ["showSnack"]),
-    async login() {
-      try {
-        const email = this.email;
-        const password = this.password;
-        await this.$store.dispatch("auth/login", { email, password });
-        this.showSnack({
-          text: "Login success!",
-          color: "green",
-          timeout: 3500,
-        });
-        this.$router.push("/");
-      } catch (e) {}
+    login() {
+      console.log("hi");
+      this.showSnack({
+        text: "Successfully Saved!",
+        color: "green",
+        timeout: 3500,
+      });
     },
   },
 };
