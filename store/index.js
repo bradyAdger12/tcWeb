@@ -2,7 +2,6 @@ export const actions = {
     async nuxtServerInit({ state, commit, dispatch }) {
         const cookie = this.$cookies.get('auth');
         if (cookie?.auth) {
-            console.log(cookie.auth)
             const token = cookie.auth.access_token
             const me = cookie.auth.me
             commit('auth/setToken', { token });

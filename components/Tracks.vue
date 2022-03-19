@@ -20,10 +20,17 @@
             <v-list-item-subtitle>
               {{ formatDate(track.started_at) }}
             </v-list-item-subtitle>
-            <!-- <div class="mt-3">
-              <div v-if="track.hr_effort">HRS: {{ track.hr_effort }}</div>
-            </div> -->
           </v-list-item-content>
+          <v-btn class="red rounded white--text" @click="deleteTrack(track)">
+            Delete
+            <v-progress-circular
+              v-if="track.deleting"
+              indeterminate
+              width="2"
+              size="15"
+              class="ml-2"
+            />
+          </v-btn>
         </v-list-item>
       </v-list>
     </div>
@@ -48,21 +55,31 @@ export default {
   mounted() {
     this.getTracks();
   },
+  watch: {
+    "$store.state.tracks.tracks": function () {
+      this.tracks = this.$store.state.tracks.tracks;
+    },
+  },
   methods: {
     formatDate(date) {
       return moment(date).format("MMMM Do YYYY, h:mm:ss a");
     },
-    async getTracks() {
+    async deleteTrack(track) {
+      track.deleting = true;
+      this.$forceUpdate();
+      const token = this.$store.state.auth.access_token;
+      const id = track.id;
       try {
-        const response = await this.$axios.get(
-          this.$axios.defaults.baseURL + "/recordings/me",
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
-          }
-        );
-        this.tracks = response.data;
+        await this.$store.dispatch("tracks/deleteTrack", { id, token });
+      } catch (e) {}
+      track.deleting = false;
+      this.$forceUpdate();
+    },
+    async getTracks() {
+      const token = this.$store.state.auth.access_token;
+      const me = this.me;
+      try {
+        await this.$store.dispatch("tracks/getTracks", { me, token });
       } catch (e) {}
       this.loading = false;
     },

@@ -30,7 +30,6 @@ export const actions = {
   },
   async getUser({ commit }) {
     const response = await this.$axios.get('/users/me');
-    console.log(response)
 },
   async login ({ commit, dispatch }, { email, password }) {
     let token = null
@@ -44,7 +43,6 @@ export const actions = {
       token = response.data.token
       
       delete response.data.token
-      console.log(response.data)
     }
 
     // commit the user and tokens to the state

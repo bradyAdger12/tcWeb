@@ -2,17 +2,17 @@
   <div>
     <div v-if="this.me">
       <v-row justify="center" align="center" class="mt-16">
-        <v-col cols="12" sm="8">
+        <v-col cols="12" sm="10">
           <p class="text-h2 font-weight-bold">
-            Welcome to {{ $app_config.title }}, {{ me.display_name }}
+            {{ me.display_name }}
           </p>
           <p>
             Below you can find some basic fitness statistics as well as your
             latest workouts
           </p>
           <div class="mt-10">
-            <v-row justify="center" justify-sm="start">
-              <v-col cols="auto" sm="5">
+            <v-row justify="space-around">
+              <v-col cols="12" sm="5">
                 <div>
                   <p class="text-h4 mr-2">
                     HR Zones <span class="subtitle-1">(bpm)</span>
@@ -36,7 +36,7 @@
                   </div>
                 </div>
               </v-col>
-              <v-col cols="auto" sm="5">
+              <v-col cols="12" sm="5">
                 <div>
                   <p class="text-h4 mr-2">
                     Power Zones <span class="subtitle-1">(watts)</span>
@@ -105,7 +105,6 @@ export default {
   },
   methods: {
     getZoneColor(title) {
-      console.log(title);
       switch (title) {
         case "Recovery":
           return "grey";
