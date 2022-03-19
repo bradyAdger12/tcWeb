@@ -1,20 +1,4 @@
 <template>
-  <!-- 
-"email": "",
-  "password": "",
-  "gender": "",
-  "display_name": "",
-  "hr_zones": [],
-  "power_zones": [],
-  "resting_hr": null,
-  "max_hr": null,
-  "threshold_hr": null,
-  "threshold_power": null,
-  "strava_token": "null",
-  "garmin_token": "null",
-  "strava_enable_auto_sync": false,
-  "garmin_enable_auto_sync": false
-   -->
   <v-row justify="center" align="center" class="mt-16">
     <v-col cols="12" sm="8" class="text-center">
       <div class="mb-12">

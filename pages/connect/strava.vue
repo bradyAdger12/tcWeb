@@ -42,33 +42,12 @@
 
 <script>
 import moment from "moment";
-import Vue from 'vue'
+import Vue from "vue";
 import axios from "../../plugins/axios";
 export default {
   name: "StravaConnect",
   head: {
     title: "Strava",
-  },
-  async mounted() {
-    this.code = this.$route.query.code;
-    if (!this.code) {
-      this.$store.dispatch("snackbar/showSnack", {
-        text: "Strava authentication failed!",
-        color: "red",
-        timeout: 3500,
-      });
-      this.$router.push("/connect");
-    } else if (!this.me.strava_token) {
-      await this.getAccessToken();
-    } else {
-      await this.getStravaActivities();
-    }
-    this.loading = false;
-  },
-  computed: {
-    me() {
-      return this.$store.state.auth.me;
-    },
   },
   data() {
     return {
@@ -77,10 +56,31 @@ export default {
       activities: [],
     };
   },
+  computed: {
+    me() {
+      return this.$store.state.auth.me;
+    },
+  },
+  async mounted() {
+    this.code = this.$route.query.code;
+    if (!this.code && !this.$route.query.connected) {
+      this.$store.dispatch("snackbar/showSnack", {
+        text: "Strava authentication failed!",
+        color: "red",
+        timeout: 3500,
+      });
+      this.$router.push("/connect");
+    } else if (this.$route.query.connected) {
+      await this.getStravaActivities();
+    } else {
+      await this.getAccessToken();
+    }
+    this.loading = false;
+  },
   methods: {
     async importActivity(activity) {
-      activity.importing = true
-      this.$forceUpdate()
+      activity.importing = true;
+      this.$forceUpdate();
       const response = await this.$axios.post(
         this.$axios.defaults.baseURL + `/strava/activity/${activity.id}/import`,
         null,
@@ -90,11 +90,11 @@ export default {
           },
         }
       );
-      activity.importing = false
+      activity.importing = false;
       if (response && response.data) {
-        activity.isImported = true
+        activity.isImported = true;
       }
-      this.$forceUpdate()
+      this.$forceUpdate();
     },
     formatDate(date) {
       return moment(date).format("MMMM Do YYYY, h:mm:ss a");
@@ -112,22 +112,22 @@ export default {
           );
           this.activities = stravaActivities.data;
           for (let activity of this.activities) {
-            activity.importing = false
+            activity.importing = false;
           }
-          console.log(this.activities)
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
       }
     },
     async getAccessToken() {
       try {
-        let stravaAccessToken = "";
         const { data } = await this.$axios.post(
           `https://www.strava.com/oauth/token?client_id=${process.env.STRAVA_CLIENT_ID}&client_secret=${process.env.STRAVA_CLIENT_SECRET}&code=${this.code}&grant_type=authorization_code`
         );
         if (data && data.access_token) {
           const payload = { strava_token: data.access_token };
           await this.$store.dispatch("auth/updateUser", { payload });
-          this.getStravaActivities();
+          await this.getStravaActivities();
         }
       } catch (e) {}
     },

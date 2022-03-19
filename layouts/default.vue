@@ -4,7 +4,9 @@
     <v-navigation-drawer
       v-model="drawer"
       :clipped="true"
+      style="height: 1000px"
       fixed
+      bottom
       app
     >
       <v-list>
@@ -48,11 +50,11 @@
       <v-btn v-else text class="white--text" @click="logout"> Logout </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
+      <v-container class="mb-16">
         <Nuxt />
       </v-container>
     </v-main>
-    <v-footer :absolute="!fixed" app>
+    <v-footer absolute app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
     </v-footer>
   </v-app>
@@ -83,7 +85,6 @@ export default {
     return {
       clipped: false,
       drawer: false,
-      fixed: false,
       items: [],
       meItems: [
         {
@@ -95,6 +96,11 @@ export default {
           icon: "mdi-account",
           title: "Profile",
           to: "/profile",
+        },
+        {
+          icon: "mdi-cog",
+          title: "Edit Profile",
+          to: "/profile/edit",
         },
       ],
 

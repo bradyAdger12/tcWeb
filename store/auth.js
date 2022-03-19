@@ -23,7 +23,6 @@ export const mutations = {
 
 export const actions = {
   async updateUser({ commit, state }, { payload }) {
-    console.log(state.access_token)
     const response = await this.$axios.put('/users/update/me', payload, { headers: { 'Authorization': 'Bearer ' + state.access_token }})
     if (response.data) {
       commit('setUser', response.data)
