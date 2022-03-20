@@ -21,16 +21,31 @@
               {{ formatDate(track.started_at) }}
             </v-list-item-subtitle>
           </v-list-item-content>
-          <v-btn class="red rounded white--text" @click="deleteTrack(track)">
-            Delete
-            <v-progress-circular
-              v-if="track.deleting"
-              indeterminate
-              width="2"
-              size="15"
-              class="ml-2"
-            />
-          </v-btn>
+          <v-row justify="end">
+            <v-col cols="auto">
+              <NuxtLink
+                :to="`/track/${track.id}`"
+                style="text-decoration: none"
+              >
+                <v-btn class="blue rounded white--text"> View </v-btn>
+              </NuxtLink>
+            </v-col>
+            <v-col cols="auto">
+              <v-btn
+                class="red rounded white--text"
+                @click="deleteTrack(track)"
+              >
+                Delete
+                <v-progress-circular
+                  v-if="track.deleting"
+                  indeterminate
+                  width="2"
+                  size="15"
+                  class="ml-2"
+                />
+              </v-btn>
+            </v-col>
+          </v-row>
         </v-list-item>
       </v-list>
     </div>
@@ -38,7 +53,7 @@
 </template>
 
 <script>
-import moment from "moment";
+import { formatDate } from "~/tools/format_moment.js";
 export default {
   asyncData() {},
   computed: {
@@ -61,9 +76,8 @@ export default {
     },
   },
   methods: {
-    formatDate(date) {
-      return moment(date).format("MMMM Do YYYY, h:mm:ss a");
-    },
+    formatDate: formatDate,
+
     async deleteTrack(track) {
       track.deleting = true;
       this.$forceUpdate();

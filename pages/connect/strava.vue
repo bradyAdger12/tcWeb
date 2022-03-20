@@ -42,8 +42,7 @@
 
 <script>
 import moment from "moment";
-import Vue from "vue";
-import axios from "../../plugins/axios";
+import { formatDate } from '~/tools/format_moment.js'
 export default {
   name: "StravaConnect",
   head: {
@@ -96,9 +95,7 @@ export default {
       }
       this.$forceUpdate();
     },
-    formatDate(date) {
-      return moment(date).format("MMMM Do YYYY, h:mm:ss a");
-    },
+    formatDate: formatDate,
     async getStravaActivities() {
       if (this.me.strava_token) {
         try {
