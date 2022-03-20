@@ -18,12 +18,11 @@
             </v-list-item-content>
             <v-btn
               :class="
-                (activity.isImported ? 'green elevation-0' : '') + ' ml-5'
+                (activity.trackId? 'green elevation-0' : '') + ' ml-5'
               "
-              :style="activity.isImported ? 'cursor: auto' : ''"
-              @click="importActivity(activity)"
+              @click="activity.trackId ? $router.push('/track/' + activity.trackId) : importActivity(activity)"
             >
-              {{ activity.isImported ? "Imported" : "Import" }}
+              {{ activity.trackId ?  "View" : "Import" }}
 
               <v-progress-circular
                 v-if="activity.importing"
@@ -91,7 +90,7 @@ export default {
       );
       activity.importing = false;
       if (response && response.data) {
-        activity.isImported = true;
+        activity.trackId = response.data.id
       }
       this.$forceUpdate();
     },

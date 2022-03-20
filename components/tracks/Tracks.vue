@@ -20,32 +20,32 @@
             <v-list-item-subtitle>
               {{ formatDate(track.started_at) }}
             </v-list-item-subtitle>
+            <v-row justify="start" class="mt-2">
+              <v-col cols="auto">
+                <NuxtLink
+                  :to="`/track/${track.id}`"
+                  style="text-decoration: none"
+                >
+                  <v-btn class="blue rounded white--text"> View </v-btn>
+                </NuxtLink>
+              </v-col>
+              <v-col cols="auto">
+                <v-btn
+                  class="red rounded white--text"
+                  @click="deleteTrack(track)"
+                >
+                  Delete
+                  <v-progress-circular
+                    v-if="track.deleting"
+                    indeterminate
+                    width="2"
+                    size="15"
+                    class="ml-2"
+                  />
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-list-item-content>
-          <v-row justify="end">
-            <v-col cols="auto">
-              <NuxtLink
-                :to="`/track/${track.id}`"
-                style="text-decoration: none"
-              >
-                <v-btn class="blue rounded white--text"> View </v-btn>
-              </NuxtLink>
-            </v-col>
-            <v-col cols="auto">
-              <v-btn
-                class="red rounded white--text"
-                @click="deleteTrack(track)"
-              >
-                Delete
-                <v-progress-circular
-                  v-if="track.deleting"
-                  indeterminate
-                  width="2"
-                  size="15"
-                  class="ml-2"
-                />
-              </v-btn>
-            </v-col>
-          </v-row>
         </v-list-item>
       </v-list>
     </div>

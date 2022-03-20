@@ -11,7 +11,7 @@
             latest workouts
           </p>
           <div class="mt-10">
-            <v-row justify="space-around">
+            <v-row>
               <v-col cols="12" sm="5">
                 <div>
                   <p class="text-h4 mr-2">
@@ -28,7 +28,7 @@
                     :key="zone.title"
                     :class="
                       getZoneColor(zone.title) +
-                      ' rounded mt-3 pa-4 text-center'
+                      ' rounded mt-3 pa-2 text-center'
                     "
                   >
                     <div class="title">{{ zone.title }}</div>
@@ -52,7 +52,7 @@
                     :key="zone.title"
                     :class="
                       getZoneColor(zone.title) +
-                      ' rounded mt-3 pa-4 text-center'
+                      ' rounded mt-3 pa-2 text-center'
                     "
                   >
                     <div class="title">{{ zone.title }}</div>

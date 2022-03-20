@@ -28,7 +28,7 @@
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
               <div v-if="track.stats.bests.watts[time]">
-                {{ time }} : {{ track.stats.bests.watts[time] }} bpm
+                {{ time }} : {{ track.stats.bests.watts[time] }} watts
               </div>
             </div>
           </v-col>
@@ -36,83 +36,25 @@
 
         <div class="mt-5">
           <v-row>
-            <!-- Heart Rate Zone -->
+            <!-- Heart Rate Zones -->
             <v-col v-if="track.stats.zones.hasHeartRate" cols="12" sm="6">
               <p class="text-h4 font-weight-bold">HR Data</p>
-              <div
-                v-for="zone in zoneNames"
-                :key="zone"
-                style="position: relative"
-              >
-                <div
-                  v-if="track.stats.zones[zone]['hr-percentage'] >= 0"
-                  class="mt-2"
-                >
-                  {{ zone }}
-                  <div
-                    style="
-                      background-color: rgba(255, 255, 255, 0.05);
-                      width: 100%;
-                      height: 30px;
-                      position: relative;
-                    "
-                  >
-                    <div
-                      class="pr-2 text-right"
-                      style="padding-top: 3px; position: relative; z-index: 2"
-                    >
-                      {{ track.stats.zones[zone]["hr-percentage"] * 100 }}%
-                    </div>
-                    <div
-                      class="text-center"
-                      :style="`position: absolute; top: 0px; width: ${
-                        track.stats.zones[zone]['hr-percentage'] * 100
-                      }%; background-color: ${getColor(
-                        zone
-                      )}; height: 30px; z-index: 1`"
-                    ></div>
-                  </div>
-                </div>
-              </div>
+              <ZoneDistribution
+                :track_zones="track.stats.zones"
+                :me_zones="me.hr_zones"
+                 :zone_type="'hr'"
+              />
             </v-col>
 
             <!-- Power Zones -->
             <v-col v-if="track.stats.zones.hasWatts" cols="12" sm="6">
               <p class="text-h4 font-weight-bold">Power Data</p>
 
-              <div
-                v-for="zone in zoneNames"
-                :key="zone"
-                style="position: relative"
-              >
-                <div
-                  class="mt-2"
-                  v-if="track.stats.zones[zone]['watt-percentage'] >= 0"
-                >
-                  {{ zone }}
-                  <div
-                    style="
-                      background-color: rgba(255, 255, 255, 0.05);
-                      width: 100%;
-                      height: 30px;
-                      position: relative;
-                    "
-                  >
-                    <div
-                      class="pr-2 text-right"
-                      style="padding-top: 3px; position: relative; z-index: 2"
-                    >
-                      {{ track.stats.zones[zone]["watt-percentage"] * 100 }}%
-                    </div>
-                    <div
-                      class="text-center"
-                      :style="`position: absolute; top: 0px; width: ${
-                        track.stats.zones[zone]['watt-percentage'] * 100
-                      }%; background-color: ${getColor(zone)}; height: 30px;`"
-                    ></div>
-                  </div>
-                </div>
-              </div>
+              <ZoneDistribution
+                :track_zones="track.stats.zones"
+                :me_zones="me.power_zones"
+                :zone_type="'watt'"
+              />
             </v-col>
           </v-row>
         </div>
@@ -125,13 +67,14 @@
 import _ from "lodash";
 import { formatDate, formatDuration } from "../../../tools/format_moment";
 import { toMiles } from "~/tools/conversion.js";
-import { getColor } from "../../../tools/zone_color";
+import ZoneDistribution from "../../../components/tracks/ZoneDistribution.vue";
 export default {
   name: "Track",
   middleware: "auth",
   head: {
     title: "Track",
   },
+
   async asyncData({ route, $axios, store }) {
     let track = null;
     let loading = true;
@@ -150,17 +93,10 @@ export default {
     loading = false;
     return { track, loading };
   },
+  components: { ZoneDistribution },
   data() {
     return {
       stats: [],
-      zoneNames: [
-        "Recovery",
-        "Endurance",
-        "Tempo",
-        "Threshold",
-        "VO2 Max",
-        "Anaerobic",
-      ],
       timeRanges: [
         "1hr",
         "20min",
@@ -170,6 +106,7 @@ export default {
         "1min",
         "30sec",
         "5sec",
+        "max"
       ],
     };
   },
@@ -185,7 +122,7 @@ export default {
     },
   },
   methods: {
-    getColor: getColor,
+    formatDuration: formatDuration,
     buildStats() {
       if (this.track) {
         this.stats = [

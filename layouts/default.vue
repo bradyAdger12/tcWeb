@@ -4,9 +4,7 @@
     <v-navigation-drawer
       v-model="drawer"
       :clipped="true"
-      style="height: 1000px"
       fixed
-      bottom
       app
     >
       <v-list>
