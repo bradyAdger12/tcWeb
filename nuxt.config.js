@@ -4,8 +4,8 @@ require('dotenv').config()
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - Training Club',
-    title: 'Training Club',
+    titleTemplate: '%s - My Spin Cycle',
+    title: 'My Spin Cycle',
     htmlAttrs: {
       lang: 'en'
     },
@@ -31,7 +31,8 @@ export default {
   plugins: [
     '~/plugins/local-storage',
     '~/plugins/config',
-    '~/plugins/axios'
+    '~/plugins/axios',
+    { src: '~/plugins/custom-calendar.js', ssr: false }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -41,7 +42,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
-    '@nuxtjs/dotenv'
+    '@nuxtjs/dotenv',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules

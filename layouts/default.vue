@@ -1,50 +1,54 @@
 <template>
   <v-app dark>
     <Snackbar />
-    <v-navigation-drawer
-      v-model="drawer"
-      :clipped="true"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
     <v-app-bar :clipped-left="true" fixed app>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-
       <NuxtLink to="/" style="text-decoration: none" class="white--text ml-8">
         <v-toolbar-title v-text="title" />
       </NuxtLink>
       <v-spacer />
-      <v-btn v-if="authenticated" text>
-        <NuxtLink
-          to="/connect"
-          style="text-decoration: none"
-          class="white--text"
-        >
-          Connect Apps
-        </NuxtLink>
-      </v-btn>
-      <v-btn v-if="!authenticated" text>
-        <NuxtLink to="/login" style="text-decoration: none" class="white--text">
-          Login
-        </NuxtLink>
-      </v-btn>
+
+      <NuxtLink
+        v-if="authenticated"
+        to="/connect"
+        style="text-decoration: none"
+        class="white--text"
+      >
+        <v-btn text> Connect Apps </v-btn>
+      </NuxtLink>
+
+      <v-menu open-on-hover bottom offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <NuxtLink to="/profile" style="text-decoration: none">
+            <v-btn dark v-bind="attrs" v-on="on" text> Profile </v-btn>
+          </NuxtLink>
+        </template>
+
+        <v-list>
+          <NuxtLink to="/profile/edit" style="text-decoration: none">
+            <v-list-item>
+              <v-list-item-title>Edit Profile</v-list-item-title>
+            </v-list-item>
+          </NuxtLink>
+        </v-list>
+      </v-menu>
+
+      <!-- <NuxtLink
+        v-if="authenticated && me"
+        to="/profile"
+        style="text-decoration: none"
+        class="white--text"
+      >
+        <v-btn text> My Profile </v-btn>
+      </NuxtLink> -->
+
+      <NuxtLink
+        v-if="!authenticated"
+        to="/login"
+        style="text-decoration: none"
+        class="white--text"
+      >
+        <v-btn text> Login </v-btn>
+      </NuxtLink>
       <v-btn v-else text class="white--text" @click="logout"> Logout </v-btn>
     </v-app-bar>
     <v-main>
@@ -76,7 +80,7 @@ export default {
   },
   watch: {
     me() {
-      this.buildDrawer()
+      this.buildDrawer();
     },
   },
   data() {

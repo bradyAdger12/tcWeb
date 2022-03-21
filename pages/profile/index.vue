@@ -2,7 +2,7 @@
   <div>
     <div v-if="this.me">
       <v-row justify="center" align="center" class="mt-16">
-        <v-col cols="12" sm="10">
+        <v-col cols="11">
           <p class="text-h2 font-weight-bold">
             {{ me.display_name }}
           </p>
@@ -27,7 +27,7 @@
                     v-for="zone in hrZones"
                     :key="zone.title"
                     :class="
-                      getZoneColor(zone.title) +
+                      getColor(zone.title) +
                       ' rounded mt-3 pa-2 text-center'
                     "
                   >
@@ -51,7 +51,7 @@
                     v-for="zone in powerZones"
                     :key="zone.title"
                     :class="
-                      getZoneColor(zone.title) +
+                      getColor(zone.title) +
                       ' rounded mt-3 pa-2 text-center'
                     "
                   >
@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import { getColor } from '../../tools/zone_color';
 export default {
   name: "ProfilePage",
   head: {
@@ -104,22 +105,7 @@ export default {
     },
   },
   methods: {
-    getZoneColor(title) {
-      switch (title) {
-        case "Recovery":
-          return "grey";
-        case "Endurance":
-          return "blue";
-        case "Tempo":
-          return "green";
-        case "Threshold":
-          return "orange";
-        case "VO2 Max":
-          return "red";
-        default:
-          return "purple";
-      }
-    },
+    getColor: getColor
   },
 };
 </script>

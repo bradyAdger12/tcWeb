@@ -10,6 +10,8 @@ export function getColor(zone) {
       return "orange";
     case "VO2 Max":
       return "red";
+    case "Anaerobic":
+      return "purple";
     default:
       return "red";
   }

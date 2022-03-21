@@ -41,8 +41,8 @@ export default {
   },
   data() {
     return {
-      email: "brady.adger12@gmail.com",
-      password: "foobar",
+      email: "",
+      password: "",
       seePassword: false,
       rules: {
         min: (v) => v.length >= 4 || "Min 4 characters",
