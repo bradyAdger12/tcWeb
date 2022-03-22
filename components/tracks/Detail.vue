@@ -4,7 +4,7 @@
       <v-progress-circular indeterminate size="80" />
     </div>
     <div v-else-if="track">
-      <div class="text-h2 font-weight-bold">
+      <div class="text-h5 text-sm-h2 font-weight-bold">
         {{ track.name }}
       </div>
       <div class="subtitle-1">
@@ -17,7 +17,7 @@
         <v-row>
           <v-col cols="auto" v-for="stat in stats" :key="stat.name">
             <div v-if="stat.value">
-              <span class="text-h4 font-weight-bold">{{ stat.value }}</span>
+              <span class="text-h5 text-sm-h4 font-weight-bold">{{ stat.value }}</span>
               <div>{{ stat.name }}</div>
             </div>
           </v-col>
@@ -44,7 +44,7 @@
           <v-row>
             <!-- Heart Rate Zones -->
             <v-col v-if="track.stats.zones.hasHeartRate" cols="12"   :sm="track.stats.zones.hasWatts ? '6' : '12'">
-              <p class="text-h4 font-weight-bold">HR Data</p>
+              <p class="text-h5 text-sm-h4 font-weight-bold">HR Data</p>
               <ZoneDistribution
                 :track_zones="track.stats.zones"
                 :me_zones="me.hr_zones"
@@ -58,7 +58,7 @@
               cols="12"
               :sm="track.stats.zones.hasHeartRate ? '6' : '12'"
             >
-              <p class="text-h4 font-weight-bold">Power Data</p>
+              <p class="text-h5 text-sm-h4 font-weight-bold">Power Data</p>
 
               <ZoneDistribution
                 :track_zones="track.stats.zones"

@@ -20,6 +20,8 @@
     >
       <v-progress-circular indeterminate color="white" size="50" />
     </v-row>
+
+    <!-- Month Selection -->
     <v-row justify="center" class="my-7">
       <v-col cols="auto">
         <v-icon class="black--text mr-2" @click="backMonth()">
@@ -37,6 +39,7 @@
         </v-icon>
       </v-col>
     </v-row>
+
     <!-- Days of Week header -->
     <v-row no-gutters>
       <v-col cols="auto" :style="`width: ${100 - 100 / numColumns}%`">
@@ -56,7 +59,6 @@
         </v-row>
 
         <!-- Calendar Days -->
-
         <v-row no-gutters>
           <v-col
             cols="auto"
@@ -78,14 +80,14 @@
                   isToday(item.date)
                     ? 'background-color: rgba(200, 0, 0, .3);'
                     : 'background-color: rgba(0, 0, 0, 0.1)'
-                }`"
+                }; ${isAfterToday(item.date) ? 'color: grey' : ''}`"
                 class="pa-1 font-weight-black"
               >
                 {{ isToday(item.date) ? "Today, " : "" }}
                 {{ item.date.format("D") }}
                 {{
                   currentMoment.month() != item.date.month()
-                    ? item.date.format("MMMM")
+                    ? " - " + item.date.format("MMMM")
                     : ""
                 }}
               </div>
@@ -105,14 +107,24 @@
                     style="font-size: 13px"
                   >
                     <div>
-                      {{ formatDuration(track.duration) }}
+                      <v-icon size="15" color="grey" class="mr-1"
+                        >mdi-timer-outline</v-icon
+                      >{{ formatDuration(track.duration) }}
                     </div>
                     <div>
-                      {{ toMiles(track.length) }}
+                      <v-icon size="14" color="grey" class="mr-1"
+                        >mdi-ruler</v-icon
+                      >{{ toMiles(track.length) }}
                     </div>
-                    <div v-if="track.effort">Effort: {{ track.effort }}</div>
+                    <div v-if="track.effort">
+                      <v-icon size="15" color="grey" class="mr-1"
+                        >mdi-lightning-bolt</v-icon
+                      >Effort: {{ track.effort }}
+                    </div>
                     <div v-if="track.hr_effort">
-                      hrEffort: {{ track.hr_effort }}
+                      <v-icon size="14" color="grey" class="mr-1"
+                        >mdi-heart</v-icon
+                      >hrEffort: {{ track.hr_effort }}
                     </div>
                   </div>
                 </v-card>
@@ -127,6 +139,8 @@
           </v-col>
         </v-row>
       </v-col>
+
+      <!-- Summary -->
       <v-col
         v-if="refs"
         cols="auto"
@@ -149,13 +163,6 @@
           </div>
           <div class="pa-2">
             <div>
-              <span class="summary-title">Effort: </span>{{ summary.effort }}
-            </div>
-            <div>
-              <span class="summary-title">hrEffort: </span
-              >{{ summary.hrEffort }}
-            </div>
-            <div>
               <span class="summary-title">Duration: </span
               >{{ formatDuration(summary.duration) }}
             </div>
@@ -163,11 +170,18 @@
               <span class="summary-title">Distance: </span
               >{{ toMiles(summary.distance) }}
             </div>
+            <div>
+              <span class="summary-title">Effort: </span>{{ summary.effort }}
+            </div>
+            <div>
+              <span class="summary-title">hrEffort: </span
+              >{{ summary.hrEffort }}
+            </div>
           </div>
         </div>
       </v-col>
     </v-row>
-    <v-dialog v-model="showTrack" width="800" @click:outside="showTrack = null">
+    <v-dialog v-model="showTrack" width="900" @click:outside="showTrack = null">
       <v-card v-if="selectedTrack" :key="selectedTrack.id">
         <TracksDetail :trackId="selectedTrack.id" />
       </v-card>
@@ -232,10 +246,14 @@ export default {
     toMiles: toMiles,
     formatDuration: formatDuration,
     async changeMonth() {
+      this.today = moment();
       await this.buildCalendar();
     },
     isToday(current) {
       return current.format("D MMMM YYYY") == this.today.format("D MMMM YYYY");
+    },
+    isAfterToday(current) {
+      return current.isAfter(this.today);
     },
     isSameDate(trackDate, calendarDate) {
       return (

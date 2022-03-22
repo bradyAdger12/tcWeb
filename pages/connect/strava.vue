@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="padding-top: 30px; padding-bottom: 100px">
     <v-row justify="center">
       <v-col cols="10" sm="8">
         <v-list two-line subheader>
