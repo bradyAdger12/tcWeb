@@ -27,14 +27,14 @@
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
               <div v-if="track.stats.bests.heartrate[time]">
-                {{ time }} : {{ track.stats.bests.heartrate[time] }} bpm
+                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon>{{ time }} : {{ track.stats.bests.heartrate[time] }} bpm
               </div>
             </div>
           </v-col>
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
               <div v-if="track.stats.bests.watts[time]">
-                {{ time }} : {{ track.stats.bests.watts[time] }} watts
+                <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon>{{ time }} : {{ track.stats.bests.watts[time] }} watts
               </div>
             </div>
           </v-col>

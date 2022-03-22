@@ -83,6 +83,11 @@
               >
                 {{ isToday(item.date) ? "Today, " : "" }}
                 {{ item.date.format("D") }}
+                {{
+                  currentMoment.month() != item.date.month()
+                    ? item.date.format("MMMM")
+                    : ""
+                }}
               </div>
 
               <!-- Track View -->
@@ -162,7 +167,7 @@
         </div>
       </v-col>
     </v-row>
-    <v-dialog v-model="showTrack" width="800" @click:outside="showTrack= null">
+    <v-dialog v-model="showTrack" width="800" @click:outside="showTrack = null">
       <v-card v-if="selectedTrack" :key="selectedTrack.id">
         <TracksDetail :trackId="selectedTrack.id" />
       </v-card>
@@ -210,8 +215,8 @@ export default {
   },
   methods: {
     openTrack(track) {
-      this.selectedTrack = track
-      this.showTrack = true
+      this.selectedTrack = track;
+      this.showTrack = true;
     },
     hasRef(ref) {
       return ref && ref[0];
@@ -232,6 +237,12 @@ export default {
     isToday(current) {
       return current.format("D MMMM YYYY") == this.today.format("D MMMM YYYY");
     },
+    isSameDate(trackDate, calendarDate) {
+      return (
+        moment(trackDate).format("D MMMM YYYY") ==
+        calendarDate.format("D MMMM YYYY")
+      );
+    },
     async buildCalendar() {
       this.currentDates = [];
       this.summaries = [];
@@ -240,6 +251,24 @@ export default {
         month: this.currentMoment.month(),
         date: this.currentMoment.daysInMonth(),
       });
+
+      const lastDayOfMonth = moment().set({
+        year: this.currentMoment.year(),
+        month: this.currentMoment.month(),
+        date: this.currentMoment.daysInMonth(),
+      });
+
+      //End on sunday
+      while (lastDayOfMonth.day() != 0) {
+        lastDayOfMonth.add(1, "day");
+        this.currentDates.push({
+          date: moment(lastDayOfMonth.toString()),
+          tracks: [],
+        });
+      }
+      this.currentDates.reverse();
+
+      //Get all days for current month
       while (currentDay.month() == this.currentMoment.month()) {
         this.currentDates.push({
           date: moment(currentDay.toString()),
@@ -247,6 +276,8 @@ export default {
         });
         currentDay.subtract(1, "day");
       }
+
+      //Backtrack to the previous monday to start the week
       while (currentDay.day() != 0) {
         this.currentDates.push({
           date: moment(currentDay.toString()),
@@ -254,7 +285,9 @@ export default {
         });
         currentDay.subtract(1, "day");
       }
+
       this.currentDates.reverse();
+      console.log(this.currentDates);
       await this.getTracks();
       this.loading = false;
     },
@@ -297,7 +330,7 @@ export default {
             };
           }
           const tracks = _.filter(response.data, (track) => {
-            return moment(track.started_at).date() == item.date.date();
+            return this.isSameDate(track.started_at, item.date);
           });
           for (let track of tracks) {
             item.tracks.push(track);

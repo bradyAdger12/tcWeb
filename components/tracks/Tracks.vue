@@ -12,7 +12,13 @@
         <div v-if="loading" class="text-center pa-10">
           <v-progress-circular indeterminate />
         </div>
-        <v-list-item v-else v-for="track in tracks" :key="track.id">
+        <v-list-item
+          v-else
+          v-for="track in tracks"
+          :key="track.id"
+          @click="viewTrack(track)"
+          style="cursor: pointer"
+        >
           <v-list-item-content>
             <v-list-item-title style="word-break: break-word">{{
               track.name
@@ -20,35 +26,15 @@
             <v-list-item-subtitle>
               {{ formatDate(track.started_at) }}
             </v-list-item-subtitle>
-            <v-row justify="start" class="mt-2">
-              <v-col cols="auto">
-                <NuxtLink
-                  :to="`/track/${track.id}`"
-                  style="text-decoration: none"
-                >
-                  <v-btn class="blue rounded white--text"> View </v-btn>
-                </NuxtLink>
-              </v-col>
-              <v-col cols="auto">
-                <v-btn
-                  class="red rounded white--text"
-                  @click="deleteTrack(track)"
-                >
-                  Delete
-                  <v-progress-circular
-                    v-if="track.deleting"
-                    indeterminate
-                    width="2"
-                    size="15"
-                    class="ml-2"
-                  />
-                </v-btn>
-              </v-col>
-            </v-row>
           </v-list-item-content>
         </v-list-item>
       </v-list>
     </div>
+    <v-dialog v-model="showTrack" width="800">
+      <v-card v-if="selectedTrack">
+        <TracksDetail :track-id="selectedTrack.id" :key="selectedTrack.id" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -65,6 +51,8 @@ export default {
     return {
       loading: true,
       tracks: [],
+      selectedTrack: null,
+      showTrack: false,
     };
   },
   mounted() {
@@ -77,18 +65,21 @@ export default {
   },
   methods: {
     formatDate: formatDate,
-
-    async deleteTrack(track) {
-      track.deleting = true;
-      this.$forceUpdate();
-      const token = this.$store.state.auth.access_token;
-      const id = track.id;
-      try {
-        await this.$store.dispatch("tracks/deleteTrack", { id, token });
-      } catch (e) {}
-      track.deleting = false;
-      this.$forceUpdate();
+    viewTrack(track) {
+      this.selectedTrack = track;
+      this.showTrack = true;
     },
+    // async deleteTrack(track) {
+    //   track.deleting = true;
+    //   this.$forceUpdate();
+    //   const token = this.$store.state.auth.access_token;
+    //   const id = track.id;
+    //   try {
+    //     await this.$store.dispatch("tracks/deleteTrack", { id, token });
+    //   } catch (e) {}
+    //   track.deleting = false;
+    //   this.$forceUpdate();
+    // },
     async getTracks() {
       const token = this.$store.state.auth.access_token;
       const me = this.me;

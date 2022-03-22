@@ -19,16 +19,15 @@
                   </p>
                 </div>
                 <div v-if="!me.threshold_hr" class="subtitle-2">
-                  You must enter your Threshold Heart Rate in order to see
-                  your HR zones
+                  You must enter your Threshold Heart Rate in order to see your
+                  HR zones
                 </div>
                 <div v-else>
                   <div
                     v-for="zone in hrZones"
                     :key="zone.title"
                     :class="
-                      getColor(zone.title) +
-                      ' rounded mt-3 pa-2 text-center'
+                      getColor(zone.title) + ' rounded mt-3 pa-2 text-center'
                     "
                   >
                     <div class="title">{{ zone.title }}</div>
@@ -51,8 +50,7 @@
                     v-for="zone in powerZones"
                     :key="zone.title"
                     :class="
-                      getColor(zone.title) +
-                      ' rounded mt-3 pa-2 text-center'
+                      getColor(zone.title) + ' rounded mt-3 pa-2 text-center'
                     "
                   >
                     <div class="title">{{ zone.title }}</div>
@@ -64,9 +62,11 @@
           </div>
           <div class="mt-16">
             <p class="text-h4">My Tracks</p>
-            <div class="text-left">
-              <Tracks />
-            </div>
+            <v-row>
+              <v-col cols="12" sm="7">
+                <Tracks />
+              </v-col>
+            </v-row>
           </div>
         </v-col>
       </v-row>
@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { getColor } from '../../tools/zone_color';
+import { getColor } from "../../tools/zone_color";
 export default {
   name: "ProfilePage",
   head: {
@@ -105,7 +105,7 @@ export default {
     },
   },
   methods: {
-    getColor: getColor
+    getColor: getColor,
   },
 };
 </script>

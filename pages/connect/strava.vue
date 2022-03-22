@@ -17,12 +17,14 @@
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-btn
-              :class="
-                (activity.trackId? 'green elevation-0' : '') + ' ml-5'
+              :class="(activity.trackId ? 'green elevation-0' : '') + ' ml-5'"
+              @click="
+                activity.trackId
+                  ? viewTrack(activity.trackId)
+                  : importActivity(activity)
               "
-              @click="activity.trackId ? $router.push('/track/' + activity.trackId) : importActivity(activity)"
             >
-              {{ activity.trackId ?  "View" : "Import" }}
+              {{ activity.trackId ? "View" : "Import" }}
 
               <v-progress-circular
                 v-if="activity.importing"
@@ -36,6 +38,11 @@
         </v-list>
       </v-col>
     </v-row>
+    <v-dialog v-model="showTrack" width="800">
+      <v-card v-if="trackId">
+        <TracksDetail :track-id="trackId" :key="trackId" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -51,6 +58,8 @@ export default {
     return {
       code: "",
       loading: true,
+      showTrack: false,
+      trackId: null,
       activities: [],
     };
   },
@@ -76,6 +85,10 @@ export default {
     this.loading = false;
   },
   methods: {
+    viewTrack(id) {
+      this.showTrack = true
+      this.trackId = id
+    },
     async importActivity(activity) {
       activity.importing = true;
       this.$forceUpdate();
