@@ -65,6 +65,7 @@ export const actions = {
   // logout the user
   logout ({ commit, state }) {
     commit('logout')
+    this.$router.push('/')
   },
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <div v-if="this.me">
       <v-row justify="center" align="center" class="mt-16">
         <v-col cols="11">
@@ -71,7 +71,7 @@
         </v-col>
       </v-row>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>

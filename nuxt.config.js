@@ -31,8 +31,7 @@ export default {
   plugins: [
     '~/plugins/local-storage',
     '~/plugins/config',
-    '~/plugins/axios',
-    { src: '~/plugins/custom-calendar.js', ssr: false }
+    '~/plugins/axios'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

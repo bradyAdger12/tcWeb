@@ -16,7 +16,16 @@
         <v-btn text> Connect Apps </v-btn>
       </NuxtLink>
 
-      <v-menu open-on-hover bottom offset-y>
+      <NuxtLink
+        v-if="authenticated"
+        to="/calendar"
+        style="text-decoration: none"
+        class="white--text"
+      >
+        <v-btn text> Calendar </v-btn>
+      </NuxtLink>
+
+      <v-menu open-on-hover bottom offset-y v-if="authenticated">
         <template v-slot:activator="{ on, attrs }">
           <NuxtLink to="/profile" style="text-decoration: none">
             <v-btn dark v-bind="attrs" v-on="on" text> Profile </v-btn>
@@ -31,16 +40,6 @@
           </NuxtLink>
         </v-list>
       </v-menu>
-
-      <!-- <NuxtLink
-        v-if="authenticated && me"
-        to="/profile"
-        style="text-decoration: none"
-        class="white--text"
-      >
-        <v-btn text> My Profile </v-btn>
-      </NuxtLink> -->
-
       <NuxtLink
         v-if="!authenticated"
         to="/login"
@@ -52,9 +51,7 @@
       <v-btn v-else text class="white--text" @click="logout"> Logout </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container class="mb-16">
-        <Nuxt />
-      </v-container>
+      <Nuxt />
     </v-main>
     <v-footer absolute app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
