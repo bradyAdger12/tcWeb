@@ -37,8 +37,8 @@
         </v-icon>
       </v-col>
     </v-row>
+    <!-- Days of Week header -->
     <v-row no-gutters>
-      <!-- Days of Week header -->
       <v-col cols="auto" :style="`width: ${100 - 100 / numColumns}%`">
         <v-row no-gutters>
           <v-col
@@ -56,82 +56,93 @@
         </v-row>
 
         <!-- Calendar Days -->
+
         <v-row no-gutters>
           <v-col
             cols="auto"
             class="date-item"
-            v-for="item of currentDates"
-            :key="item.date.toString()"
+            :ref="'week-' + item.week"
+            v-for="(item, i) of currentDates"
+            :key="i"
             :style="`
           width: ${100 / (numColumns - 1)}%;
-          height: 300px;
+          padding-bottom: 80px;
+          min-height: 220px;
           overflow-y: hidden;
           border: 1px solid rgba(100, 100, 100, .2);
        `"
           >
-            <div
-              :style="`${
-                isToday(item.date)
-                  ? 'background-color: rgba(200, 0, 0, .3);'
-                  : 'background-color: rgba(0, 0, 0, 0.1)'
-              }`"
-              class="pa-1 font-weight-black"
-            >
-              {{ isToday(item.date) ? "Today, " : "" }}
-              {{ item.date.format("D") }}
-            </div>
-            <div v-if="item.track">
-              <v-card
-                class="pa-1 black--text mx-1 mt-1"
-                style="background-color: rgba(0, 0, 0, 0.01)"
+            <div>
+              <div
+                :style="`${
+                  isToday(item.date)
+                    ? 'background-color: rgba(200, 0, 0, .3);'
+                    : 'background-color: rgba(0, 0, 0, 0.1)'
+                }`"
+                class="pa-1 font-weight-black"
               >
-                <div class="font-weight-black" style="font-size: 13px">
-                  {{ item.track.name }}
-                </div>
-                <div
-                  class="font-weight-medium black--text"
-                  style="font-size: 13px"
+                {{ isToday(item.date) ? "Today, " : "" }}
+                {{ item.date.format("D") }}
+              </div>
+
+              <!-- Track View -->
+              <div v-for="track of item.tracks" :key="track.id">
+                <v-card
+                  class="pa-1 black--text mx-1 mt-1"
+                  style="background-color: rgba(0, 0, 0, 0.01)"
+                  @click="openTrack(track)"
                 >
-                  <div>
-                    {{ formatDuration(item.track.duration) }}
+                  <div class="font-weight-black" style="font-size: 13px">
+                    {{ track.name }}
                   </div>
-                  <div>
-                    {{ toMiles(item.track.length) }}
+                  <div
+                    class="font-weight-medium black--text"
+                    style="font-size: 13px"
+                  >
+                    <div>
+                      {{ formatDuration(track.duration) }}
+                    </div>
+                    <div>
+                      {{ toMiles(track.length) }}
+                    </div>
+                    <div v-if="track.effort">Effort: {{ track.effort }}</div>
+                    <div v-if="track.hr_effort">
+                      hrEffort: {{ track.hr_effort }}
+                    </div>
                   </div>
-                  <div v-if="item.track.effort">
-                    Effort: {{ item.track.effort }}
-                  </div>
-                  <div v-if="item.track.hr_effort">
-                    hrEffort: {{ item.track.hr_effort }}
-                  </div>
-                </div>
-              </v-card>
-            </div>
-            <div
-              class="add-event pa-2 ma-1 text-center"
-              style="border-radius: 5px; background-color: rgba(0, 0, 0, 0.3)"
-            >
-              <v-icon> mdi-plus </v-icon>
+                </v-card>
+              </div>
+              <div
+                class="add-event pa-2 ma-1 text-center"
+                style="border-radius: 5px; background-color: rgba(0, 0, 0, 0.3)"
+              >
+                <v-icon> mdi-plus </v-icon>
+              </div>
             </div>
           </v-col>
         </v-row>
       </v-col>
       <v-col
+        v-if="refs"
         cols="auto"
-        :style="`margin-top: 24px; width: ${100 / numColumns}%`"
+        :style="`width: ${100 / numColumns}%; padding-top: 24px;`"
       >
         <div
           v-for="(summary, i) of summaries"
           :key="i"
-          style="height: 300px; border: 1px solid rgba(100, 100, 100, 0.2)"
+          :style="` height: ${
+            hasRef(refs['week-' + (i + 1)])
+              ? refs['week-' + (i + 1)][0].clientHeight + 2
+              : 0
+          }px;   border-top: 1px solid rgba(100, 100, 100, 0.2);  border-bottom: 1px solid rgba(100, 100, 100, 0.2);`"
         >
           <div
-            class="text-center font-weight-bold pa-1"
             style="background-color: rgba(0, 0, 0, 0.1)"
+            class="pa-1 font-weight-black text-center"
           >
             Summary
           </div>
-          <div class="pa-4 black--text" style="font-size: 13px">
+          <div class="pa-2">
             <div>
               <span class="summary-title">Effort: </span>{{ summary.effort }}
             </div>
@@ -151,6 +162,11 @@
         </div>
       </v-col>
     </v-row>
+    <v-dialog v-model="showTrack" width="800" @click:outside="showTrack= null">
+      <v-card v-if="selectedTrack" :key="selectedTrack.id">
+        <TracksDetail :trackId="selectedTrack.id" />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -167,7 +183,10 @@ export default {
       currentDates: [],
       today: moment(),
       changingMonth: false,
+      refs: null,
       numColumns: 8,
+      selectedTrack: null,
+      showTrack: false,
       summaries: [],
       displayDates: [
         "Monday",
@@ -182,10 +201,21 @@ export default {
       loading: true,
     };
   },
+  updated() {
+    this.refs = this.$refs;
+    delete this.refs["week-undefined"];
+  },
   mounted() {
     this.buildCalendar();
   },
   methods: {
+    openTrack(track) {
+      this.selectedTrack = track
+      this.showTrack = true
+    },
+    hasRef(ref) {
+      return ref && ref[0];
+    },
     async backMonth() {
       this.currentMoment = this.currentMoment.subtract(1, "month");
       this.changeMonth();
@@ -211,18 +241,22 @@ export default {
         date: this.currentMoment.daysInMonth(),
       });
       while (currentDay.month() == this.currentMoment.month()) {
-        this.currentDates.push({ date: moment(currentDay.toString()) });
+        this.currentDates.push({
+          date: moment(currentDay.toString()),
+          tracks: [],
+        });
         currentDay.subtract(1, "day");
       }
       while (currentDay.day() != 0) {
-        this.currentDates.push({ date: moment(currentDay.toString()) });
+        this.currentDates.push({
+          date: moment(currentDay.toString()),
+          tracks: [],
+        });
         currentDay.subtract(1, "day");
       }
       this.currentDates.reverse();
       await this.getTracks();
       this.loading = false;
-      const dateItem = $(".date-item");
-      console.log(dateItem);
     },
     async getTracks() {
       const startsAt = this.currentDates[0];
@@ -244,11 +278,15 @@ export default {
           distance: 0,
           tracks: 0,
         };
+        let week = 1;
         for (let item of this.currentDates) {
           const index = this.currentDates.indexOf(item);
-          if (index == this.currentDates.length - 1) {
-            this.summaries.push(summary);
-          } else if (index % 7 == 0 && index != 0) {
+          if (index % 7 == 0 && index != 0) {
+            week += 1;
+          }
+          item.week = week;
+          if (index % 7 == 0 && index != 0) {
+            summary["summary"] = true;
             this.summaries.push(summary);
             summary = {
               hrEffort: 0,
@@ -258,22 +296,26 @@ export default {
               tracks: 0,
             };
           }
-          const track = _.find(response.data, (track) => {
+          const tracks = _.filter(response.data, (track) => {
             return moment(track.started_at).date() == item.date.date();
           });
-          if (track) {
-            item.track = track;
+          for (let track of tracks) {
+            item.tracks.push(track);
             if (track.effort) {
               summary["effort"] += track.effort;
-            } else if (track.hr_effort) {
+            }
+            if (track.hr_effort) {
               summary["hrEffort"] += track.hr_effort;
             }
             summary["distance"] += track.length;
             summary["duration"] += track.duration;
             summary["tracks"] += 1;
           }
+          if (index == this.currentDates.length - 1) {
+            summary["summary"] = true;
+            this.summaries.push(summary);
+          }
         }
-        this.$forceUpdate();
       } catch (e) {}
     },
   },

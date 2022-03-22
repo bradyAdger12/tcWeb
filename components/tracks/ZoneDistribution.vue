@@ -9,8 +9,9 @@
           })`
         }}
         <div
+          class="white--text"
           style="
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: rgba(0, 0, 0, 0.3);
             width: 100%;
             height: 30px;
             position: relative;
