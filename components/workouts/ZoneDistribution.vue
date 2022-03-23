@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-for="zone in zoneNames" :key="zone" style="position: relative">
-      <div v-if="track_zones[zone][`${zone_type}-percentage`] >= 0" class="mt-2">
+      <div v-if="workout_zones[zone][`${zone_type}-percentage`] >= 0" class="mt-2">
         {{ zone }}
         {{
           `(${me_zones.find((item) => item.title == zone).low} - ${
@@ -21,13 +21,13 @@
             class="pr-2 text-right"
             style="padding-top: 3px; position: relative; z-index: 2"
           >
-            {{ (track_zones[zone][`${zone_type}-percentage`] * 100).toFixed() }}% /
-            {{ formatDuration(track_zones[zone][`${zone_type}-seconds`]) }}
+            {{ (workout_zones[zone][`${zone_type}-percentage`] * 100).toFixed() }}% /
+            {{ formatDuration(workout_zones[zone][`${zone_type}-seconds`]) }}
           </div>
           <div
             class="text-center"
             :style="`position: absolute; top: 0px; width: ${
-              track_zones[zone][`${zone_type}-percentage`] * 100
+              workout_zones[zone][`${zone_type}-percentage`] * 100
             }%; background-color: ${getColor(zone)}; height: 30px; z-index: 1`"
           ></div>
         </div>
@@ -46,7 +46,7 @@ export default {
       type: String,
       required: true
     },
-    track_zones: {
+    workout_zones: {
       type: Object,
       required: true,
     },

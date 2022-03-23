@@ -61,10 +61,10 @@
             </v-row>
           </div>
           <div class="mt-16">
-            <p class="text-h4">My Tracks</p>
+            <p class="text-h4">My Workouts</p>
             <v-row>
               <v-col cols="12" sm="7">
-                <Tracks />
+                <Workouts />
               </v-col>
             </v-row>
           </div>

@@ -109,15 +109,18 @@
             <div class="text-center mt-5">
               <div>
                 <span class="summary-title">Fitness </span
-                ><span class="blue--text">{{ item.summary.fitness}}</span>
+                ><span class="blue--text">{{ item.summary.fitness }}</span>
               </div>
               <div>
                 <span class="summary-title">Fatigue </span
-                ><span class="orange--text">{{ item.summary.fatigue}}</span>
+                ><span class="orange--text">{{ item.summary.fatigue }}</span>
               </div>
               <div>
                 <span class="summary-title">Form </span
-                ><span :class="`${item.summary.form < 0 ? 'red' : 'green'}--text`">{{ item.summary.form}}</span>
+                ><span
+                  :class="`${item.summary.form < 0 ? 'red' : 'green'}--text`"
+                  >{{ item.summary.form }}</span
+                >
               </div>
             </div>
           </div>
@@ -140,15 +143,15 @@
             }}
           </div>
 
-          <!-- Track View -->
-          <div v-for="track of item.tracks" :key="track.id">
+          <!-- Workout View -->
+          <div v-for="workout of item.workouts" :key="workout.id">
             <v-card
               class="pa-1 black--text mx-1 mt-1"
               style="background-color: rgba(0, 0, 0, 0.01)"
-              @click="openTrack(track)"
+              @click="openWorkout(workout)"
             >
               <div class="font-weight-black" style="font-size: 13px">
-                {{ track.name }}
+                {{ workout.name }}
               </div>
               <div
                 class="font-weight-medium black--text"
@@ -157,36 +160,50 @@
                 <div>
                   <v-icon size="15" color="grey" class="mr-1"
                     >mdi-timer-outline</v-icon
-                  >{{ formatDuration(track.duration) }}
+                  >{{ formatDuration(workout.duration) }}
                 </div>
                 <div>
                   <v-icon size="14" color="grey" class="mr-1">mdi-ruler</v-icon
-                  >{{ toMiles(track.length) }}
+                  >{{ toMiles(workout.length) }}
                 </div>
-                <div v-if="track.effort">
+                <div v-if="workout.effort">
                   <v-icon size="15" color="grey" class="mr-1"
                     >mdi-lightning-bolt</v-icon
-                  >Effort: {{ track.effort }}
+                  >Effort: {{ workout.effort }}
                 </div>
-                <div v-if="track.hr_effort">
+                <div v-if="workout.hr_effort">
                   <v-icon size="14" color="grey" class="mr-1">mdi-heart</v-icon
-                  >hrEffort: {{ track.hr_effort }}
+                  >hrEffort: {{ workout.hr_effort }}
                 </div>
               </div>
             </v-card>
           </div>
-          <div
-            class="add-event pa-2 ma-1 text-center"
-            style="border-radius: 5px; background-color: rgba(0, 0, 0, 0.3)"
-          >
-            <v-icon> mdi-plus </v-icon>
+          <div class="add-event ma-2">
+            <v-btn
+              block
+              class="pa-2 text-center"
+              style="border-radius: 5px; background-color: rgba(0, 0, 0, 0.3)"
+              @click="add(item.date)"
+            >
+              <v-icon> mdi-plus </v-icon>
+            </v-btn>
           </div>
         </div>
       </v-col>
     </v-row>
-    <v-dialog v-model="showTrack" width="900" @click:outside="showTrack = null">
-      <v-card v-if="selectedTrack" :key="selectedTrack.id">
-        <TracksDetail :trackId="selectedTrack.id" />
+    <v-dialog v-model="addDialog" width="900" @click:outside="addDialog = false">
+      <v-card class="white black--text">
+        <v-card-title>
+          Add Workout
+        </v-card-title>
+        <v-card-text class="black--text">
+          Ability to add a workout coming soon...
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="showWorkout" width="900" @click:outside="showWorkout = false">
+      <v-card v-if="selectedWorkout" :key="selectedWorkout.id">
+        <WorkoutDetail :workoutId="selectedWorkout.id" />
       </v-card>
     </v-dialog>
   </div>
@@ -206,10 +223,11 @@ export default {
       items: [],
       today: moment(),
       changingMonth: false,
+      addDialog: false,
       refs: null,
       numColumns: 8,
-      selectedTrack: null,
-      showTrack: false,
+      selectedWorkout: null,
+      showWorkout: false,
       summaries: [],
       displayDates: [
         "Monday",
@@ -228,9 +246,12 @@ export default {
     this.buildCalendar();
   },
   methods: {
-    openTrack(track) {
-      this.selectedTrack = track;
-      this.showTrack = true;
+    add(date) {
+      this.addDialog = true
+    },
+    openWorkout(workout) {
+      this.selectedWorkout = workout;
+      this.showWorkout = true;
     },
     hasRef(ref) {
       return ref && ref[0];
@@ -247,9 +268,9 @@ export default {
     formatDuration: formatDuration,
     async changeMonth() {
       this.today = moment();
-      this.changingMonth = true
+      this.changingMonth = true;
       await this.buildCalendar();
-      this.changingMonth = false
+      this.changingMonth = false;
     },
     isToday(current) {
       return current.format("D MMMM YYYY") == this.today.format("D MMMM YYYY");
@@ -257,9 +278,9 @@ export default {
     isAfterToday(current) {
       return current.isAfter(this.today);
     },
-    isSameDate(trackDate, calendarDate) {
+    isSameDate(workoutDate, calendarDate) {
       return (
-        moment(trackDate).format("D MMMM YYYY") ==
+        moment(workoutDate).format("D MMMM YYYY") ==
         calendarDate.format("D MMMM YYYY")
       );
     },
@@ -283,7 +304,7 @@ export default {
         lastDayOfMonth.add(1, "day");
         this.currentDates.push({
           date: moment(lastDayOfMonth.toString()),
-          tracks: [],
+          workouts: [],
         });
       }
       this.currentDates.reverse();
@@ -292,31 +313,31 @@ export default {
       while (currentDay.month() == this.currentMoment.month()) {
         this.currentDates.push({
           date: moment(currentDay.toString()),
-          tracks: [],
+          workouts: [],
         });
         currentDay.subtract(1, "day");
       }
 
-      //Backtrack to the previous monday to start the week
+      //Backworkout to the previous monday to start the week
       while (currentDay.day() != 0) {
         this.currentDates.push({
           date: moment(currentDay.toString()),
-          tracks: [],
+          workouts: [],
         });
         currentDay.subtract(1, "day");
       }
 
       this.currentDates.reverse();
-      await this.getTracks();
+      await this.getWorkouts();
       this.loading = false;
     },
-    async getTracks() {
+    async getWorkouts() {
       const startsAt = this.currentDates[0];
       const endsAt = this.currentDates[this.currentDates.length - 1];
       try {
         const response = await this.$axios.get(
           this.$axios.defaults.baseURL +
-            `/recordings/me/calendar?startsAt=${startsAt.date.set({
+            `/workouts/me/calendar?startsAt=${startsAt.date.set({
               hour: 0,
               minute: 0,
               seconds: 0,
@@ -331,6 +352,7 @@ export default {
             },
           }
         );
+        console.log(response)
         for (let item of response.data.dates) {
           if (item.date) {
             item.date = moment(item.date.toString());

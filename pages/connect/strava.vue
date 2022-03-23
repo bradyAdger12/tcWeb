@@ -17,14 +17,14 @@
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-btn
-              :class="(activity.trackId ? 'green elevation-0' : '') + ' ml-5'"
+              :class="(activity.workoutId ? 'green elevation-0' : '') + ' ml-5'"
               @click="
-                activity.trackId
-                  ? viewTrack(activity.trackId)
+                activity.workoutId
+                  ? viewTrack(activity.workoutId)
                   : importActivity(activity)
               "
             >
-              {{ activity.trackId ? "View" : "Import" }}
+              {{ activity.workoutId ? "View" : "Import" }}
 
               <v-progress-circular
                 v-if="activity.importing"
@@ -54,8 +54,8 @@
       </v-col>
     </v-row>
     <v-dialog v-model="showTrack" width="800">
-      <v-card v-if="trackId">
-        <TracksDetail :track-id="trackId" :key="trackId" />
+      <v-card v-if="workoutId">
+        <TracksDetail :workout-id="workoutId" :key="workoutId" />
       </v-card>
     </v-dialog>
   </div>
@@ -76,7 +76,7 @@ export default {
       showTrack: false,
       page: 1,
       per_page: 30,
-      trackId: null,
+      workoutId: null,
       activities: [],
     };
   },
@@ -109,7 +109,7 @@ export default {
   methods: {
     viewTrack(id) {
       this.showTrack = true;
-      this.trackId = id;
+      this.workoutId = id;
     },
     async importActivity(activity) {
       activity.importing = true;
@@ -127,7 +127,7 @@ export default {
         );
 
         if (response && response.data) {
-          activity.trackId = response.data.id;
+          activity.workoutId = response.data.id;
         }
       } catch (e) {}
       activity.importing = false;

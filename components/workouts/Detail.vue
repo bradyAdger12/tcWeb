@@ -3,12 +3,12 @@
     <div v-if="loading" class="ma-16 text-center">
       <v-progress-circular indeterminate size="80" />
     </div>
-    <div v-else-if="track">
+    <div v-else-if="workout">
       <div class="text-h5 text-sm-h2 font-weight-bold">
-        {{ track.name }}
+        {{ workout.name }}
       </div>
       <div class="subtitle-1">
-        {{ formatDate(track.started_at) }}
+        {{ formatDate(workout.started_at) }}
       </div>
       <div
         style="background-color: rgba(0, 0, 0, 0.1)"
@@ -26,15 +26,15 @@
         <v-row>
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
-              <div v-if="track.stats.bests.heartrate[time]">
-                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon>{{ time }} : {{ track.stats.bests.heartrate[time] }} bpm
+              <div v-if="workout.stats.bests.heartrate[time]">
+                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon>{{ time }} : {{ workout.stats.bests.heartrate[time] }} bpm
               </div>
             </div>
           </v-col>
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
-              <div v-if="track.stats.bests.watts[time]">
-                <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon>{{ time }} : {{ track.stats.bests.watts[time] }} watts
+              <div v-if="workout.stats.bests.watts[time]">
+                <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon>{{ time }} : {{ workout.stats.bests.watts[time] }} watts
               </div>
             </div>
           </v-col>
@@ -43,10 +43,10 @@
         <div class="mt-5">
           <v-row>
             <!-- Heart Rate Zones -->
-            <v-col v-if="track.stats.zones.hasHeartRate" cols="12"   :sm="track.stats.zones.hasWatts ? '6' : '12'">
+            <v-col v-if="workout.stats.zones.hasHeartRate" cols="12"   :sm="workout.stats.zones.hasWatts ? '6' : '12'">
               <p class="text-h5 text-sm-h4 font-weight-bold">HR Data</p>
               <ZoneDistribution
-                :track_zones="track.stats.zones"
+                :workout_zones="workout.stats.zones"
                 :me_zones="me.hr_zones"
                 :zone_type="'hr'"
               />
@@ -54,14 +54,14 @@
 
             <!-- Power Zones -->
             <v-col
-              v-if="track.stats.zones.hasWatts"
+              v-if="workout.stats.zones.hasWatts"
               cols="12"
-              :sm="track.stats.zones.hasHeartRate ? '6' : '12'"
+              :sm="workout.stats.zones.hasHeartRate ? '6' : '12'"
             >
               <p class="text-h5 text-sm-h4 font-weight-bold">Power Data</p>
 
               <ZoneDistribution
-                :track_zones="track.stats.zones"
+                :workout_zones="workout.stats.zones"
                 :me_zones="me.power_zones"
                 :zone_type="'watt'"
               />
@@ -77,12 +77,12 @@
 import _ from "lodash";
 import { formatDate, formatDuration } from "~/tools/format_moment";
 import { toMiles } from "~/tools/conversion.js";
-import ZoneDistribution from "~/components/tracks/ZoneDistribution.vue";
+import ZoneDistribution from "~/components/workouts/ZoneDistribution.vue";
 export default {
-  name: "Track",
+  name: "Workout",
   middleware: "auth",
   props: {
-    trackId: {
+    workoutId: {
       type: Number,
       required: true,
     },
@@ -92,7 +92,7 @@ export default {
     return {
       stats: [],
       loading: true,
-      track: null,
+      workout: null,
       timeRanges: [
         "1hr",
         "20min",
@@ -124,30 +124,30 @@ export default {
     async getTrack() {
       try {
         const response = await this.$axios.get(
-          this.$axios.defaults.baseURL + `/recordings/${this.trackId}`,
+          this.$axios.defaults.baseURL + `/workouts/${this.workoutId}`,
           {
             headers: {
               Authorization: "Bearer " + this.$store.state.auth.access_token,
             },
           }
         );
-        this.track = response.data;
+        this.workout = response.data;
         this.buildStats();
       } catch (e) {
         console.log(e);
       }
     },
     buildStats() {
-      if (this.track) {
+      if (this.workout) {
         this.stats = [
-          { name: "Duration", value: formatDuration(this.track.duration) },
-          { name: "Distance", value: toMiles(this.track.length) },
+          { name: "Duration", value: formatDuration(this.workout.duration) },
+          { name: "Distance", value: toMiles(this.workout.length) },
         ];
-        if (this.track.hr_effort) {
-          this.stats.push({ name: "HR Effort", value: this.track.hr_effort });
+        if (this.workout.hr_effort) {
+          this.stats.push({ name: "HR Effort", value: this.workout.hr_effort });
         }
-        if (this.track.effort) {
-          this.stats.push({ name: "Effort", value: this.track.effort });
+        if (this.workout.effort) {
+          this.stats.push({ name: "Effort", value: this.workout.effort });
         }
       }
     },
