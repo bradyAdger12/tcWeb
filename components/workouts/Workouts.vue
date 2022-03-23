@@ -16,7 +16,7 @@
           v-else
           v-for="workout in workouts"
           :key="workout.id"
-          @click="viewTrack(workout)"
+          @click="viewWorkout(workout)"
           style="cursor: pointer"
         >
           <v-list-item-content>
@@ -30,9 +30,9 @@
         </v-list-item>
       </v-list>
     </div>
-    <v-dialog v-model="showTrack" width="800">
-      <v-card v-if="selectedTrack">
-        <TracksDetail :workout-id="selectedTrack.id" :key="selectedTrack.id" />
+    <v-dialog v-model="showWorkout" width="800">
+      <v-card v-if="selectedWorkout">
+        <WorkoutDetail :workout-id="selectedWorkout.id" :key="selectedWorkout.id" />
       </v-card>
     </v-dialog>
   </div>
@@ -51,12 +51,12 @@ export default {
     return {
       loading: true,
       workouts: [],
-      selectedTrack: null,
-      showTrack: false,
+      selectedWorkout: null,
+      showWorkout: false,
     };
   },
   mounted() {
-    this.getTracks();
+    this.getWorkouts();
   },
   watch: {
     "$store.state.workouts.workouts": function () {
@@ -65,26 +65,15 @@ export default {
   },
   methods: {
     formatDate: formatDate,
-    viewTrack(workout) {
-      this.selectedTrack = workout;
-      this.showTrack = true;
+    viewWorkout(workout) {
+      this.selectedWorkout = workout;
+      this.showWorkout = true;
     },
-    // async deleteTrack(workout) {
-    //   workout.deleting = true;
-    //   this.$forceUpdate();
-    //   const token = this.$store.state.auth.access_token;
-    //   const id = workout.id;
-    //   try {
-    //     await this.$store.dispatch("workouts/deleteTrack", { id, token });
-    //   } catch (e) {}
-    //   workout.deleting = false;
-    //   this.$forceUpdate();
-    // },
-    async getTracks() {
+    async getWorkouts() {
       const token = this.$store.state.auth.access_token;
       const me = this.me;
       try {
-        await this.$store.dispatch("workouts/getTracks", { me, token });
+        await this.$store.dispatch("workouts/getWorkouts", { me, token });
       } catch (e) {}
       this.loading = false;
     },

@@ -5,12 +5,12 @@ export const state = () => ({
 
 export const mutations = {
   // set workouts array
-  setTracks(state, workouts) {
+  setWorkouts(state, workouts) {
     state.workouts = workouts
   },
 
   // delete a workout
-  deleteTrack(state, { id }) {
+  deleteWorkout(state, { id }) {
     _.remove(state.workouts, (item) => {
       return item.id == id
     })
@@ -20,16 +20,16 @@ export const mutations = {
 }
 
 export const actions = {
-  async deleteTrack({ commit, state }, { id, token }) {
+  async deleteWorkout({ commit, state }, { id, token }) {
     const response = await this.$axios.delete('/workouts/' + id, { headers: { 'Authorization': 'Bearer ' + token } })
     if (response.data && response.data.success) {
-      commit('deleteTrack', { id })
+      commit('deleteWorkout', { id })
     }
   },
-  async getTracks({ commit, state }, { me, token }) {
+  async getWorkouts({ commit, state }, { me, token }) {
     const response = await this.$axios.get('/workouts/me', { headers: { 'Authorization': 'Bearer ' + token } })
     if (response.data) {
-      commit('setTracks', response.data)
+      commit('setWorkouts', response.data)
     }
   }
 }

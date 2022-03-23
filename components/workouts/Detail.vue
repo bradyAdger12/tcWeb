@@ -107,7 +107,7 @@ export default {
     };
   },
   async mounted() {
-    await this.getTrack();
+    await this.getWorkout();
     this.loading = false;
   },
   computed: {
@@ -121,7 +121,7 @@ export default {
   methods: {
     formatDuration: formatDuration,
     formatDate: formatDate,
-    async getTrack() {
+    async getWorkout() {
       try {
         const response = await this.$axios.get(
           this.$axios.defaults.baseURL + `/workouts/${this.workoutId}`,

@@ -20,7 +20,7 @@
               :class="(activity.workoutId ? 'green elevation-0' : '') + ' ml-5'"
               @click="
                 activity.workoutId
-                  ? viewTrack(activity.workoutId)
+                  ? viewWorkouts(activity.workoutId)
                   : importActivity(activity)
               "
             >
@@ -53,9 +53,9 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-dialog v-model="showTrack" width="800">
+    <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="workoutId">
-        <TracksDetail :workout-id="workoutId" :key="workoutId" />
+        <WorkoutDetail :workout-id="workoutId" :key="workoutId" />
       </v-card>
     </v-dialog>
   </div>
@@ -73,7 +73,7 @@ export default {
     return {
       code: "",
       loading: true,
-      showTrack: false,
+      showWorkout: false,
       page: 1,
       per_page: 30,
       workoutId: null,
@@ -107,8 +107,8 @@ export default {
     }
   },
   methods: {
-    viewTrack(id) {
-      this.showTrack = true;
+    viewWorkout(id) {
+      this.showWorkout = true;
       this.workoutId = id;
     },
     async importActivity(activity) {
