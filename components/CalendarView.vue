@@ -103,25 +103,21 @@
               >{{ toMiles(item.summary.distance) }}
             </div>
             <div>
-              <span class="summary-title">Effort: </span
+              <span class="summary-title">Stress: </span
               >{{ item.summary.effort }}
-            </div>
-            <div>
-              <span class="summary-title">hrEffort: </span
-              >{{ item.summary.hrEffort }}
             </div>
             <div class="text-center mt-5">
               <div>
                 <span class="summary-title">Fitness </span
-                >{{ item.summary.fitness}}
+                ><span class="blue--text">{{ item.summary.fitness}}</span>
               </div>
               <div>
                 <span class="summary-title">Fatigue </span
-                >{{ item.summary.fatigue}}
+                ><span class="orange--text">{{ item.summary.fatigue}}</span>
               </div>
               <div>
                 <span class="summary-title">Form </span
-                >{{ item.summary.form}}
+                ><span :class="`${item.summary.form < 0 ? 'red' : 'green'}--text`">{{ item.summary.form}}</span>
               </div>
             </div>
           </div>
@@ -251,7 +247,9 @@ export default {
     formatDuration: formatDuration,
     async changeMonth() {
       this.today = moment();
+      this.changingMonth = true
       await this.buildCalendar();
+      this.changingMonth = false
     },
     isToday(current) {
       return current.format("D MMMM YYYY") == this.today.format("D MMMM YYYY");
