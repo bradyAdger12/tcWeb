@@ -36,6 +36,21 @@
             </v-btn>
           </v-list-item>
         </v-list>
+        <v-row justify="center" align="center" class="mt-4">
+          <v-col cols="auto" @click="page <= 1 ? page -= 1 : null">
+            <v-btn>
+              Prev
+            </v-btn>
+          </v-col>
+          <v-col cols="auto">
+            {{ page }}
+          </v-col>
+          <v-col cols="auto"  @click="page += 1">
+            <v-btn>
+              Next
+            </v-btn>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
     <v-dialog v-model="showTrack" width="800">
@@ -48,7 +63,7 @@
 
 <script>
 import moment from "moment";
-import { formatDate } from '~/tools/format_moment.js'
+import { formatDate } from "~/tools/format_moment.js";
 export default {
   name: "StravaConnect",
   head: {
@@ -59,6 +74,8 @@ export default {
       code: "",
       loading: true,
       showTrack: false,
+      page: 1,
+      per_page: 30,
       trackId: null,
       activities: [],
     };
@@ -84,35 +101,45 @@ export default {
     }
     this.loading = false;
   },
+  watch: {
+    page() {
+      this.getStravaActivities()
+    }
+  },
   methods: {
     viewTrack(id) {
-      this.showTrack = true
-      this.trackId = id
+      this.showTrack = true;
+      this.trackId = id;
     },
     async importActivity(activity) {
       activity.importing = true;
       this.$forceUpdate();
-      const response = await this.$axios.post(
-        this.$axios.defaults.baseURL + `/strava/activity/${activity.id}/import`,
-        null,
-        {
-          headers: {
-            Authorization: "Bearer " + this.$store.state.auth.access_token,
-          },
+      try {
+        const response = await this.$axios.post(
+          this.$axios.defaults.baseURL +
+            `/strava/activity/${activity.id}/import`,
+          null,
+          {
+            headers: {
+              Authorization: "Bearer " + this.$store.state.auth.access_token,
+            },
+          }
+        );
+
+        if (response && response.data) {
+          activity.trackId = response.data.id;
         }
-      );
+      } catch (e) {}
       activity.importing = false;
-      if (response && response.data) {
-        activity.trackId = response.data.id
-      }
       this.$forceUpdate();
     },
     formatDate: formatDate,
     async getStravaActivities() {
+      this.loading = true
       if (this.me.strava_token) {
         try {
           const stravaActivities = await this.$axios.get(
-            this.$axios.defaults.baseURL + "/strava/activities",
+            this.$axios.defaults.baseURL + `/strava/activities?page=${this.page}&per_page=${this.per_page}`,
             {
               headers: {
                 Authorization: "Bearer " + this.$store.state.auth.access_token,
@@ -126,6 +153,7 @@ export default {
         } catch (e) {
           console.log(e);
         }
+        this.loading = false
       }
     },
     async getAccessToken() {
