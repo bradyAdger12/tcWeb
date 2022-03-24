@@ -141,38 +141,7 @@
 
           <!-- Workout View -->
           <div v-for="workout of item.workouts" :key="workout.id">
-            <v-card
-              class="pa-1 black--text mx-1 mt-1"
-              style="background-color: rgba(0, 0, 0, 0.01)"
-              @click="openWorkout(workout)"
-            >
-              <div class="font-weight-black" style="font-size: 13px">
-                {{ workout.name }}
-              </div>
-              <div
-                class="font-weight-medium black--text"
-                style="font-size: 13px"
-              >
-                <div>
-                  <v-icon size="15" color="grey" class="mr-1"
-                    >mdi-timer-outline</v-icon
-                  >{{ formatDuration(workout.duration) }}
-                </div>
-                <div>
-                  <v-icon size="14" color="grey" class="mr-1">mdi-ruler</v-icon
-                  >{{ toMiles(workout.length) }}
-                </div>
-                <div v-if="workout.effort">
-                  <v-icon size="15" color="grey" class="mr-1"
-                    >mdi-lightning-bolt</v-icon
-                  >Effort: {{ workout.effort }}
-                </div>
-                <div v-if="workout.hr_effort">
-                  <v-icon size="14" color="grey" class="mr-1">mdi-heart</v-icon
-                  >hrEffort: {{ workout.hr_effort }}
-                </div>
-              </div>
-            </v-card>
+            <CalendarCell :workout="workout" />
           </div>
           <div class="add-event ma-2">
             <v-btn
@@ -214,10 +183,8 @@
 <script>
 import _ from "lodash";
 import moment from "moment";
-import $ from "jquery";
-import { toMiles } from "../tools/conversion";
-import { formatDuration } from "../tools/format_moment";
-import debounce from "~/tools/debounce.js";
+import { toMiles } from "~/tools/conversion";
+import { formatDuration } from "~/tools/format_moment";
 export default {
   data() {
     return {
@@ -228,8 +195,7 @@ export default {
       addDialog: false,
       refs: null,
       numColumns: 8,
-      selectedWorkout: null,
-      showWorkout: false,
+  
       summaries: [],
       displayDates: [
         "Monday",
@@ -273,10 +239,7 @@ export default {
     add(date) {
       this.addDialog = true;
     },
-    openWorkout(workout) {
-      this.selectedWorkout = workout;
-      this.showWorkout = true;
-    },
+ 
     hasRef(ref) {
       return ref && ref[0];
     },
