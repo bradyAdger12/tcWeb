@@ -140,9 +140,27 @@
           </div>
 
           <!-- Workout View -->
-          <div v-for="workout of item.workouts" :key="workout.id">
-            <CalendarCell :workout="workout" />
-          </div>
+
+          <draggable
+            v-model="item.workouts"
+            draggable=".cell"
+            group="workouts"
+            ghost-class="ghost"
+            @start="draggingWorkout = true"
+            @dragend="draggingWorkout = false"
+            @change="dragChange($event, item.date)"
+          >
+            <div
+              v-for="workout of item.workouts"
+              :key="workout.id"
+              class="cell"
+              @click="openWorkout(workout)"
+            >
+              <!-- <div v-if="draggingWorkout" class="ghost rounded ma-1" style="height: 20px; background-color: rgba(0, 0, 0, .1)" /> -->
+              <CalendarCell :workout="workout" />
+            </div>
+          </draggable>
+
           <div class="add-event ma-2">
             <v-btn
               block
@@ -181,21 +199,27 @@
 </template>
 
 <script>
+import draggable from "vuedraggable";
 import _ from "lodash";
 import moment from "moment";
 import { toMiles } from "~/tools/conversion";
 import { formatDuration } from "~/tools/format_moment";
 export default {
+  components: {
+    draggable,
+  },
   data() {
     return {
       currentDates: [],
       items: [],
       today: moment(),
       changingMonth: false,
+      draggingWorkout: false,
       addDialog: false,
       refs: null,
+      showWorkout: false,
+      selectedWorkout: null,
       numColumns: 8,
-  
       summaries: [],
       displayDates: [
         "Monday",
@@ -214,6 +238,50 @@ export default {
     this.buildCalendar();
   },
   methods: {
+    toMiles: toMiles,
+    formatDuration: formatDuration,
+    dragChange(e, date) {
+      if (e.added) {
+        const newDate = date;
+        const workout = e.added.element;
+        if (newDate && workout) {
+          try {
+            this.updateWorkout(workout, newDate);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }
+    },
+    async updateWorkout(workout, date) {
+      try {
+        date = moment(date.toString());
+        const newDate = moment(workout.started_at)
+          .set({
+            year: date.year(),
+            month: date.month(),
+            date: date.date(),
+          })
+          .local();
+        await this.$axios.put(
+          this.$axios.defaults.baseURL + `/workouts/${workout.id}`,
+          { started_at: newDate.toISOString() },
+          {
+            headers: {
+              Authorization: "Bearer " + this.$store.state.auth.access_token,
+            },
+          }
+        );
+        await this.buildCalendar(); // rebuild calendar to update summaries
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    openWorkout(workout) {
+      console.log("hi");
+      this.selectedWorkout = workout;
+      this.showWorkout = true;
+    },
     getCurrentWeekDates(date) {
       const getDay = date.day();
       const startOfWeek = moment(
@@ -239,10 +307,6 @@ export default {
     add(date) {
       this.addDialog = true;
     },
- 
-    hasRef(ref) {
-      return ref && ref[0];
-    },
     async backMonth() {
       this.currentMoment = this.currentMoment.subtract(1, "month");
       this.changeMonth();
@@ -251,8 +315,6 @@ export default {
       this.currentMoment = this.currentMoment.add(1, "month");
       this.changeMonth();
     },
-    toMiles: toMiles,
-    formatDuration: formatDuration,
     async changeMonth() {
       this.today = moment();
       this.changingMonth = true;

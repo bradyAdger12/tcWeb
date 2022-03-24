@@ -1,8 +1,8 @@
 <template>
-  <v-card
-    class="pa-1 black--text mx-1 mt-1"
-    style="background-color: rgba(0, 0, 0, 0.01)"
-    @click="openWorkout(workout)"
+  <div
+    class="pa-1 black--text mx-1 mt-1 elevation-4 rounded"
+    style="background-color: rgba(0, 0, 0, 0.01); cursor: grab"
+    @click.
   >
     <div class="font-weight-black" style="font-size: 13px">
       {{ workout.name }}
@@ -25,7 +25,7 @@
         {{ workout.hr_effort }}
       </div>
     </div>
-  </v-card>
+  </div>
 </template>
 
 
@@ -36,22 +36,12 @@ export default {
   props: {
     workout: {
       type: Object,
-      required: true
-    }
-  },
-  data() {
-    return {
-      selectedWorkout: null,
-      showWorkout: false,
-    };
+      required: true,
+    },
   },
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
-    openWorkout(workout) {
-      this.selectedWorkout = workout;
-      this.showWorkout = true;
-    },
   },
 };
 </script>
