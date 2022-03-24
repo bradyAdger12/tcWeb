@@ -107,31 +107,27 @@
               >{{ item.summary.effort }}
             </div>
             <div class="text-center mt-5">
-              <div>
-                <span class="summary-title">Fitness </span
-                ><span class="blue--text">{{ item.summary.fitness }}</span>
+              <div class="blue rounded white--text">
+                Fitness {{ item.summary.fitness }}
               </div>
-              <div>
-                <span class="summary-title">Fatigue </span
-                ><span class="orange--text">{{ item.summary.fatigue }}</span>
+              <div class="orange rounded white--text mt-2">
+                Fatigue {{ item.summary.fatigue }}
               </div>
-              <div>
-                <span class="summary-title">Form </span
-                ><span
-                  :class="`${item.summary.form < 0 ? 'red' : 'green'}--text`"
-                  >{{ item.summary.form }}</span
-                >
+              <div
+                :class="`${
+                  item.summary.form < 0 ? 'red' : 'green'
+                } white--text mt-2 rounded`"
+              >
+                Form {{ item.summary.form }}
               </div>
             </div>
           </div>
         </div>
         <div v-else>
           <div
-            :style="`${
-              isToday(item.date)
-                ? 'background-color: rgba(200, 0, 0, .3);'
-                : 'background-color: rgba(0, 0, 0, 0.1)'
-            }; ${isAfterToday(item.date) ? 'color: grey' : ''}`"
+            :style="`background-color: ${getDayHeaderColor(item.date)}; ${
+              isAfterToday(item.date) ? 'color: grey' : ''
+            }`"
             class="pa-1 font-weight-black"
           >
             {{ isToday(item.date) ? "Today, " : "" }}
@@ -191,19 +187,25 @@
         </div>
       </v-col>
     </v-row>
-    <v-dialog v-model="addDialog" width="900" @click:outside="addDialog = false">
+    <v-dialog
+      v-model="addDialog"
+      width="900"
+      @click:outside="addDialog = false"
+    >
       <v-card class="white black--text">
-        <v-card-title>
-          Add Workout
-        </v-card-title>
+        <v-card-title> Add Workout </v-card-title>
         <v-card-text class="black--text">
           Ability to add a workout coming soon...
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="showWorkout" width="900" @click:outside="showWorkout = false">
+    <v-dialog
+      v-model="showWorkout"
+      width="900"
+      @click:outside="showWorkout = false"
+    >
       <v-card v-if="selectedWorkout" :key="selectedWorkout.id">
-        <WorkoutDetail :workoutId="selectedWorkout.id" />
+        <WorkoutsDetail :workoutId="selectedWorkout.id" />
       </v-card>
     </v-dialog>
   </div>
@@ -246,8 +248,30 @@ export default {
     this.buildCalendar();
   },
   methods: {
+    getCurrentWeekDates(date) {
+      const getDay = date.day();
+      const startOfWeek = moment(
+        moment(date.toString()).subtract(getDay, "days").toString()
+      );
+      const endOfWeek = moment(
+        moment(date.toString())
+          .add(7 - getDay, "days")
+          .toString()
+      );
+      return { startOfWeek, endOfWeek };
+    },
+    getDayHeaderColor(date) {
+      const { startOfWeek, endOfWeek } = this.getCurrentWeekDates(this.today);
+      if (this.isToday(date)) {
+        return "rgba(200, 0, 0, .5);";
+      }
+      if (date.isBetween(startOfWeek, endOfWeek)) {
+        return "rgba(200, 0, 0, .3);";
+      }
+      return "rgba(0, 0, 0, .1)";
+    },
     add(date) {
-      this.addDialog = true
+      this.addDialog = true;
     },
     openWorkout(workout) {
       this.selectedWorkout = workout;
@@ -332,27 +356,29 @@ export default {
       this.loading = false;
     },
     async getWorkouts() {
-      const startsAt = this.currentDates[0];
-      const endsAt = this.currentDates[this.currentDates.length - 1];
+      let startsAt = this.currentDates[0];
+      let endsAt = this.currentDates[this.currentDates.length - 1];
+      startsAt = startsAt.date.set({
+        hour: 0,
+        minute: 0,
+        seconds: 0,
+      });
+      endsAt = endsAt.date.set({
+        hour: 23,
+        minute: 59,
+        seconds: 59,
+      });
       try {
         const response = await this.$axios.get(
           this.$axios.defaults.baseURL +
-            `/workouts/me/calendar?startsAt=${startsAt.date.set({
-              hour: 0,
-              minute: 0,
-              seconds: 0,
-            })}&endsAt=${endsAt.date.set({
-              hour: 23,
-              minute: 59,
-              seconds: 59,
-            })}`,
+            `/workouts/me/calendar?startsAt=${startsAt.toISOString()}&endsAt=${endsAt.toISOString()}&calendar_cache=true`,
           {
             headers: {
               Authorization: "Bearer " + this.$store.state.auth.access_token,
             },
           }
         );
-        console.log(response)
+        console.log(response);
         for (let item of response.data.dates) {
           if (item.date) {
             item.date = moment(item.date.toString());

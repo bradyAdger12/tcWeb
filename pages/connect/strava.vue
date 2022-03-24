@@ -55,7 +55,7 @@
     </v-row>
     <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="workoutId">
-        <WorkoutDetail :workout-id="workoutId" :key="workoutId" />
+        <WorkoutsDetail :workout-id="workoutId" :key="workoutId" />
       </v-card>
     </v-dialog>
   </div>

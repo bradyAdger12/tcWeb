@@ -32,7 +32,7 @@
     </div>
     <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="selectedWorkout">
-        <WorkoutDetail :workout-id="selectedWorkout.id" :key="selectedWorkout.id" />
+        <WorkoutsDetail :workout-id="selectedWorkout.id" :key="selectedWorkout.id" />
       </v-card>
     </v-dialog>
   </div>
