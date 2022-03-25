@@ -197,16 +197,17 @@ export default {
   data() {
     return {
       currentDates: [],
-      items: [],
+      monthElements: [],
       today: moment(),
+      currentMoment: moment(),
+      monthInView: moment(),
       addDialog: false,
-      refs: null,
       showWorkout: false,
       selectedWorkout: null,
+      loading: true,
+      refreshing: false,
       numColumns: 8,
       loadingMore: {},
-      monthInView: moment(),
-      monthElements: [],
       displayFloatingHeaders: [
         "Monday",
         "Tuesday",
@@ -217,9 +218,6 @@ export default {
         "Sunday",
         "Summary",
       ],
-      currentMoment: moment(),
-      loading: true,
-      refreshing: false,
     };
   },
   async mounted() {
@@ -265,13 +263,13 @@ export default {
     monthHeaderListener(scrollTop) {
       for (let month of this.monthElements) {
         if (month) {
-          const monthStartElement = $(
-            `#date-${month.format("D-MMMM-YYYY")}`
-          );
+          const monthStartElement = $(`#date-${month.format("D-MMMM-YYYY")}`);
           if (monthStartElement[0]) {
             if (
               scrollTop >
-              monthStartElement[0].offsetTop - monthStartElement[0].clientHeight - 100
+              monthStartElement[0].offsetTop -
+                monthStartElement[0].clientHeight -
+                100
             ) {
               this.monthInView = month;
             }
@@ -292,6 +290,72 @@ export default {
         }
       }
     },
+    getStartOfWeek(date) {
+      return date.subtract(date.day() - 1, "days");
+    },
+    getEndOfWeek(date) {
+      return date.add(7 - date.day(), "days");
+    },
+    async updateSummaries(oldDate, newDate) {
+      let oldWeekStart = this.getStartOfWeek(moment(oldDate.toString()));
+      let oldWeekEnd = this.getEndOfWeek(moment(oldDate.toString()));
+      let newWeekStart = this.getStartOfWeek(moment(newDate.toString()));
+      let newWeekEnd = this.getEndOfWeek(moment(newDate.toString()));
+      const headers = {
+        headers: {
+          Authorization: "Bearer " + this.$store.state.auth.access_token,
+        },
+      };
+
+      //Get summary for the week where the workout was moved to
+      const newWeekSummary = await this.$axios.get(
+        this.$axios.defaults.baseURL +
+          `/workouts/weekly_summary?startDate=${newWeekStart.toISOString()}&endDate=${newWeekEnd.toISOString()}`,
+        headers
+      );
+
+      //Get summary for the week where the workout was moved from
+      const oldWeekSummary = await this.$axios.get(
+        this.$axios.defaults.baseURL +
+          `/workouts/weekly_summary?startDate=${oldWeekStart.toISOString()}&endDate=${oldWeekEnd.toISOString()}`,
+        headers
+      );
+
+      //Find the currently stored summary for the week the workout is being moved to
+      const newWeekFound = _.find(this.currentDates, (item) => {
+        if (item.date) {
+          return (
+            moment(item.date).format("D MMMM YYYY") ==
+            newWeekEnd.format("D MMMM YYYY")
+          );
+        }
+      });
+
+      if (newWeekFound && newWeekSummary.data) {
+        const index = this.currentDates.indexOf(newWeekFound);
+        if (index) {
+          this.currentDates[index + 1] = newWeekSummary.data;
+        }
+      }
+
+      //Find the currently stored summary for the week the workout is being moved from
+      const oldWeekFound = _.find(this.currentDates, (item) => {
+        if (item.date) {
+          return (
+            moment(item.date).format("D MMMM YYYY") ==
+            oldWeekEnd.format("D MMMM YYYY")
+          );
+        }
+      });
+
+      if (oldWeekFound && oldWeekSummary.data) {
+        const index = this.currentDates.indexOf(oldWeekFound);
+        if (index) {
+          this.currentDates[index + 1] = oldWeekSummary.data;
+        }
+      }
+      this.$forceUpdate();
+    },
     async updateWorkout(workout, date) {
       try {
         date = moment(date.toString());
@@ -302,7 +366,7 @@ export default {
             date: date.date(),
           })
           .local();
-        await this.$axios.put(
+        const response = await this.$axios.put(
           this.$axios.defaults.baseURL + `/workouts/${workout.id}`,
           { started_at: newDate.toISOString() },
           {
@@ -311,10 +375,12 @@ export default {
             },
           }
         );
-        const startDate = this.currentDates[0].date;
-        const endDate = this.currentDates[this.currentDates.length - 2].date;
         this.refreshing = true;
-        await this.getWorkouts(startDate, endDate); // rebuild calendar to update summaries
+        await this.updateSummaries(
+          moment(workout.started_at),
+          moment(newDate).toString()
+        );
+        workout.started_at = response.data.started_at; // update workouts new start date
         this.refreshing = false;
       } catch (e) {
         console.log(e);
@@ -355,12 +421,6 @@ export default {
     isAfterToday(current) {
       return current.isAfter(this.today);
     },
-    isSameDate(workoutDate, calendarDate) {
-      return (
-        moment(workoutDate).format("D MMMM YYYY") ==
-        calendarDate.format("D MMMM YYYY")
-      );
-    },
     async buildCalendar(fromDate, isInitialLoad = true, isPrepend = false) {
       let startDate = null;
       let endDate = null;
@@ -396,11 +456,41 @@ export default {
       const endDate = moment(
         this.currentDates[this.currentDates.length - 2].date.toString()
       );
-      const difference = Math.abs(currentDate.diff(endDate, 'months')) + 1
+      const difference = Math.abs(currentDate.diff(endDate, "months")) + 1;
       this.monthElements = [];
       for (let i = 0; i < difference; i++) {
-        this.monthElements.push(moment(currentDate.subtract(currentDate.date() - 1, 'days')));
-        currentDate.add(1, 'months')
+        this.monthElements.push(
+          moment(currentDate.subtract(currentDate.date() - 1, "days"))
+        );
+        currentDate.add(1, "months");
+      }
+    },
+    async addWeeklySummaries() {
+      try {
+        for (const item of this.currentDates) {
+          const index = this.currentDates.indexOf(item);
+          if (item.date && item.date.day() == 0) {
+            const endDate = moment(item.date.toString());
+            const startDate = moment(
+              moment(item.date.toString()).subtract(6, "days")
+            );
+            const response = await this.$axios.get(
+              this.$axios.defaults.baseURL +
+                `/workouts/weekly_summary?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`,
+              {
+                headers: {
+                  Authorization:
+                    "Bearer " + this.$store.state.auth.access_token,
+                },
+              }
+            );
+            if (response.data) {
+              this.currentDates.splice(index + 1, 0, response.data);
+            }
+          }
+        }
+      } catch (e) {
+        console.log(e);
       }
     },
     async getWorkouts(startDate, endDate, isPrepend = false) {
@@ -418,13 +508,14 @@ export default {
         try {
           const response = await this.$axios.get(
             this.$axios.defaults.baseURL +
-              `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}&calendar_cache=true`,
+              `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}`,
             {
               headers: {
                 Authorization: "Bearer " + this.$store.state.auth.access_token,
               },
             }
           );
+          console.log(response.data);
           const datesToAdd = [];
           if (this.refreshing) {
             this.currentDates = [];
@@ -445,7 +536,10 @@ export default {
               this.currentDates.unshift(date);
             }
           }
-        } catch (e) {}
+          await this.addWeeklySummaries();
+        } catch (e) {
+          console.log(e);
+        }
       }
     },
   },
