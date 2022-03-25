@@ -76,7 +76,7 @@
       <v-col
         cols="auto"
         class="date-item"
-        v-for="(item, i) of items"
+        v-for="(item, i) of currentDates"
         :key="i"
         :style="`
           width: ${100 / numColumns}%;
@@ -123,20 +123,15 @@
             </div>
           </div>
         </div>
-        <div v-else>
+        <div v-else :id="`date-${item.date.format('D-MMMM-YYYY')}`">
           <div
             :style="`background-color: ${getDayHeaderColor(item.date)}; ${
               isAfterToday(item.date) ? 'color: grey' : ''
             }`"
-            class="pa-1 font-weight-black"
+            :class="`pa-1 font-weight-black`"
           >
             {{ isToday(item.date) ? "Today, " : "" }}
-            {{ item.date.format("D") }}
-            {{
-              currentMoment.month() != item.date.month()
-                ? " - " + item.date.format("MMMM")
-                : ""
-            }}
+            {{ item.date.format("MMMM D") }}
           </div>
 
           <!-- Workout View -->
@@ -195,6 +190,26 @@
         <WorkoutsDetail :workoutId="selectedWorkout.id" />
       </v-card>
     </v-dialog>
+    <div
+      v-if="loadingMore && (loadingMore.bottom || loadingMore.top)"
+      :style="`position: fixed; z-index: 2; ${
+        loadingMore.top ? 'top: 0' : 'bottom: 0'
+      }; left: 0; width: 100%; ${
+        loadingMore.top ? 'padding-top: 180px' : 'padding-bottom: 100px'
+      }`"
+      class="text-center"
+    >
+      <v-avatar
+        style="
+          background-color: rgba(100, 100, 100, 0.4);
+          height: 50px;
+          width: 50px;
+        "
+        class="rounded-circle elevation-4"
+      >
+        <v-progress-circular indeterminate color="blue" />
+      </v-avatar>
+    </div>
   </div>
 </template>
 
@@ -204,6 +219,7 @@ import _ from "lodash";
 import moment from "moment";
 import { toMiles } from "~/tools/conversion";
 import { formatDuration } from "~/tools/format_moment";
+import $ from "jquery";
 export default {
   components: {
     draggable,
@@ -220,7 +236,8 @@ export default {
       showWorkout: false,
       selectedWorkout: null,
       numColumns: 8,
-      summaries: [],
+      loadingMore: {},
+      endDates: [],
       displayDates: [
         "Monday",
         "Tuesday",
@@ -232,14 +249,48 @@ export default {
       ],
       currentMoment: moment(),
       loading: true,
+      refreshing: false,
     };
   },
-  mounted() {
-    this.buildCalendar();
+  async mounted() {
+    await this.buildCalendar(this.today);
+    const id = $(`#date-${this.today.format("D-MMMM-YYYY")}`);
+    $("html, body").animate({ scrollTop: id.offset().top - 250 }, "slow");
+    setTimeout(() => {
+      this.listenToScrollEvents();
+    }, 1000);
   },
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    listenToScrollEvents() {
+      const _this = this;
+      $(window).scroll(async function () {
+        // detect bottom
+        if (!_this.refreshing) {
+          if (
+            $(window).scrollTop() ==
+            $(document).height() - $(window).height()
+          ) {
+            _this.loadingMore = { bottom: true };
+            const fromDate = moment(
+              _this.currentDates[_this.currentDates.length - 2].date
+            );
+            await _this.buildCalendar(fromDate, false, false);
+            _this.loadingMore = { bottom: false };
+          }
+
+          //detect top
+          else if ($(window).scrollTop() == 0) {
+            _this.loadingMore = { top: true };
+            const fromDate = moment(_this.currentDates[0].date);
+            await _this.buildCalendar(fromDate, false, true);
+            window.scrollTo(0, 1550);
+            _this.loadingMore = { top: false };
+          }
+        }
+      });
+    },
     dragChange(e, date) {
       if (e.added) {
         const newDate = date;
@@ -272,13 +323,16 @@ export default {
             },
           }
         );
-        await this.buildCalendar(); // rebuild calendar to update summaries
+        const startDate = this.currentDates[0].date;
+        const endDate = this.currentDates[this.currentDates.length - 2].date;
+        this.refreshing = true
+        await this.getWorkouts(startDate, endDate); // rebuild calendar to update summaries
+        this.refreshing = false
       } catch (e) {
         console.log(e);
       }
     },
     openWorkout(workout) {
-      console.log("hi");
       this.selectedWorkout = workout;
       this.showWorkout = true;
     },
@@ -333,84 +387,81 @@ export default {
         calendarDate.format("D MMMM YYYY")
       );
     },
-    async buildCalendar() {
-      this.currentDates = [];
-      this.summaries = [];
-      const currentDay = moment().set({
-        year: this.currentMoment.year(),
-        month: this.currentMoment.month(),
-        date: this.currentMoment.daysInMonth(),
-      });
+    async buildCalendar(fromDate, isInitialLoad = true, isPrepend = false) {
+      let startDate = null;
+      let endDate = null;
 
-      const lastDayOfMonth = moment().set({
-        year: this.currentMoment.year(),
-        month: this.currentMoment.month(),
-        date: this.currentMoment.daysInMonth(),
-      });
-
-      //End on sunday
-      while (lastDayOfMonth.day() != 0) {
-        lastDayOfMonth.add(1, "day");
-        this.currentDates.push({
-          date: moment(lastDayOfMonth.toString()),
-          workouts: [],
-        });
-      }
-      this.currentDates.reverse();
-
-      //Get all days for current month
-      while (currentDay.month() == this.currentMoment.month()) {
-        this.currentDates.push({
-          date: moment(currentDay.toString()),
-          workouts: [],
-        });
-        currentDay.subtract(1, "day");
+      if (isInitialLoad) {
+        startDate = moment(fromDate.toString()).subtract(2, "month");
+        endDate = moment(fromDate.toString()).add(2, "month");
+      } else if (isPrepend) {
+        startDate = moment(fromDate.toString()).subtract(30, "day");
+        endDate = moment(fromDate.toString()).subtract(1, "day");
+      } else {
+        startDate = moment(fromDate.toString()).add(1, "day");
+        endDate = moment(fromDate.toString()).add(30, "day");
       }
 
-      //Backworkout to the previous monday to start the week
-      while (currentDay.day() != 0) {
-        this.currentDates.push({
-          date: moment(currentDay.toString()),
-          workouts: [],
-        });
-        currentDay.subtract(1, "day");
+      if (isPrepend || isInitialLoad) {
+        while (startDate.day() != 1) {
+          startDate.subtract(1, "day");
+        }
       }
 
-      this.currentDates.reverse();
-      await this.getWorkouts();
+      if (isInitialLoad || !isPrepend) {
+        while (endDate.day() != 0) {
+          endDate.add(1, "day");
+        }
+      }
+      // this.getEndOfMonths(startDate, endDate)
+      await this.getWorkouts(startDate, endDate, isPrepend);
       this.loading = false;
     },
-    async getWorkouts() {
-      let startsAt = this.currentDates[0];
-      let endsAt = this.currentDates[this.currentDates.length - 1];
-      startsAt = startsAt.date.set({
-        hour: 0,
-        minute: 0,
-        seconds: 0,
-      });
-      endsAt = endsAt.date.set({
-        hour: 23,
-        minute: 59,
-        seconds: 59,
-      });
-      try {
-        const response = await this.$axios.get(
-          this.$axios.defaults.baseURL +
-            `/workouts/me/calendar?startsAt=${startsAt.toISOString()}&endsAt=${endsAt.toISOString()}&calendar_cache=true`,
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
+    getEndOfMonths(startDate, endDate) {},
+    async getWorkouts(startDate, endDate, isPrepend = false) {
+      if (startDate && endDate) {
+        startDate = startDate.set({
+          hour: 0,
+          minute: 0,
+          seconds: 0,
+        });
+        endDate = endDate.set({
+          hour: 23,
+          minute: 59,
+          seconds: 59,
+        });
+        try {
+          const response = await this.$axios.get(
+            this.$axios.defaults.baseURL +
+              `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}&calendar_cache=true`,
+            {
+              headers: {
+                Authorization: "Bearer " + this.$store.state.auth.access_token,
+              },
+            }
+          );
+          const datesToAdd = [];
+          if (this.refreshing) {
+            this.currentDates = []
           }
-        );
-        console.log(response);
-        for (let item of response.data.dates) {
-          if (item.date) {
-            item.date = moment(item.date.toString());
+          for (let item of response.data.dates) {
+            if (item.date) {
+              item.date = moment(item.date.toString());
+            }
+            if (isPrepend) {
+              datesToAdd.push(item);
+            } else {
+              this.currentDates.push(item);
+            }
           }
-        }
-        this.items = response.data.dates;
-      } catch (e) {}
+          if (isPrepend) {
+            datesToAdd.reverse();
+            for (let date of datesToAdd) {
+              this.currentDates.unshift(date);
+            }
+          }
+        } catch (e) {}
+      }
     },
   },
 };
