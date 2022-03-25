@@ -10,24 +10,6 @@
     "
     class="white black--text"
   >
-    <!-- Month loading circle -->
-    <v-row
-      v-if="changingMonth"
-      no-gutters
-      class="rounded-lg"
-      style="
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        z-index: 3;
-        background-color: rgba(0, 0, 0, 0.4);
-        padding-top: 80px;
-      "
-      justify="center"
-    >
-      <v-progress-circular indeterminate color="white" size="50" />
-    </v-row>
-
     <!-- Floating Date Header -->
     <v-card
       id="floating-header"
@@ -37,28 +19,18 @@
     >
       <!-- Month Selection -->
       <v-row justify="center" class="my-2">
-        <v-col cols="auto">
-          <v-icon class="black--text mr-2" @click="backMonth()">
-            mdi-arrow-left</v-icon
-          >
-        </v-col>
         <v-col cols="2" class="text-center">
           <div style="display: inline" class="font-weight-bold text-h5">
-            {{ currentMoment.format("MMMM YYYY") }}
+            {{ monthInView.format("MMMM YYYY") }}
           </div>
-        </v-col>
-        <v-col cols="auto">
-          <v-icon class="black--text ml-2" @click="forwardMonth()">
-            mdi-arrow-right
-          </v-icon>
         </v-col>
       </v-row>
 
       <v-row no-gutters>
         <v-col
           cols="auto"
-          class="text-center"
-          v-for="item of displayDates"
+          :class="`text-center ${item == 'Summary' ? 'font-weight-bold' : ''}`"
+          v-for="item of displayFloatingHeaders"
           :key="item"
           :style="`
           width: ${100 / numColumns}%;
@@ -87,12 +59,7 @@
        `"
       >
         <div v-if="item.summary">
-          <div
-            style="background-color: rgba(0, 0, 0, 0.1)"
-            class="pa-1 font-weight-black text-center"
-          >
-            Summary
-          </div>
+          <div style="background-color: rgba(0, 0, 0, 0.1)" />
           <div class="pa-2">
             <div>
               <span class="summary-title">Duration: </span
@@ -131,7 +98,13 @@
             :class="`pa-1 font-weight-black`"
           >
             {{ isToday(item.date) ? "Today, " : "" }}
-            {{ item.date.format("MMMM D") }}
+            {{
+              item.date.month() != monthInView.month() &&
+              (item.date.date() == item.date.daysInMonth() ||
+                item.date.date() == 1)
+                ? item.date.format("MMMM D")
+                : item.date.format("D")
+            }}
           </div>
 
           <!-- Workout View -->
@@ -141,8 +114,6 @@
             draggable=".cell"
             group="workouts"
             ghost-class="ghost"
-            @start="draggingWorkout = true"
-            @dragend="draggingWorkout = false"
             @change="dragChange($event, item.date)"
           >
             <div
@@ -151,7 +122,6 @@
               class="cell"
               @click="openWorkout(workout)"
             >
-              <!-- <div v-if="draggingWorkout" class="ghost rounded ma-1" style="height: 20px; background-color: rgba(0, 0, 0, .1)" /> -->
               <CalendarCell :workout="workout" />
             </div>
           </draggable>
@@ -229,16 +199,15 @@ export default {
       currentDates: [],
       items: [],
       today: moment(),
-      changingMonth: false,
-      draggingWorkout: false,
       addDialog: false,
       refs: null,
       showWorkout: false,
       selectedWorkout: null,
       numColumns: 8,
       loadingMore: {},
-      endDates: [],
-      displayDates: [
+      monthInView: moment(),
+      monthElements: [],
+      displayFloatingHeaders: [
         "Monday",
         "Tuesday",
         "Wednesday",
@@ -246,6 +215,7 @@ export default {
         "Friday",
         "Saturday",
         "Sunday",
+        "Summary",
       ],
       currentMoment: moment(),
       loading: true,
@@ -267,6 +237,7 @@ export default {
       const _this = this;
       $(window).scroll(async function () {
         // detect bottom
+        _this.monthHeaderListener(window.scrollY);
         if (!_this.refreshing) {
           if (
             $(window).scrollTop() ==
@@ -285,11 +256,28 @@ export default {
             _this.loadingMore = { top: true };
             const fromDate = moment(_this.currentDates[0].date);
             await _this.buildCalendar(fromDate, false, true);
-            window.scrollTo(0, 1550);
+            window.scrollTo(0, 1390);
             _this.loadingMore = { top: false };
           }
         }
       });
+    },
+    monthHeaderListener(scrollTop) {
+      for (let month of this.monthElements) {
+        if (month) {
+          const monthStartElement = $(
+            `#date-${month.format("D-MMMM-YYYY")}`
+          );
+          if (monthStartElement[0]) {
+            if (
+              scrollTop >
+              monthStartElement[0].offsetTop - monthStartElement[0].clientHeight - 100
+            ) {
+              this.monthInView = month;
+            }
+          }
+        }
+      }
     },
     dragChange(e, date) {
       if (e.added) {
@@ -325,9 +313,9 @@ export default {
         );
         const startDate = this.currentDates[0].date;
         const endDate = this.currentDates[this.currentDates.length - 2].date;
-        this.refreshing = true
+        this.refreshing = true;
         await this.getWorkouts(startDate, endDate); // rebuild calendar to update summaries
-        this.refreshing = false
+        this.refreshing = false;
       } catch (e) {
         console.log(e);
       }
@@ -360,20 +348,6 @@ export default {
     },
     add(date) {
       this.addDialog = true;
-    },
-    async backMonth() {
-      this.currentMoment = this.currentMoment.subtract(1, "month");
-      this.changeMonth();
-    },
-    async forwardMonth() {
-      this.currentMoment = this.currentMoment.add(1, "month");
-      this.changeMonth();
-    },
-    async changeMonth() {
-      this.today = moment();
-      this.changingMonth = true;
-      await this.buildCalendar();
-      this.changingMonth = false;
     },
     isToday(current) {
       return current.format("D MMMM YYYY") == this.today.format("D MMMM YYYY");
@@ -413,11 +387,22 @@ export default {
           endDate.add(1, "day");
         }
       }
-      // this.getEndOfMonths(startDate, endDate)
       await this.getWorkouts(startDate, endDate, isPrepend);
+      this.getMonthElements();
       this.loading = false;
     },
-    getEndOfMonths(startDate, endDate) {},
+    getMonthElements() {
+      const currentDate = moment(this.currentDates[0].date.toString());
+      const endDate = moment(
+        this.currentDates[this.currentDates.length - 2].date.toString()
+      );
+      const difference = Math.abs(currentDate.diff(endDate, 'months')) + 1
+      this.monthElements = [];
+      for (let i = 0; i < difference; i++) {
+        this.monthElements.push(moment(currentDate.subtract(currentDate.date() - 1, 'days')));
+        currentDate.add(1, 'months')
+      }
+    },
     async getWorkouts(startDate, endDate, isPrepend = false) {
       if (startDate && endDate) {
         startDate = startDate.set({
@@ -442,7 +427,7 @@ export default {
           );
           const datesToAdd = [];
           if (this.refreshing) {
-            this.currentDates = []
+            this.currentDates = [];
           }
           for (let item of response.data.dates) {
             if (item.date) {
