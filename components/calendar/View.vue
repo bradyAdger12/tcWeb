@@ -367,7 +367,7 @@ export default {
           })
           .local();
         const response = await this.$axios.put(
-          this.$axios.defaults.baseURL + `/workouts/${workout.id}`,
+          this.$axios.defaults.baseURL + `/workouts/${workout.id}?light=true`,
           { started_at: newDate.toISOString() },
           {
             headers: {
@@ -375,6 +375,7 @@ export default {
             },
           }
         );
+        console.log(response);
         this.refreshing = true;
         await this.updateSummaries(
           moment(workout.started_at),
@@ -447,7 +448,7 @@ export default {
           endDate.add(1, "day");
         }
       }
-      await this.getWorkouts(startDate, endDate, isPrepend);
+      await this.getWorkouts(startDate, endDate, isPrepend, isInitialLoad);
       this.getMonthElements();
       this.loading = false;
     },
@@ -465,10 +466,10 @@ export default {
         currentDate.add(1, "months");
       }
     },
-    async addWeeklySummaries() {
+    async addWeeklySummaries(dates) {
       try {
-        for (const item of this.currentDates) {
-          const index = this.currentDates.indexOf(item);
+        for (const item of dates) {
+          const index = dates.indexOf(item);
           if (item.date && item.date.day() == 0) {
             const endDate = moment(item.date.toString());
             const startDate = moment(
@@ -485,7 +486,7 @@ export default {
               }
             );
             if (response.data) {
-              this.currentDates.splice(index + 1, 0, response.data);
+              dates.splice(index + 1, 0, response.data);
             }
           }
         }
@@ -493,7 +494,12 @@ export default {
         console.log(e);
       }
     },
-    async getWorkouts(startDate, endDate, isPrepend = false) {
+    async getWorkouts(
+      startDate,
+      endDate,
+      isPrepend = false,
+      isInitialLoad = false
+    ) {
       if (startDate && endDate) {
         startDate = startDate.set({
           hour: 0,
@@ -516,7 +522,7 @@ export default {
             }
           );
           console.log(response.data);
-          const datesToAdd = [];
+          let datesToAdd = [];
           if (this.refreshing) {
             this.currentDates = [];
           }
@@ -524,19 +530,27 @@ export default {
             if (item.date) {
               item.date = moment(item.date.toString());
             }
-            if (isPrepend) {
-              datesToAdd.push(item);
-            } else {
-              this.currentDates.push(item);
-            }
+            datesToAdd.push(item);
           }
+
+          if (!isInitialLoad) {
+            await this.addWeeklySummaries(datesToAdd);
+          }
+
           if (isPrepend) {
             datesToAdd.reverse();
             for (let date of datesToAdd) {
               this.currentDates.unshift(date);
             }
+          } else {
+            for (let date of datesToAdd) {
+              this.currentDates.push(date);
+            }
           }
-          await this.addWeeklySummaries();
+
+          if (isInitialLoad) {
+            await this.addWeeklySummaries(this.currentDates);
+          }
         } catch (e) {
           console.log(e);
         }
