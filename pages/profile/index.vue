@@ -1,16 +1,46 @@
 <template>
   <v-container>
     <div v-if="this.me">
-      <v-row justify="center" align="center" class="mt-16">
+      <v-row justify="center" align="center" class="my-16">
         <v-col cols="11">
-          <p class="text-h2 font-weight-bold">
-            {{ me.display_name }}
-          </p>
-          <p>
-            Below you can find some basic fitness statistics as well as your
-            latest workouts
-          </p>
           <div class="mt-10">
+            <div v-if="trainingLoad" class="mb-10">
+              <v-row>
+                <v-col cols="auto">
+                  <v-avatar class="blue" size="150">
+                    <div>
+                      <span class="training-load-value">{{
+                        trainingLoad.fitness
+                      }}</span>
+                      <p>Fitness</p>
+                    </div>
+                  </v-avatar>
+                </v-col>
+                <v-col cols="auto">
+                  <v-avatar class="orange" size="150">
+                    <div>
+                      <span class="training-load-value">{{
+                        trainingLoad.fatigue
+                      }}</span>
+                      <p>Fatigue</p>
+                    </div>
+                  </v-avatar>
+                </v-col>
+                <v-col cols="auto">
+                  <v-avatar
+                    :class="`${trainingLoad.form < 0 ? 'red' : 'green'}`"
+                    size="150"
+                  >
+                    <div>
+                      <span class="training-load-value">{{
+                        trainingLoad.form
+                      }}</span>
+                      <p>Form</p>
+                    </div>
+                  </v-avatar>
+                </v-col>
+              </v-row>
+            </div>
             <v-row>
               <v-col cols="12" sm="5">
                 <div>
@@ -60,14 +90,6 @@
               </v-col>
             </v-row>
           </div>
-          <div class="mt-16">
-            <p class="text-h4">My Workouts</p>
-            <v-row>
-              <v-col cols="12" sm="7">
-                <Workouts />
-              </v-col>
-            </v-row>
-          </div>
         </v-col>
       </v-row>
     </div>
@@ -76,6 +98,7 @@
 
 <script>
 import { getColor } from "../../tools/zone_color";
+import moment from "moment";
 export default {
   name: "ProfilePage",
   head: {
@@ -86,6 +109,7 @@ export default {
     return {
       hrZones: [],
       powerZones: [],
+      trainingLoad: null,
     };
   },
   watch: {
@@ -98,6 +122,7 @@ export default {
   mounted() {
     this.hrZones = this.me.hr_zones;
     this.powerZones = this.me.power_zones;
+    this.getTrainingLoad();
   },
   computed: {
     me() {
@@ -106,6 +131,27 @@ export default {
   },
   methods: {
     getColor: getColor,
+    async getTrainingLoad() {
+      try {
+        const response = await this.$axios.get(
+          this.$axios.defaults.baseURL +
+            `/users/me/training_load?date=${moment().toISOString()}`,
+          {
+            headers: {
+              Authorization: "Bearer " + this.$store.state.auth.access_token,
+            },
+          }
+        );
+        this.trainingLoad = response.data;
+      } catch (e) {}
+    },
   },
 };
 </script>
+
+<style>
+.training-load-value {
+  font-size: 40px;
+  font-weight: bold;
+}
+</style>

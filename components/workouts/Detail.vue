@@ -26,15 +26,15 @@
         <v-row>
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
-              <div v-if="workout.stats.bests.heartrate[time]">
-                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon>{{ time }} : {{ workout.stats.bests.heartrate[time] }} bpm
+              <div v-if="workout.bests.heartrate[time]">
+                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon>{{ time }} : {{ workout.bests.heartrate[time] }} bpm
               </div>
             </div>
           </v-col>
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
-              <div v-if="workout.stats.bests.watts[time]">
-                <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon>{{ time }} : {{ workout.stats.bests.watts[time] }} watts
+              <div v-if="workout.bests.watts[time]">
+                <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon>{{ time }} : {{ workout.bests.watts[time] }} watts
               </div>
             </div>
           </v-col>
@@ -43,10 +43,10 @@
         <div class="mt-5">
           <v-row>
             <!-- Heart Rate Zones -->
-            <v-col v-if="workout.stats.zones.hasHeartRate" cols="12"   :sm="workout.stats.zones.hasWatts ? '6' : '12'">
+            <v-col v-if="workout.zones.hasHeartRate" cols="12"   :sm="workout.zones.hasWatts ? '6' : '12'">
               <p class="text-h5 text-sm-h4 font-weight-bold">HR Data</p>
               <ZoneDistribution
-                :workout_zones="workout.stats.zones"
+                :workout_zones="workout.zones"
                 :me_zones="me.hr_zones"
                 :zone_type="'hr'"
               />
@@ -54,14 +54,14 @@
 
             <!-- Power Zones -->
             <v-col
-              v-if="workout.stats.zones.hasWatts"
+              v-if="workout.zones.hasWatts"
               cols="12"
-              :sm="workout.stats.zones.hasHeartRate ? '6' : '12'"
+              :sm="workout.zones.hasHeartRate ? '6' : '12'"
             >
               <p class="text-h5 text-sm-h4 font-weight-bold">Power Data</p>
 
               <ZoneDistribution
-                :workout_zones="workout.stats.zones"
+                :workout_zones="workout.zones"
                 :me_zones="me.power_zones"
                 :zone_type="'watt'"
               />
@@ -132,7 +132,6 @@ export default {
           }
         );
         this.workout = response.data;
-        this.buildStats();
       } catch (e) {
         console.log(e);
       }
@@ -144,10 +143,10 @@ export default {
           { name: "Distance", value: toMiles(this.workout.length) },
         ];
         if (this.workout.hr_effort) {
-          this.stats.push({ name: "HR Effort", value: this.workout.hr_effort });
+          this.push({ name: "HR Effort", value: this.workout.hr_effort });
         }
         if (this.workout.effort) {
-          this.stats.push({ name: "Effort", value: this.workout.effort });
+          this.push({ name: "Effort", value: this.workout.effort });
         }
       }
     },

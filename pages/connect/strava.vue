@@ -20,7 +20,7 @@
               :class="(activity.workoutId ? 'green elevation-0' : '') + ' ml-5'"
               @click="
                 activity.workoutId
-                  ? viewWorkouts(activity.workoutId)
+                  ? viewWorkout(activity.workoutId)
                   : importActivity(activity)
               "
             >

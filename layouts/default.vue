@@ -38,6 +38,11 @@
               <v-list-item-title>Edit Profile</v-list-item-title>
             </v-list-item>
           </NuxtLink>
+           <NuxtLink to="/profile/workouts" style="text-decoration: none">
+            <v-list-item>
+              <v-list-item-title>Workouts</v-list-item-title>
+            </v-list-item>
+          </NuxtLink>
         </v-list>
       </v-menu>
       <NuxtLink
