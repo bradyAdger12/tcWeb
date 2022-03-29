@@ -22,11 +22,14 @@
         style="min-width: 1000px"
       >
         <!-- Month Selection -->
-        <v-row justify="center" class="my-2">
-          <v-col cols="2" class="text-center">
-            <div style="display: inline" class="font-weight-bold text-h5">
+        <v-row justify="center" align="center" class="my-2">
+          <v-col cols="auto" class="text-center">
+            <div class="font-weight-bold text-h5">
               {{ monthInView.format("MMMM YYYY") }}
             </div>
+          </v-col>
+          <v-col cols="auto">
+            <v-btn @click="scrollToToday()"> today </v-btn>
           </v-col>
         </v-row>
 
@@ -154,7 +157,7 @@
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
           <v-card-text class="black--text">
-            Ability to add a workout coming soon...
+            <WorkoutsBuilder :date="addDate" />
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -215,6 +218,7 @@ export default {
       loading: true,
       refreshing: false,
       numColumns: 8,
+      addDate: null,
       loadingMore: {},
       displayFloatingHeaders: [
         "Monday",
@@ -233,8 +237,7 @@ export default {
   },
   async mounted() {
     await this.buildCalendar(this.today);
-    const id = $(`#date-${this.today.format("D-MMMM-YYYY")}`);
-    $("html, body").animate({ scrollTop: id.offset().top - 250 }, "slow");
+    this.scrollToToday();
     setTimeout(() => {
       window.addEventListener("scroll", this.listenToScrollEvents);
       this.listenToDrag();
@@ -243,6 +246,14 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    scrollToToday() {
+      window.removeEventListener("scroll", this.listenToScrollEvents);
+      const id = $(`#date-${this.today.format("D-MMMM-YYYY")}`);
+      $("html, body").animate({ scrollTop: id.offset().top - 250 }, "slow");
+      setTimeout(() => {
+        window.addEventListener("scroll", this.listenToScrollEvents);
+      }, 1000);
+    },
     listenToDrag() {
       var stop = true;
       $(".cell").on("drag", function (e) {
@@ -328,23 +339,16 @@ export default {
       }
     },
     getStartOfWeek(date) {
-      return date.subtract(date.day() - 1, "days");
+      return date.subtract(date.day() - 1, "days").startOf("day");
     },
     getEndOfWeek(date) {
-      return date.add(7 - date.day(), "days");
+      return date.add(7 - date.day(), "days").endOf("day");
     },
     async updateSummaries(oldDate, newDate) {
-      let isSameWeek = false;
       let oldWeekStart = this.getStartOfWeek(moment(oldDate.toString()));
       let oldWeekEnd = this.getEndOfWeek(moment(oldDate.toString()));
       let newWeekStart = this.getStartOfWeek(moment(newDate.toString()));
       let newWeekEnd = this.getEndOfWeek(moment(newDate.toString()));
-      if (
-        oldWeekStart.toString() + oldWeekEnd.toString() ==
-        newWeekStart.toString() + newWeekEnd.toString()
-      ) {
-        isSameWeek = true;
-      }
       const headers = {
         headers: {
           Authorization: "Bearer " + this.$store.state.auth.access_token,
@@ -434,31 +438,21 @@ export default {
       this.selectedWorkout = workout;
       this.showWorkout = true;
     },
-    getCurrentWeekDates(date) {
-      const getDay = date.day();
-      const startOfWeek = moment(
-        moment(date.toString())
-          .subtract(7 - getDay, "days")
-          .toString()
-      );
-      const endOfWeek = moment(
-        moment(date.toString()).add(getDay, "days").toString()
-      );
-      return { startOfWeek, endOfWeek };
-    },
     getDayHeaderColor(date) {
-      const { startOfWeek, endOfWeek } = this.getCurrentWeekDates(this.today);
+      date = moment(date.toString()).set({ hour: 2 });
+      const startOfWeek = this.getStartOfWeek(moment(this.today.toString()));
+      const endOfWeek = this.getEndOfWeek(moment(this.today.toString()));
+      // const { startOfWeek, endOfWeek } = this.getCurrentWeekDates(this.today);
       if (this.isToday(date)) {
         return "rgba(200, 0, 0, .5);";
       }
-      if (
-        date.isBetween(startOfWeek, endOfWeek.set({ hour: 23, minute: 59 }))
-      ) {
+      if (date.isBetween(startOfWeek, endOfWeek)) {
         return "rgba(200, 0, 0, .3);";
       }
       return "rgba(0, 0, 0, .1)";
     },
     add(date) {
+      this.addDate = date;
       this.addDialog = true;
     },
     isToday(current) {
@@ -511,12 +505,7 @@ export default {
         currentDate.add(1, "months");
       }
     },
-    async getWorkouts(
-      startDate,
-      endDate,
-      isPrepend = false,
-      isInitialLoad = false
-    ) {
+    async getWorkouts(startDate, endDate, isPrepend = false) {
       if (startDate && endDate) {
         try {
           const response = await this.$axios.get(
@@ -528,6 +517,7 @@ export default {
               },
             }
           );
+          console.log(response.data);
           let datesToAdd = [];
           if (this.refreshing) {
             this.currentDates = [];
