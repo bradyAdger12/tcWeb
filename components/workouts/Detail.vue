@@ -17,7 +17,9 @@
         <v-row>
           <v-col cols="auto" v-for="stat in stats" :key="stat.name">
             <div v-if="stat.value">
-              <span class="text-h5 text-sm-h4 font-weight-bold">{{ stat.value }}</span>
+              <span class="text-h5 text-sm-h4 font-weight-bold">{{
+                stat.value
+              }}</span>
               <div>{{ stat.name }}</div>
             </div>
           </v-col>
@@ -27,14 +29,17 @@
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
               <div v-if="workout.bests.heartrate[time]">
-                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon>{{ time }} : {{ workout.bests.heartrate[time] }} bpm
+                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon
+                >{{ time }} : {{ workout.bests.heartrate[time] }} bpm
               </div>
             </div>
           </v-col>
           <v-col cols="auto">
             <div v-for="time in timeRanges" :key="time">
               <div v-if="workout.bests.watts[time]">
-                <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon>{{ time }} : {{ workout.bests.watts[time] }} watts
+                <v-icon size="15" color="grey" class="mr-1"
+                  >mdi-lightning-bolt</v-icon
+                >{{ time }} : {{ workout.bests.watts[time] }} watts
               </div>
             </div>
           </v-col>
@@ -43,7 +48,11 @@
         <div class="mt-5">
           <v-row>
             <!-- Heart Rate Zones -->
-            <v-col v-if="workout.zones.hasHeartRate" cols="12"   :sm="workout.zones.hasWatts ? '6' : '12'">
+            <v-col
+              v-if="workout.zones.hasHeartRate"
+              cols="12"
+              :sm="workout.zones.hasWatts ? '6' : '12'"
+            >
               <p class="text-h5 text-sm-h4 font-weight-bold">HR Data</p>
               <ZoneDistribution
                 :workout_zones="workout.zones"
@@ -69,6 +78,10 @@
           </v-row>
         </div>
       </div>
+      <highchart
+        :options="chartOptions"
+        :update="['options.title', 'options.series']"
+      />
     </div>
   </div>
 </template>
@@ -77,6 +90,7 @@
 import _ from "lodash";
 import { formatDate, formatDuration } from "~/tools/format_moment";
 import { toMiles } from "~/tools/conversion.js";
+import duration from "format-duration";
 import ZoneDistribution from "~/components/workouts/ZoneDistribution.vue";
 export default {
   name: "Workout",
@@ -90,6 +104,7 @@ export default {
   components: { ZoneDistribution },
   data() {
     return {
+      chartsOptions: null,
       stats: [],
       loading: true,
       workout: null,
@@ -132,6 +147,65 @@ export default {
           }
         );
         this.workout = response.data;
+        const series = [];
+
+        if (this.workout.streams.heartrate) {
+          series.push({
+            lineWidth: 1.0,
+            name: "Heart Rate",
+            color: "red",
+            tooltip: {
+              valueSuffix: "bpm",
+            },
+            states: {
+              hover: {
+                enabled: false,
+                lineWidth: 1,
+              },
+            },
+            type: "line",
+            data: this.workout.streams.heartrate.data,
+          });
+        }
+        if (this.workout.streams.watts) {
+          series.push({
+            lineWidth: 1.0,
+            color: "blue",
+            name: "Power",
+            states: {
+              hover: {
+                enabled: false,
+                lineWidth: 1,
+              },
+            },
+            tooltip: {
+              valueSuffix: "watts",
+            },
+            type: "line",
+            data: this.workout.streams.watts.data,
+          });
+        }
+        this.chartOptions = {
+          title: {
+            text: "Data Chart",
+          },
+          tooltip: {
+            formatter: function () {
+              console.log(this);
+              return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${
+                this.color == "blue" ? "watts" : "heartrate"
+              }`;
+            },
+          },
+          xAxis: {
+            labels: {
+              formatter: (e) => {
+                return this.formatDuration(e.value);
+              },
+            },
+          },
+          series: series,
+        };
       } catch (e) {
         console.log(e);
       }
