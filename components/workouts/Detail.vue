@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-5 black--text white">
+  <div class="pa-5 black--text white" style="position: relative">
     <div v-if="loading" class="ma-16 text-center">
       <v-progress-circular indeterminate size="80" />
     </div>
@@ -9,6 +9,9 @@
       </div>
       <div class="subtitle-1">
         {{ formatDate(workout.started_at) }}
+      </div>
+      <div class="mt-3">
+        <i>{{ workout.description }}</i>
       </div>
       <div
         style="background-color: rgba(0, 0, 0, 0.1)"
@@ -79,9 +82,37 @@
         </div>
       </div>
       <highchart
+        class="mt-4"
+        style="height: 300px"
         :options="chartOptions"
         :update="['options.title', 'options.series']"
       />
+      <v-card-actions>
+        <v-btn color="blue"> Edit </v-btn>
+        <v-btn color="red" @click="openDeleteDialog = true"> Delete </v-btn>
+      </v-card-actions>
+      <v-dialog v-model="openDeleteDialog" width="400" light>
+        <v-card>
+          <v-card-title> Delete Workout? </v-card-title>
+          <v-card-text>
+            Are you sure you want to delete <strong>{{ workout.name }}</strong
+            >?
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="deleteWorkout">
+              Yes
+              <v-progress-circular
+                v-if="deleting"
+                size="15"
+                indeterminate
+                width="2"
+                class="ml-1"
+              />
+            </v-btn>
+            <v-btn @click="openDeleteDialog = false"> No </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>
@@ -107,6 +138,9 @@ export default {
       chartsOptions: null,
       stats: [],
       loading: true,
+      deleting: false,
+      updating: false,
+      openDeleteDialog: false,
       workout: null,
       timeRanges: [
         "1hr",
@@ -136,6 +170,22 @@ export default {
   methods: {
     formatDuration: formatDuration,
     formatDate: formatDate,
+    async deleteWorkout() {
+      // const id = this.workoutId;
+      // const token = this.authentication;
+      // this.deleting = true;
+      try {
+        // await this.$store.dispatch("workouts/deleteWorkout", { id, token });
+        // this.$store.dispatch("snackbar/showSnack", {
+        //   text: "Workout successfully deleted!",
+        //   color: "green",
+        //   timeout: 3500,
+        // });
+        this.openDeleteDialog = false;
+        this.$emit("onDelete");
+      } catch (e) {}
+      this.deleting = false;
+    },
     async getWorkout() {
       try {
         const response = await this.$axios.get(
@@ -187,13 +237,12 @@ export default {
         }
         this.chartOptions = {
           title: {
-            text: "Data Chart",
+            text: "",
           },
           tooltip: {
             formatter: function () {
-              console.log(this);
               return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${
-                this.color == "blue" ? "watts" : "heartrate"
+                this.color == "blue" ? "watts" : "bpm"
               }`;
             },
           },

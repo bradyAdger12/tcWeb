@@ -2,16 +2,16 @@
   <div>
     <draggable
       v-model="blocks"
-      :options="{ group: { name: 'blocks' } }"
+      :options="{ group: { name: 'blocks', pull: 'clone', put: false }, sort: false }"
       @change="addBlock"
+      :clone="cloneItem"
+      draggable=".cell"
       style="display: inline-block"
     >
       <div
         v-for="block in blocks"
         :key="uuid(block)"
-        class="cell mr-8"
-        ghost-class="ghost"
-        style="display: inline-block"
+        class="cell"
       >
         <WorkoutsBuilderBlock :block="block" style="cursor: grab" />
       </div>
@@ -23,7 +23,7 @@
         height: 150px;
         background-color: rgba(100, 100, 100, 0.2);
         overflow-x: scroll;
-        overflow: auto;
+        overflow-y: hidden;
         white-space: nowrap;
       "
     >
@@ -31,6 +31,7 @@
         v-model="addedBlocks"
         :options="{ group: 'blocks' }"
         style="height: 150px; display: inline-block"
+        ghost-class="ghost"
         @change="orderBlocks"
       >
         <div
@@ -197,19 +198,19 @@ export default {
       // if (e.added) {
       //   this.addedBlocks.splice(e.added.newIndex, , JSON.parse(JSON.stringify(e.added.element)))
       // }
-      if (e.added) {
-        const index = _.findIndex(
-          this.addedBlocks,
-          (item) => item.uid == e.added.element.uid
-        );
-        if (index != -1) {
-          this.addedBlocks.splice(
-            index,
-            1,
-            JSON.parse(JSON.stringify(e.added.element))
-          );
-        }
-      }
+      // if (e.added) {
+      //   const index = _.findIndex(
+      //     this.addedBlocks,
+      //     (item) => item.uid == e.added.element.uid
+      //   );
+      //   if (index != -1) {
+      //     this.addedBlocks.splice(
+      //       index,
+      //       1,
+      //       JSON.parse(JSON.stringify(e.added.element))
+      //     );
+      //   }
+      // }
     },
     uuid(e) {
       if (e.uid) return e.uid;
@@ -221,9 +222,9 @@ export default {
       return e.uid;
     },
     addBlock(e) {
-      if (e.removed) {
-        this.blocks.splice(e.removed.oldIndex, 0, e.removed.element);
-      }
+      // if (e.removed) {
+      //   this.blocks.splice(e.removed.oldIndex, 0, e.removed.element);
+      // }
     },
   },
 };

@@ -29,7 +29,9 @@
             </div>
           </v-col>
           <v-col cols="auto">
-            <v-btn @click="scrollToToday()"> today </v-btn>
+            <v-btn light x-small @click="scrollToToday()">
+              scroll to today
+            </v-btn>
           </v-col>
         </v-row>
 
@@ -123,16 +125,14 @@
               draggable=".cell"
               :scroll-sensitivity="200"
               group="workouts"
-              ghost-class="ghost"
               @change="dragChange($event, item.date)"
             >
               <div
                 v-for="workout of item.workouts"
                 :key="workout.id"
                 class="cell"
-                @click="openWorkout(workout)"
               >
-                <CalendarCell :workout="workout" />
+                <CalendarCell :workout="workout" :current-dates="currentDates" @onUpdate="onUpdate" />
               </div>
             </draggable>
 
@@ -141,7 +141,7 @@
                 block
                 class="pa-2 text-center"
                 style="border-radius: 5px; background-color: rgba(0, 0, 0, 0.3)"
-                @click="add(item.date)"
+                @click="addWorkout(item.date)"
               >
                 <v-icon> mdi-plus </v-icon>
               </v-btn>
@@ -161,15 +161,7 @@
           </v-card-text>
         </v-card>
       </v-dialog>
-      <v-dialog
-        v-model="showWorkout"
-        width="900"
-        @click:outside="showWorkout = false"
-      >
-        <v-card v-if="selectedWorkout" :key="selectedWorkout.id">
-          <WorkoutsDetail :workoutId="selectedWorkout.id" />
-        </v-card>
-      </v-dialog>
+
       <div
         v-if="loadingMore && (loadingMore.bottom || loadingMore.top)"
         :style="`position: fixed; z-index: 2; ${
@@ -213,8 +205,6 @@ export default {
       currentMoment: moment(),
       monthInView: moment(),
       addDialog: false,
-      showWorkout: false,
-      selectedWorkout: null,
       loading: true,
       refreshing: false,
       numColumns: 8,
@@ -246,6 +236,9 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    onUpdate() {
+      this.$forceUpdate()
+    },
     scrollToToday() {
       window.removeEventListener("scroll", this.listenToScrollEvents);
       const id = $(`#date-${this.today.format("D-MMMM-YYYY")}`);
@@ -434,10 +427,7 @@ export default {
       }
       this.refreshing = false;
     },
-    openWorkout(workout) {
-      this.selectedWorkout = workout;
-      this.showWorkout = true;
-    },
+
     getDayHeaderColor(date) {
       date = moment(date.toString()).set({ hour: 2 });
       const startOfWeek = this.getStartOfWeek(moment(this.today.toString()));
@@ -451,7 +441,7 @@ export default {
       }
       return "rgba(0, 0, 0, .1)";
     },
-    add(date) {
+    addWorkout(date) {
       this.addDate = date;
       this.addDialog = true;
     },

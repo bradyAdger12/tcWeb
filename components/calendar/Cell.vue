@@ -2,7 +2,7 @@
   <div
     class="pa-1 black--text mx-1 mt-1 elevation-4 rounded"
     style="background-color: rgba(0, 0, 0, 0.01); cursor: grab"
-    @click.
+    @click="openWorkout(workout)"
   >
     <div class="font-weight-black" style="font-size: 13px">
       {{ workout.name }}
@@ -25,6 +25,19 @@
         {{ workout.hr_effort }}
       </div>
     </div>
+    <v-dialog
+      v-model="showWorkout"
+      width="900"
+      scrollable
+      @click:outside="showWorkout = false"
+    >
+      <v-card v-if="selectedWorkout" :key="selectedWorkout.id">
+        <WorkoutsDetail
+          :workoutId="selectedWorkout.id"
+          @onDelete="onDeleteWorkout"
+        />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -32,16 +45,52 @@
 <script>
 import { toMiles } from "~/tools/conversion";
 import { formatDuration } from "~/tools/format_moment";
+import moment from 'moment'
 export default {
   props: {
+    currentDates: {
+      type: Array,
+      required: true
+    },
     workout: {
       type: Object,
       required: true,
     },
   },
+  data() {
+    return {
+      selectedWorkout: null,
+      showWorkout: false,
+    };
+  },
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    findWorkoutsInDates(workout) {
+      const foundDate = _.find(this.currentDates, (item) => {
+        if (item.date) {
+          return (
+            item.date.format("D MMMM YYYY") ==
+            moment(workout.started_at).format("D MMMM YYYY")
+          );
+        }
+      });
+      if (foundDate) {
+        return foundDate.workouts;
+      }
+      return null;
+    },
+    onDeleteWorkout() {
+      const workouts = this.findWorkoutsInDates(this.selectedWorkout);
+      _.remove(workouts, (item) => item.id == this.selectedWorkout.id);
+      this.showWorkout = false;
+      this.selectedWorkout = false;
+      this.$emit('onUpdate')
+    },
+    openWorkout(workout) {
+      this.selectedWorkout = workout;
+      this.showWorkout = true;
+    },
   },
 };
 </script>

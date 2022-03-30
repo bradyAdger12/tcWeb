@@ -37,25 +37,25 @@
           </v-list-item>
         </v-list>
         <v-row justify="center" align="center" class="mt-4">
-          <v-col cols="auto" @click="page <= 1 ? page -= 1 : null">
-            <v-btn>
-              Prev
-            </v-btn>
+          <v-col cols="auto" @click="page <= 1 ? (page -= 1) : null">
+            <v-btn> Prev </v-btn>
           </v-col>
           <v-col cols="auto">
             {{ page }}
           </v-col>
-          <v-col cols="auto"  @click="page += 1">
-            <v-btn>
-              Next
-            </v-btn>
+          <v-col cols="auto" @click="page += 1">
+            <v-btn> Next </v-btn>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
     <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="workoutId">
-        <WorkoutsDetail :workout-id="workoutId" :key="workoutId" />
+        <WorkoutsDetail
+          :workout-id="workoutId"
+          :key="workoutId"
+          @onDelete="onDelete"
+        />
       </v-card>
     </v-dialog>
   </div>
@@ -103,10 +103,17 @@ export default {
   },
   watch: {
     page() {
-      this.getStravaActivities()
-    }
+      this.getStravaActivities();
+    },
   },
   methods: {
+    onDelete() {
+      const found = _.find(this.activities, (item) => item.workoutId == this.workoutId);
+      if (found) {
+        found.workoutId = null;
+        this.showWorkout = false
+      }
+    },
     viewWorkout(id) {
       this.showWorkout = true;
       this.workoutId = id;
@@ -135,11 +142,12 @@ export default {
     },
     formatDate: formatDate,
     async getStravaActivities() {
-      this.loading = true
+      this.loading = true;
       if (this.me.strava_token) {
         try {
           const stravaActivities = await this.$axios.get(
-            this.$axios.defaults.baseURL + `/strava/activities?page=${this.page}&per_page=${this.per_page}`,
+            this.$axios.defaults.baseURL +
+              `/strava/activities?page=${this.page}&per_page=${this.per_page}`,
             {
               headers: {
                 Authorization: "Bearer " + this.$store.state.auth.access_token,
@@ -153,7 +161,7 @@ export default {
         } catch (e) {
           console.log(e);
         }
-        this.loading = false
+        this.loading = false;
       }
     },
     async getAccessToken() {
