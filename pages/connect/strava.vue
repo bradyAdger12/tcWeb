@@ -135,6 +135,7 @@ export default {
 
         if (response && response.data) {
           activity.workoutId = response.data.id;
+          await this.$store.dispatch('auth/getMe')
         }
       } catch (e) {}
       activity.importing = false;
