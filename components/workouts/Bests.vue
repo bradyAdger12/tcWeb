@@ -5,6 +5,9 @@
         <div v-if="bests.heartrate.hasOwnProperty(time)">
           <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon
           >{{ time }} : {{ bests.heartrate[time] }} bpm
+           <v-icon small color="#FCC201">
+            {{ isBest(time, "heartrate") ? "mdi-trophy-variant" : "" }}
+          </v-icon>
         </div>
       </div>
     </v-col>
@@ -13,6 +16,9 @@
         <div v-if="bests.watts.hasOwnProperty(time)">
           <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon
           >{{ time }} : {{ bests.watts[time] }} watts
+          <v-icon small color="#FCC201">
+            {{ isBest(time, "watts") ? "mdi-trophy-variant" : "" }}
+          </v-icon>
         </div>
       </div>
     </v-col>
@@ -23,9 +29,19 @@
 <script>
 export default {
   props: {
+    isAllTime: {
+      type: Boolean,
+      require: false,
+      default: false,
+    },
     bests: {
       type: Object,
       required: true,
+    },
+  },
+  computed: {
+    me() {
+      return this.$store.state.auth.me;
     },
   },
   data() {
@@ -42,6 +58,14 @@ export default {
         "max",
       ],
     };
+  },
+  methods: {
+    isBest(key, type) {
+      if (this.bests[type][key] >= this.me.bests[type][key] && !this.isAllTime) {
+        return true;
+      }
+      return false;
+    },
   },
 };
 </script>

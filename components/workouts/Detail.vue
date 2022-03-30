@@ -39,7 +39,7 @@
               cols="12"
               :sm="workout.zones.hasWatts ? '6' : '12'"
             >
-              <p class="text-h5 text-sm-h4 font-weight-bold">HR Data</p>
+              <p class="text-h5 text-sm-h4 font-weight-bold">HR Zones</p>
               <ZoneDistribution
                 :workout_zones="workout.zones"
                 :me_zones="me.hr_zones"
@@ -53,7 +53,7 @@
               cols="12"
               :sm="workout.zones.hasHeartRate ? '6' : '12'"
             >
-              <p class="text-h5 text-sm-h4 font-weight-bold">Power Data</p>
+              <p class="text-h5 text-sm-h4 font-weight-bold">Power Zones</p>
 
               <ZoneDistribution
                 :workout_zones="workout.zones"
@@ -64,12 +64,12 @@
           </v-row>
         </div>
       </div>
-      <highchart
-        class="mt-4"
-        style="height: 300px"
-        :options="chartOptions"
-        :update="['options.title', 'options.series']"
-      />
+      <v-switch
+        light
+        v-model="showZones"
+        :label="`Show zones`"
+      ></v-switch>
+      <highchart class="mt-4" style="height: 300px" :options="chartOptions" />
       <v-card-actions>
         <v-btn color="blue"> Edit </v-btn>
         <v-btn color="red" @click="openDeleteDialog = true"> Delete </v-btn>
@@ -125,6 +125,7 @@ export default {
       updating: false,
       openDeleteDialog: false,
       workout: null,
+      showZones: false,
     };
   },
   async mounted() {
@@ -137,6 +138,11 @@ export default {
     },
     authentication() {
       return this.$store.state.auth.access_token;
+    },
+  },
+  watch: {
+    showZones() {
+      this.buildChart();
     },
   },
   methods: {
@@ -169,67 +175,96 @@ export default {
           }
         );
         this.workout = response.data;
-        const series = [];
-
-        if (this.workout.streams.heartrate) {
-          series.push({
-            lineWidth: 1.0,
-            name: "Heart Rate",
-            color: "red",
-            tooltip: {
-              valueSuffix: "bpm",
-            },
-            states: {
-              hover: {
-                enabled: false,
-                lineWidth: 1,
-              },
-            },
-            type: "line",
-            data: this.workout.streams.heartrate.data,
-          });
-        }
-        if (this.workout.streams.watts) {
-          series.push({
-            lineWidth: 1.0,
-            color: "blue",
-            name: "Power",
-            states: {
-              hover: {
-                enabled: false,
-                lineWidth: 1,
-              },
-            },
-            tooltip: {
-              valueSuffix: "watts",
-            },
-            type: "line",
-            data: this.workout.streams.watts.data,
-          });
-        }
-        this.chartOptions = {
-          title: {
-            text: "",
-          },
-          tooltip: {
-            formatter: function () {
-              return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${
-                this.color == "blue" ? "watts" : "bpm"
-              }`;
-            },
-          },
-          xAxis: {
-            labels: {
-              formatter: (e) => {
-                return this.formatDuration(e.value);
-              },
-            },
-          },
-          series: series,
-        };
+        this.buildChart();
       } catch (e) {
         console.log(e);
       }
+    },
+    showChartZones(zones) {
+      return [
+        {
+          value: _.find(zones, (item) => item.title == "Recovery")?.high,
+          color: "grey",
+        },
+        {
+          value: _.find(zones, (item) => item.title == "Endurance")?.high,
+          color: "blue",
+        },
+        {
+          value: _.find(zones, (item) => item.title == "Tempo")?.high,
+          color: "green",
+        },
+        {
+          value: _.find(zones, (item) => item.title == "Threshold")?.high,
+          color: "orange",
+        },
+        {
+          value: _.find(zones, (item) => item.title == "VO2 Max")?.high,
+          color: "red",
+        },
+      ];
+    },
+    buildChart() {
+      const series = [];
+      if (this.workout.streams.heartrate) {
+        console.log(this.showZones);
+        series.push({
+          lineWidth: 1.0,
+          name: "Heart Rate",
+          color: "red",
+          tooltip: {
+            valueSuffix: "bpm",
+          },
+          states: {
+            hover: {
+              enabled: false,
+              lineWidth: 1,
+            },
+          },
+          type: "line",
+          zones: !this.showZones ? [] : this.showChartZones(this.me.hr_zones),
+          data: this.workout.streams.heartrate.data,
+        });
+      }
+      if (this.workout.streams.watts) {
+        series.push({
+          lineWidth: 1.0,
+          color: "blue",
+          name: "Power",
+          states: {
+            hover: {
+              enabled: false,
+              lineWidth: 1,
+            },
+          },
+          tooltip: {
+            valueSuffix: "watts",
+          },
+          type: "line",
+          zones: !this.showZones ? [] : this.showChartZones(this.me.power_zones),
+          data: this.workout.streams.watts.data,
+        });
+      }
+      this.chartOptions = {
+        title: {
+          text: "",
+        },
+        tooltip: {
+          formatter: function () {
+            return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${
+              this.color == "blue" ? "watts" : "bpm"
+            }`;
+          },
+        },
+        xAxis: {
+          labels: {
+            formatter: (e) => {
+              return this.formatDuration(e.value);
+            },
+          },
+        },
+        series: series,
+      };
     },
     buildStats() {
       if (this.workout) {
