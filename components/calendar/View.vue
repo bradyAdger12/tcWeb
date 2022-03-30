@@ -202,7 +202,6 @@ export default {
       currentDates: [],
       monthElements: [],
       today: moment(),
-      currentMoment: moment(),
       monthInView: moment(),
       addDialog: false,
       loading: true,
@@ -236,8 +235,9 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
-    onUpdate() {
-      this.$forceUpdate()
+    async onUpdate(e) {
+      console.log(e)
+      await this.updateSummaries(moment(e.started_at), moment(e.started_at))
     },
     scrollToToday() {
       window.removeEventListener("scroll", this.listenToScrollEvents);
@@ -507,7 +507,6 @@ export default {
               },
             }
           );
-          console.log(response.data);
           let datesToAdd = [];
           if (this.refreshing) {
             this.currentDates = [];

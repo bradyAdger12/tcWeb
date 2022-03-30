@@ -171,16 +171,16 @@ export default {
     formatDuration: formatDuration,
     formatDate: formatDate,
     async deleteWorkout() {
-      // const id = this.workoutId;
-      // const token = this.authentication;
-      // this.deleting = true;
+      const id = this.workoutId;
+      const token = this.authentication;
+      this.deleting = true;
       try {
-        // await this.$store.dispatch("workouts/deleteWorkout", { id, token });
-        // this.$store.dispatch("snackbar/showSnack", {
-        //   text: "Workout successfully deleted!",
-        //   color: "green",
-        //   timeout: 3500,
-        // });
+        await this.$store.dispatch("workouts/deleteWorkout", { id, token });
+        this.$store.dispatch("snackbar/showSnack", {
+          text: "Workout successfully deleted!",
+          color: "green",
+          timeout: 3500,
+        });
         this.openDeleteDialog = false;
         this.$emit("onDelete");
       } catch (e) {}

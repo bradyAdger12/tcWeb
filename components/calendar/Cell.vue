@@ -85,7 +85,7 @@ export default {
       _.remove(workouts, (item) => item.id == this.selectedWorkout.id);
       this.showWorkout = false;
       this.selectedWorkout = false;
-      this.$emit('onUpdate')
+      this.$emit('onUpdate', this.workout)
     },
     openWorkout(workout) {
       this.selectedWorkout = workout;
