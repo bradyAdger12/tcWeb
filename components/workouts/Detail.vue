@@ -64,16 +64,23 @@
           </v-row>
         </div>
       </div>
-      <v-switch
-        light
-        v-model="showZones"
-        :label="`Show zones`"
-      ></v-switch>
+      <v-switch light v-model="showZones" :label="`Show zones`"></v-switch>
       <highchart class="mt-4" style="height: 300px" :options="chartOptions" />
       <v-card-actions>
-        <v-btn color="blue"> Edit </v-btn>
+        <v-btn color="blue" @click="openEditDialog = true"> Edit </v-btn>
         <v-btn color="red" @click="openDeleteDialog = true"> Delete </v-btn>
       </v-card-actions>
+      <v-dialog v-model="openEditDialog" width="400" light>
+        <v-card>
+          <v-card-title> Edit Workout </v-card-title>
+          <v-card-text>
+            <WorkoutsEdit
+              :workout="workout"
+              @onUpdate="onUpdateWorkout"
+            />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
       <v-dialog v-model="openDeleteDialog" width="400" light>
         <v-card>
           <v-card-title> Delete Workout? </v-card-title>
@@ -124,6 +131,7 @@ export default {
       deleting: false,
       updating: false,
       openDeleteDialog: false,
+      openEditDialog: false,
       workout: null,
       showZones: false,
     };
@@ -148,6 +156,11 @@ export default {
   methods: {
     formatDuration: formatDuration,
     formatDate: formatDate,
+    async onUpdateWorkout(updatedWorkout) {
+      this.workout = updatedWorkout
+      this.openEditDialog = false
+      this.$emit('onUpdate')
+    },
     async deleteWorkout() {
       const id = this.workoutId;
       const token = this.authentication;
@@ -241,7 +254,9 @@ export default {
             valueSuffix: "watts",
           },
           type: "line",
-          zones: !this.showZones ? [] : this.showChartZones(this.me.power_zones),
+          zones: !this.showZones
+            ? []
+            : this.showChartZones(this.me.power_zones),
           data: this.workout.streams.watts.data,
         });
       }
