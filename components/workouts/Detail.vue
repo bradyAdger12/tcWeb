@@ -76,7 +76,7 @@
           <v-card-text>
             <WorkoutsEdit
               :workout="workout"
-              @onUpdate="onUpdateWorkout"
+              @onUpdate="openEditDialog = false"
             />
           </v-card-text>
         </v-card>
@@ -156,11 +156,7 @@ export default {
   methods: {
     formatDuration: formatDuration,
     formatDate: formatDate,
-    async onUpdateWorkout(updatedWorkout) {
-      this.workout = updatedWorkout
-      this.openEditDialog = false
-      this.$emit('onUpdate')
-    },
+
     async deleteWorkout() {
       const id = this.workoutId;
       const token = this.authentication;

@@ -118,27 +118,53 @@
               }}
             </div>
 
+            <!-- Drag target -->
+            <div
+              :id="`${item.date.format('D-MMMM-YYYY')}`"
+              style="
+                background-color: rgba(0, 0, 0, 0.1);
+                margin: 5px;
+                height: 25px;
+                border-radius: 10px;
+              "
+              v-if="item.workouts.length == 0 && isDragging"
+              @drop="onDrop"
+              @dragover="onDragOver"
+            />
+
             <!-- Workout View -->
 
-            <draggable
-              v-model="item.workouts"
-              draggable=".cell"
-              :scroll-sensitivity="200"
-              group="workouts"
-              @change="dragChange($event, item.date)"
+            <div
+              v-for="workout of item.workouts"
+              :key="workout.id"
+              :draggable="true"
+              @dragend="isDragging = false; workoutBeingDragged = null"
+              @dragstart="dragStart($event, workout)"
             >
+              <CalendarCell
+                :workout="workout"
+                :current-dates="currentDates"
+                @onUpdate="onUpdate"
+              />
+              <!-- Drag target -->
               <div
-                v-for="workout of item.workouts"
-                :key="workout.id"
-                class="cell"
-              >
-                <CalendarCell
-                  :workout="workout"
-                  :current-dates="currentDates"
-                  @onUpdate="onUpdate"
-                />
-              </div>
-            </draggable>
+                v-if="
+                  isDragging &&
+                  workoutBeingDragged && 
+                  item.date.format('D MMMM YYYY') !=
+                    getMoment(workoutBeingDragged.started_at).format('D MMMM YYYY')
+                "
+                :id="`${item.date.format('D-MMMM-YYYY')}`"
+                style="
+                  background-color: rgba(0, 0, 0, 0.1);
+                  margin: 8px;
+                  height: 12px;
+                  border-radius: 10px;
+                "
+                @drop="onDrop"
+                @dragover="onDragOver"
+              />
+            </div>
 
             <div class="add-event ma-2">
               <v-btn
@@ -210,6 +236,7 @@ export default {
       addDialog: false,
       loading: true,
       refreshing: false,
+      isDragging: false,
       numColumns: 8,
       addDate: null,
       loadingMore: {},
@@ -228,6 +255,16 @@ export default {
   destroyed() {
     window.removeEventListener("scroll", this.listenToScrollEvents);
   },
+  computed: {
+    authenticated() {
+      return this.$store.state.auth.access_token;
+    },
+  },
+  watch: {
+    "$store.state.calendar.dates": function () {
+      this.currentDates = this.$store.state.calendar.dates;
+    },
+  },
   async mounted() {
     await this.buildCalendar(this.today);
     this.scrollToToday();
@@ -239,8 +276,25 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    getMoment(date) {
+      return moment(date);
+    },
+    onDragOver(ev) {
+      ev.preventDefault();
+    },
+    async onDrop(ev) {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("workout");
+      const workout = JSON.parse(data);
+      const date = moment(ev.target.id).endOf("day");
+      await this.moveWorkout(workout, date);
+    },
+    dragStart(ev, workout) {
+      this.isDragging = true;
+      this.workoutBeingDragged = workout
+      ev.dataTransfer.setData("workout", JSON.stringify(workout));
+    },
     async onUpdate(e) {
-      console.log(e);
       await this.updateSummaries(moment(e.started_at), moment(e.started_at));
     },
     scrollToToday() {
@@ -322,26 +376,15 @@ export default {
         }
       }
     },
-    dragChange(e, date) {
-      if (e.added) {
-        const newDate = date;
-        const workout = e.added.element;
-        if (newDate && workout) {
-          try {
-            this.updateWorkout(workout, newDate);
-          } catch (e) {
-            console.log(e);
-          }
-        }
-      }
-    },
     getStartOfWeek(date) {
       return date
         .subtract(date.day() == 0 ? 6 : date.day() - 1, "days")
         .startOf("day");
     },
     getEndOfWeek(date) {
-      return date.add(date.day() == 0 ? 0 : 7 - date.day(), "days").endOf("day");
+      return date
+        .add(date.day() == 0 ? 0 : 7 - date.day(), "days")
+        .endOf("day");
     },
     async updateSummaries(oldDate, newDate) {
       let oldWeekStart = this.getStartOfWeek(moment(oldDate.toString()));
@@ -403,7 +446,7 @@ export default {
       }
       this.$forceUpdate();
     },
-    async updateWorkout(workout, date) {
+    async moveWorkout(workout, date) {
       try {
         date = moment(date.toString());
         const newDate = moment(workout.started_at)
@@ -413,21 +456,19 @@ export default {
             date: date.date(),
           })
           .local();
-        const response = await this.$axios.put(
-          this.$axios.defaults.baseURL + `/workouts/${workout.id}?light=true`,
-          { started_at: newDate.toISOString() },
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
-          }
-        );
+        const token = this.authenticated;
+        const oldDate = moment(workout.started_at);
+        await this.$store.dispatch("calendar/moveWorkout", {
+          workout,
+          token,
+          newDate,
+          oldDate,
+        });
         this.refreshing = true;
         await this.updateSummaries(
-          moment(workout.started_at),
-          moment(newDate).toString()
+          moment(oldDate),
+          moment(newDate)
         );
-        workout.started_at = response.data.started_at; // update workouts new start date
       } catch (e) {
         console.log(e);
       }
@@ -502,44 +543,15 @@ export default {
       }
     },
     async getWorkouts(startDate, endDate, isPrepend = false) {
-      if (startDate && endDate) {
-        try {
-          const response = await this.$axios.get(
-            this.$axios.defaults.baseURL +
-              `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}`,
-            {
-              headers: {
-                Authorization: "Bearer " + this.$store.state.auth.access_token,
-              },
-            }
-          );
-          let datesToAdd = [];
-          if (this.refreshing) {
-            this.currentDates = [];
-          }
-
-          // Add incoming dates to temporary list
-          for (let item of response.data.dates) {
-            if (item.date) {
-              item.date = moment(item.date.toString());
-            }
-            datesToAdd.push(item);
-          }
-
-          // If the dates are before initial month, prepend, if not, push to end
-          if (isPrepend) {
-            for (let date of datesToAdd.reverse()) {
-              this.currentDates.unshift(date);
-            }
-          } else {
-            for (let date of datesToAdd) {
-              this.currentDates.push(date);
-            }
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
+      const token = this.authenticated;
+      try {
+        await this.$store.dispatch("calendar/getCalendar", {
+          token,
+          startDate,
+          endDate,
+          isPrepend,
+        });
+      } catch (e) {}
     },
   },
 };

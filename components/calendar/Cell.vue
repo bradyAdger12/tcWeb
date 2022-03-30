@@ -35,6 +35,7 @@
         <WorkoutsDetail
           :workoutId="selectedWorkout.id"
           @onDelete="onDeleteWorkout"
+          :key="JSON.stringify(selectedWorkout)"
         />
       </v-card>
     </v-dialog>

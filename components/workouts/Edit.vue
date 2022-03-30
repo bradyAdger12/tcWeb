@@ -1,7 +1,7 @@
 <template>
   <div v-if="updatedWorkout">
-    <v-text-field v-model="updatedWorkout.name" label="Name" />
-    <v-text-field v-model="updatedWorkout.description" label="Description" />
+    <v-text-field v-model="updatedWorkout.name" label="Name"  />
+    <v-textarea v-model="updatedWorkout.description" label="Description" filled rounded class="rounded-lg" />
     <v-card-actions>
       <v-btn @click="save">
         Save
@@ -50,6 +50,11 @@ export default {
           description: this.updatedWorkout.description,
         };
         await this.$store.dispatch("workouts/updateWorkout", {
+          id,
+          token,
+          payload,
+        });
+        await this.$store.dispatch("calendar/updateWorkout", {
           id,
           token,
           payload,
