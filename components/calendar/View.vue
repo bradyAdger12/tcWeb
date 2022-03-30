@@ -132,7 +132,11 @@
                 :key="workout.id"
                 class="cell"
               >
-                <CalendarCell :workout="workout" :current-dates="currentDates" @onUpdate="onUpdate" />
+                <CalendarCell
+                  :workout="workout"
+                  :current-dates="currentDates"
+                  @onUpdate="onUpdate"
+                />
               </div>
             </draggable>
 
@@ -236,8 +240,8 @@ export default {
     toMiles: toMiles,
     formatDuration: formatDuration,
     async onUpdate(e) {
-      console.log(e)
-      await this.updateSummaries(moment(e.started_at), moment(e.started_at))
+      console.log(e);
+      await this.updateSummaries(moment(e.started_at), moment(e.started_at));
     },
     scrollToToday() {
       window.removeEventListener("scroll", this.listenToScrollEvents);
@@ -332,10 +336,12 @@ export default {
       }
     },
     getStartOfWeek(date) {
-      return date.subtract(date.day() - 1, "days").startOf("day");
+      return date
+        .subtract(date.day() == 0 ? 6 : date.day() - 1, "days")
+        .startOf("day");
     },
     getEndOfWeek(date) {
-      return date.add(7 - date.day(), "days").endOf("day");
+      return date.add(date.day() == 0 ? 0 : 7 - date.day(), "days").endOf("day");
     },
     async updateSummaries(oldDate, newDate) {
       let oldWeekStart = this.getStartOfWeek(moment(oldDate.toString()));
