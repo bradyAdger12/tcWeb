@@ -28,25 +28,8 @@
           </v-col>
         </v-row>
 
-        <v-row>
-          <v-col cols="auto">
-            <div v-for="time in timeRanges" :key="time">
-              <div v-if="workout.bests.heartrate[time]">
-                <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon
-                >{{ time }} : {{ workout.bests.heartrate[time] }} bpm
-              </div>
-            </div>
-          </v-col>
-          <v-col cols="auto">
-            <div v-for="time in timeRanges" :key="time">
-              <div v-if="workout.bests.watts[time]">
-                <v-icon size="15" color="grey" class="mr-1"
-                  >mdi-lightning-bolt</v-icon
-                >{{ time }} : {{ workout.bests.watts[time] }} watts
-              </div>
-            </div>
-          </v-col>
-        </v-row>
+        <!-- Bests for workout -->
+        <WorkoutsBests :bests="workout.bests" />
 
         <div class="mt-5">
           <v-row>
@@ -142,17 +125,6 @@ export default {
       updating: false,
       openDeleteDialog: false,
       workout: null,
-      timeRanges: [
-        "1hr",
-        "20min",
-        "10min",
-        "5min",
-        "2min",
-        "1min",
-        "30sec",
-        "5sec",
-        "max",
-      ],
     };
   },
   async mounted() {

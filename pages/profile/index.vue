@@ -41,6 +41,11 @@
                 </v-col>
               </v-row>
             </div>
+            <!-- Bests for workout -->
+            <div class="py-4">
+              <p class="text-h4">All Time Bests</p>
+              <WorkoutsBests :bests="me.bests" />
+            </div>
             <v-row>
               <v-col cols="12" sm="5">
                 <div>
