@@ -58,14 +58,14 @@ export const actions = {
     commit('moveWorkout', { workout, newDate, oldDate })
     await this.$axios.put('/workouts/' + workout.id, { started_at: newDate.toISOString() }, { headers: { 'Authorization': 'Bearer ' + token } })
   },
-  async updateWorkout({ commit, state }, { id, token, payload }) {
+  async updateWorkout({ commit, dispatch }, { id, token, payload }) {
     const response = await this.$axios.put('/workouts/' + id, payload, { headers: { 'Authorization': 'Bearer ' + token } })
     if (response && response.data) {
       const workout = response.data
       commit('updateWorkout', { workout })
     }
   },
-  async getCalendar({ commit, state }, { token, startDate, endDate, isPrepend }) {
+  async getCalendar({ commit, dispatch, state }, { token, startDate, endDate, isPrepend }) {
     const response = await this.$axios.get(
       this.$axios.defaults.baseURL +
       `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}`,

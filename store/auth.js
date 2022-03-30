@@ -29,6 +29,7 @@ export const actions = {
     }
   },
   async getMe({ commit, state }) {
+    console.log('get me')
     const response = await this.$axios.get('/users/me', { headers: { 'Authorization': 'Bearer ' + state.access_token } });
     if (response.data) {
       commit('setUser', response.data)

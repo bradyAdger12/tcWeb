@@ -28,11 +28,17 @@ export const mutations = {
 }
 
 export const actions = {
-  async updateWorkout({ commit, state }, { id, token, payload }) {
+  async updateWorkout({ commit, dispatch }, { id, token, payload }) {
     const response = await this.$axios.put('/workouts/' + id, payload, { headers: { 'Authorization': 'Bearer ' + token } })
+    await dispatch("calendar/updateWorkout", {
+      id,
+      token,
+      payload,
+    }, { root: true });
     if (response.data && response.data.success) {
       const workout = response.data
       commit('updateWorkout', { workout })
+
     }
   },
   async deleteWorkout({ commit, state }, { id, token }) {

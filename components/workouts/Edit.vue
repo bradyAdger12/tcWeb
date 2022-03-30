@@ -1,7 +1,13 @@
 <template>
   <div v-if="updatedWorkout">
-    <v-text-field v-model="updatedWorkout.name" label="Name"  />
-    <v-textarea v-model="updatedWorkout.description" label="Description" filled rounded class="rounded-lg" />
+    <v-text-field v-model="updatedWorkout.name" label="Name" />
+    <v-textarea
+      v-model="updatedWorkout.description"
+      label="Description"
+      filled
+      rounded
+      class="rounded-lg"
+    />
     <v-card-actions>
       <v-btn @click="save">
         Save
@@ -44,7 +50,7 @@ export default {
       this.saving = true;
       try {
         const id = this.updatedWorkout.id;
-        const token = this.authenticated
+        const token = this.authenticated;
         const payload = {
           name: this.updatedWorkout.name,
           description: this.updatedWorkout.description,
@@ -54,11 +60,7 @@ export default {
           token,
           payload,
         });
-        await this.$store.dispatch("calendar/updateWorkout", {
-          id,
-          token,
-          payload,
-        });
+
         this.$store.dispatch("snackbar/showSnack", {
           text: "Successfully updated workout!",
           color: "green",
@@ -66,7 +68,7 @@ export default {
         });
         this.$emit("onUpdate", this.updatedWorkout);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
       this.saving = false;
     },

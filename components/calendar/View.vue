@@ -63,7 +63,7 @@
           :key="i"
           :style="`
           width: ${100 / numColumns}%;
-          padding-bottom: 80px;
+          padding-bottom: 20px;
           min-height: 220px;
           overflow-y: hidden;
           border: 1px solid rgba(100, 100, 100, .2);
@@ -122,12 +122,12 @@
             <div
               :id="`${item.date.format('D-MMMM-YYYY')}`"
               style="
-                background-color: rgba(0, 0, 0, 0.1);
+                background-color: rgba(0, 0, 0, 0);
                 margin: 5px;
-                height: 25px;
+                height: 140px;
                 border-radius: 10px;
               "
-              v-if="item.workouts.length == 0 && isDragging"
+              v-if="item.workouts.length == 0"
               @drop="onDrop"
               @dragover="onDragOver"
             />
@@ -138,7 +138,10 @@
               v-for="workout of item.workouts"
               :key="workout.id"
               :draggable="true"
-              @dragend="isDragging = false; workoutBeingDragged = null"
+              @dragend="
+                isDragging = false;
+                workoutBeingDragged = null;
+              "
               @dragstart="dragStart($event, workout)"
             >
               <CalendarCell
@@ -149,10 +152,11 @@
               <!-- Drag target -->
               <div
                 v-if="
-                  isDragging &&
-                  workoutBeingDragged && 
+                  workoutBeingDragged &&
                   item.date.format('D MMMM YYYY') !=
-                    getMoment(workoutBeingDragged.started_at).format('D MMMM YYYY')
+                    getMoment(workoutBeingDragged.started_at).format(
+                      'D MMMM YYYY'
+                    )
                 "
                 :id="`${item.date.format('D-MMMM-YYYY')}`"
                 style="
@@ -237,6 +241,7 @@ export default {
       loading: true,
       refreshing: false,
       isDragging: false,
+      workoutBeingDragged: null,
       numColumns: 8,
       addDate: null,
       loadingMore: {},
@@ -291,7 +296,7 @@ export default {
     },
     dragStart(ev, workout) {
       this.isDragging = true;
-      this.workoutBeingDragged = workout
+      this.workoutBeingDragged = workout;
       ev.dataTransfer.setData("workout", JSON.stringify(workout));
     },
     async onUpdate(e) {
@@ -465,10 +470,7 @@ export default {
           oldDate,
         });
         this.refreshing = true;
-        await this.updateSummaries(
-          moment(oldDate),
-          moment(newDate)
-        );
+        await this.updateSummaries(moment(oldDate), moment(newDate));
       } catch (e) {
         console.log(e);
       }
