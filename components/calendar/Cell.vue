@@ -1,7 +1,9 @@
 <template>
   <div
     class="pa-1 black--text mx-1 mt-1 elevation-4 rounded"
-    style="background-color: rgba(0, 0, 0, 0.01); cursor: grab"
+    :style="`background-color: ${
+      workout.is_completed ? 'rgba(0, 0, 0, 0.01)' : 'rgba(0, 0, 255, .2)'
+    }; cursor: grab`"
     @click="openWorkout(workout)"
   >
     <div class="font-weight-black" style="font-size: 13px">
@@ -12,7 +14,7 @@
         <v-icon size="15" color="grey" class="mr-1">mdi-timer-outline</v-icon
         >{{ formatDuration(workout.duration) }}
       </div>
-      <div>
+      <div v-if="workout.is_completed">
         <v-icon size="14" color="grey" class="mr-1">mdi-ruler</v-icon
         >{{ toMiles(workout.length) }}
       </div>
@@ -31,12 +33,28 @@
       scrollable
       @click:outside="showWorkout = false"
     >
-      <v-card v-if="selectedWorkout" :key="selectedWorkout.id">
+      <v-card
+        v-if="selectedWorkout && selectedWorkout.is_completed"
+        :key="selectedWorkout.id"
+      >
         <WorkoutsDetail
           :workoutId="selectedWorkout.id"
           @onDelete="onDeleteWorkout"
           :key="JSON.stringify(selectedWorkout)"
         />
+      </v-card>
+      <v-card
+        v-if="selectedWorkout && !selectedWorkout.is_completed"
+        :key="selectedWorkout.id"
+        class="white black--text"
+      >
+        <v-card-title> Add Workout </v-card-title>
+        <v-card-text class="black--text">
+          <WorkoutsBuilder
+            :workout="selectedWorkout"
+            :date="getMoment(selectedWorkout.started_at)"
+          />
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -46,12 +64,12 @@
 <script>
 import { toMiles } from "~/tools/conversion";
 import { formatDuration } from "~/tools/format_moment";
-import moment from 'moment'
+import moment from "moment";
 export default {
   props: {
     currentDates: {
       type: Array,
-      required: true
+      required: true,
     },
     workout: {
       type: Object,
@@ -67,6 +85,9 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    getMoment(date) {
+      return moment(date);
+    },
     findWorkoutsInDates(workout) {
       const foundDate = _.find(this.currentDates, (item) => {
         if (item.date) {
@@ -86,7 +107,7 @@ export default {
       _.remove(workouts, (item) => item.id == this.selectedWorkout.id);
       this.showWorkout = false;
       this.selectedWorkout = false;
-      this.$emit('onUpdate', this.workout)
+      this.$emit("onUpdate", this.workout);
     },
     openWorkout(workout) {
       this.selectedWorkout = workout;

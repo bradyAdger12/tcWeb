@@ -1,5 +1,12 @@
 <template>
   <div class="mt-2">
+    <v-select
+      v-model="isPower"
+      :items="dataTypes"
+      light
+      label="Build Type"
+      style="width: 20%"
+    />
     <p>
       <i>Drag the blocks below to build your workout</i>
     </p>
@@ -128,9 +135,18 @@
     </div>
 
     <!-- Display Total Duration -->
-    <div v-if="totalDuration" class="font-weight-bold">
-      Duration: {{ formatDuration(totalDuration) }}
-    </div>
+    <v-row class="mt-4">
+      <v-col>
+        <div v-if="totalDuration" class="font-weight-bold">
+          Duration: {{ formatDuration(totalDuration) }}
+        </div>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn :disabled="addedBlocks.length == 0" @click="saveDialog = true">
+          Save
+        </v-btn>
+      </v-col>
+    </v-row>
 
     <!-- Block Edit -->
     <div class="mt-10">
@@ -184,7 +200,7 @@
               v-model="set.value"
               light
               dense
-              label="Target Watts"
+              :label="`Target ${isPower ? 'Watts' : 'HR'}`"
               style="display: inline-block"
               @input="updateZoneTitle($event, block)"
             />
@@ -192,6 +208,17 @@
         </v-row>
       </div>
     </div>
+    <v-dialog v-model="saveDialog" scrollable light width="600">
+      <v-card>
+        <WorkoutsBuilderSave
+          :isPower="isPower"
+          :workout="workout"
+          :blocks="addedBlocks"
+          :date="date"
+          @onSuccess="onSuccessfulSave"
+        />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -207,6 +234,11 @@ export default {
     draggable,
   },
   props: {
+    workout: {
+      type: Object,
+      required: false,
+      default: null
+    },
     date: {
       type: Object,
       required: true,
@@ -216,8 +248,19 @@ export default {
     return {
       blocks: [],
       addedBlocks: [],
-      isPowerZones: true,
+      isPower: true,
       blockBeingDragged: null,
+      dataTypes: [
+        {
+          text: "Power",
+          value: true,
+        },
+        {
+          text: "Heart Rate",
+          value: false,
+        },
+      ],
+      saveDialog: false,
       totalDuration: 0,
       zones: [],
       setsList: [2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -232,6 +275,9 @@ export default {
     },
   },
   watch: {
+    isPower() {
+      this.init();
+    },
     addedBlocks: {
       handler(val) {
         let duration = 0;
@@ -248,11 +294,20 @@ export default {
     },
   },
   mounted() {
+    if (this.workout) {
+      console.log(this.workout)
+      this.isPower = this.workout.effort ?? false;
+      this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
+    }
     this.init();
   },
   methods: {
     getColor: getColor,
     formatDuration: formatDuration,
+    onSuccessfulSave() {
+      this.saveDialog = false;
+      this.$emit("onSuccess");
+    },
     onDragOver(ev) {
       ev.preventDefault();
     },
@@ -331,11 +386,10 @@ export default {
         : Math.round(found?.low + found?.low * 0.03);
     },
     init() {
-      this.zones = this.me.power_zones;
+      this.zones = this.isPower ? this.me.power_zones : this.me.hr_zones;
       this.blocks = [
         {
           type: "Recovery",
-
           color: this.getColor("Recovery"),
           numSets: 1,
           sets: [
@@ -390,7 +444,7 @@ export default {
           ],
         },
       ];
-      if (this.isPowerZones) {
+      if (this.isPower) {
         this.blocks.splice(5, 0, {
           type: "Anaerobic",
           color: this.getColor("Anaerobic"),

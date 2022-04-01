@@ -165,7 +165,7 @@
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
           <v-card-text class="black--text">
-            <WorkoutsBuilder :date="addDate" />
+            <WorkoutsBuilder :date="addDate" @onSuccess="addDialog = false" />
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -241,6 +241,12 @@ export default {
   watch: {
     "$store.state.calendar.dates": function () {
       this.currentDates = this.$store.state.calendar.dates;
+    },
+    "$store.state.calendar.dateToAddPlannedWorkout": async function () {
+      const date = this.$store.state.calendar.dateToAddPlannedWorkout;
+      if (date) {
+        await this.updateSummaries(date, date);
+      }
     },
   },
   async mounted() {

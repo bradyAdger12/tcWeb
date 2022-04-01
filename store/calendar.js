@@ -1,11 +1,23 @@
 import _ from 'lodash'
 import moment from 'moment'
 export const state = () => ({
-  dates: []
+  dates: [],
+  dateToAddPlannedWorkout: null
 })
 
 export const mutations = {
   // set workouts array
+  addWorkout(state, { workout, date }) {
+    const found = _.find(state.dates, (item) => {
+      if (item.date) {
+        return item.date.format('D MMMM YYYY') == date.format('D MMMM YYYY')
+      }
+    })
+    if (found) {
+      found.workouts.push(workout)
+      state.dateToAddPlannedWorkout = date
+    }
+  },
   setWorkouts(state, dates) {
     state.dates = dates
   },
