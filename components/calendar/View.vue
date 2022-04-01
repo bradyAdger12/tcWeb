@@ -63,13 +63,11 @@
           :key="i"
           :style="`
           width: ${100 / numColumns}%;
-          padding-bottom: 20px;
-          min-height: 220px;
           overflow-y: hidden;
           border: 1px solid rgba(100, 100, 100, .2);
        `"
         >
-          <div v-if="item.summary">
+          <div v-if="item.summary" style="min-height: 250px">
             <div style="background-color: rgba(0, 0, 0, 0.1)" />
             <div class="pa-2">
               <div>
@@ -101,7 +99,14 @@
               </div>
             </div>
           </div>
-          <div v-else :id="`date-${item.date.format('D-MMMM-YYYY')}`">
+          <div
+            v-else
+            :id="`date-${item.date.format('D-MMMM-YYYY')}`"
+            style="min-height: 250px"
+            class="pb-14"
+            @drop="onDrop"
+            @dragover="onDragOver"
+          >
             <div
               :style="`background-color: ${getDayHeaderColor(item.date)}; ${
                 isAfterToday(item.date) ? 'color: grey' : ''
@@ -118,30 +123,13 @@
               }}
             </div>
 
-            <!-- Drag target -->
-            <div
-              :id="`${item.date.format('D-MMMM-YYYY')}`"
-              style="
-                background-color: rgba(0, 0, 0, 0);
-                margin: 5px;
-                height: 140px;
-                border-radius: 10px;
-              "
-              v-if="item.workouts.length == 0"
-              @drop="onDrop"
-              @dragover="onDragOver"
-            />
-
             <!-- Workout View -->
 
             <div
               v-for="workout of item.workouts"
               :key="workout.id"
               :draggable="true"
-              @dragend="
-                isDragging = false;
-                workoutBeingDragged = null;
-              "
+              @dragend="workoutBeingDragged = null"
               @dragstart="dragStart($event, workout)"
             >
               <CalendarCell
@@ -149,32 +137,16 @@
                 :current-dates="currentDates"
                 @onUpdate="onUpdate"
               />
-              <!-- Drag target -->
-              <div
-                v-if="
-                  workoutBeingDragged &&
-                  item.date.format('D MMMM YYYY') !=
-                    getMoment(workoutBeingDragged.started_at).format(
-                      'D MMMM YYYY'
-                    )
-                "
-                :id="`${item.date.format('D-MMMM-YYYY')}`"
-                style="
-                  background-color: rgba(0, 0, 0, 0.1);
-                  margin: 8px;
-                  height: 12px;
-                  border-radius: 10px;
-                "
-                @drop="onDrop"
-                @dragover="onDragOver"
-              />
             </div>
 
             <div class="add-event ma-2">
               <v-btn
                 block
                 class="pa-2 text-center"
-                style="border-radius: 5px; background-color: rgba(0, 0, 0, 0.3)"
+                :draggable="false"
+                :style="`border-radius: 5px; background-color: rgba(0, 0, 0, 0.3); ${
+                  workoutBeingDragged ? 'display: none; height: 30px' : ''
+                }`"
                 @click="addWorkout(item.date)"
               >
                 <v-icon> mdi-plus </v-icon>
@@ -187,6 +159,8 @@
         v-model="addDialog"
         width="900"
         @click:outside="addDialog = false"
+        scrollable
+        :key="addDialog"
       >
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
@@ -240,7 +214,6 @@ export default {
       addDialog: false,
       loading: true,
       refreshing: false,
-      isDragging: false,
       workoutBeingDragged: null,
       numColumns: 8,
       addDate: null,
@@ -288,14 +261,15 @@ export default {
       ev.preventDefault();
     },
     async onDrop(ev) {
-      ev.preventDefault();
-      var data = ev.dataTransfer.getData("workout");
-      const workout = JSON.parse(data);
-      const date = moment(ev.target.id).endOf("day");
-      await this.moveWorkout(workout, date);
+      if (ev.target.id) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("workout");
+        const workout = JSON.parse(data);
+        const date = moment(ev.target.id).endOf("day");
+        await this.moveWorkout(workout, date);
+      }
     },
     dragStart(ev, workout) {
-      this.isDragging = true;
       this.workoutBeingDragged = workout;
       ev.dataTransfer.setData("workout", JSON.stringify(workout));
     },
@@ -481,7 +455,6 @@ export default {
       date = moment(date.toString()).set({ hour: 2 });
       const startOfWeek = this.getStartOfWeek(moment(this.today.toString()));
       const endOfWeek = this.getEndOfWeek(moment(this.today.toString()));
-      // const { startOfWeek, endOfWeek } = this.getCurrentWeekDates(this.today);
       if (this.isToday(date)) {
         return "rgba(200, 0, 0, .5);";
       }
