@@ -165,7 +165,7 @@
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
           <v-card-text class="black--text">
-            <WorkoutsBuilder :date="addDate" @onSuccess="addDialog = false" />
+            <WorkoutsBuilder :date="addDate" @onSuccess="addDialog = false"  />
           </v-card-text>
         </v-card>
       </v-dialog>

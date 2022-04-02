@@ -216,7 +216,6 @@ export default {
     buildChart() {
       const series = [];
       if (this.workout.streams.heartrate) {
-        console.log(this.showZones);
         series.push({
           lineWidth: 1.0,
           name: "Heart Rate",

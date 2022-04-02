@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import moment from 'moment'
 export const state = () => ({
   workouts: []
 })
@@ -41,10 +42,16 @@ export const actions = {
 
     }
   },
-  async deleteWorkout({ commit, state }, { id, token }) {
+  async deleteWorkout({ commit, state }, { id, token, workout }) {
     const response = await this.$axios.delete('/workouts/' + id, { headers: { 'Authorization': 'Bearer ' + token } })
     if (response.data && response.data.success) {
       commit('deleteWorkout', { id })
+      if (workout) {
+        const date = moment(workout.started_at)
+        commit('calendar/deleteWorkout', {
+          workout, date
+        }, { root: true })
+      }
     }
   },
   async getWorkouts({ commit, state }, { me, token }) {

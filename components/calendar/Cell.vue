@@ -1,30 +1,33 @@
 <template>
   <div
-    class="pa-1 black--text mx-1 mt-1 elevation-4 rounded"
-    :style="`background-color: ${
-      workout.is_completed ? 'rgba(0, 0, 0, 0.01)' : 'rgba(0, 0, 255, .2)'
-    }; cursor: grab`"
+    class="black--text mx-1 mt-1 elevation-4 rounded"
+    :style="`background-color: rgba(0, 0, 0, 0.01);
+     cursor: grab`"
     @click="openWorkout(workout)"
   >
-    <div class="font-weight-black" style="font-size: 13px">
-      {{ workout.name }}
-    </div>
-    <div class="font-weight-medium black--text" style="font-size: 13px">
-      <div>
-        <v-icon size="15" color="grey" class="mr-1">mdi-timer-outline</v-icon
-        >{{ formatDuration(workout.duration) }}
+    <div v-if="!workout.is_completed" class="pa-1 rounded-t font-weight-medium" style="background-color: rgba(0,0,255, .2); font-size: 13px">Planned</div>
+    <div class="pa-1">
+      <div class="font-weight-black" style="font-size: 13px">
+        {{ workout.name }}
       </div>
-      <div v-if="workout.is_completed">
-        <v-icon size="14" color="grey" class="mr-1">mdi-ruler</v-icon
-        >{{ toMiles(workout.length) }}
-      </div>
-      <div v-if="workout.effort">
-        <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon
-        >Effort: {{ workout.effort }}
-      </div>
-      <div v-if="workout.hr_effort">
-        <v-icon size="14" color="grey" class="mr-1">mdi-heart</v-icon>hrEffort:
-        {{ workout.hr_effort }}
+      <div class="font-weight-medium black--text" style="font-size: 13px">
+        <div>
+          <v-icon size="15" color="grey" class="mr-1">mdi-timer-outline</v-icon
+          >{{ formatDuration(workout.duration) }}
+        </div>
+        <div v-if="workout.is_completed">
+          <v-icon size="14" color="grey" class="mr-1">mdi-ruler</v-icon
+          >{{ toMiles(workout.length) }}
+        </div>
+        <div v-if="workout.effort">
+          <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon
+          >Effort: {{ workout.effort }}
+        </div>
+        <div v-if="workout.hr_effort">
+          <v-icon size="14" color="grey" class="mr-1">mdi-heart</v-icon
+          >hrEffort:
+          {{ workout.hr_effort }}
+        </div>
       </div>
     </div>
     <v-dialog

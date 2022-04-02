@@ -69,7 +69,7 @@
                   v-for="(set, index2) of block.sets"
                   cols="auto"
                   :key="index2"
-                  class="elevation-3 rounded-t-lg set"
+                  class="elevation-3 rounded-t-lg set text-center"
                   :style="`background-color: ${getColorOfSet(
                     set.value
                   )}; height: ${getHeight(set.value)}%; width: ${getWidth(
@@ -140,6 +140,9 @@
         <div v-if="totalDuration" class="font-weight-bold">
           Duration: {{ formatDuration(totalDuration) }}
         </div>
+      </v-col>
+      <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
+        <v-btn color="red"> Delete <v-progress-circular v-if="deleting" size="15" width="2" class="ml-1" indeterminate /> </v-btn>
       </v-col>
       <v-col cols="auto">
         <v-btn :disabled="addedBlocks.length == 0" @click="saveDialog = true">
@@ -219,6 +222,28 @@
         />
       </v-card>
     </v-dialog>
+     <v-dialog v-model="openDeleteDialog" width="400" light>
+        <v-card v-if="workout">
+          <v-card-title> Delete Workout? </v-card-title>
+          <v-card-text>
+            Are you sure you want to delete <strong>{{ workout.name }}</strong
+            >?
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="deleteWorkout">
+              Yes
+              <v-progress-circular
+                v-if="deleting"
+                size="15"
+                indeterminate
+                width="2"
+                class="ml-1"
+              />
+            </v-btn>
+            <v-btn @click="openDeleteDialog = false"> No </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
   </div>
 </template>
 
@@ -237,7 +262,7 @@ export default {
     workout: {
       type: Object,
       required: false,
-      default: null
+      default: null,
     },
     date: {
       type: Object,
@@ -249,6 +274,8 @@ export default {
       blocks: [],
       addedBlocks: [],
       isPower: true,
+      deleting: false,
+      openDeleteDialog: false,
       blockBeingDragged: null,
       dataTypes: [
         {
@@ -273,6 +300,9 @@ export default {
     me() {
       return this.$store.state.auth.me;
     },
+    authentication() {
+      return this.$store.state.auth.access_token
+    }
   },
   watch: {
     isPower() {
@@ -295,7 +325,6 @@ export default {
   },
   mounted() {
     if (this.workout) {
-      console.log(this.workout)
       this.isPower = this.workout.effort ?? false;
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
     }
@@ -304,6 +333,24 @@ export default {
   methods: {
     getColor: getColor,
     formatDuration: formatDuration,
+    async deleteWorkout() {
+      const id = this.workout.id;
+      const token = this.authentication;
+      const workout = this.workout
+      this.deleting = true;
+      try {
+        await this.$store.dispatch("workouts/deleteWorkout", { id, token, workout });
+        this.$store.dispatch("snackbar/showSnack", {
+          text: "Workout successfully deleted!",
+          color: "green",
+          timeout: 3500,
+        });
+        this.openDeleteDialog = false;
+      } catch (e) {
+        console.log(e)
+      }
+      this.deleting = false;
+    },
     onSuccessfulSave() {
       this.saveDialog = false;
       this.$emit("onSuccess");
@@ -338,10 +385,18 @@ export default {
       this.addedBlocks.splice(index, 1);
     },
     getWidth(duration) {
-      return (moment.duration(duration).asSeconds() / 1800) * 300;
+      duration = moment.duration(duration).asSeconds();
+      const max = 800;
+      const value = (duration * 100) / 900;
+      if (value < 8) {
+        return 8;
+      } else if (value > max) {
+        return max;
+      }
+      return value;
     },
     getHeight(value) {
-      const height = (value / this.getMaxValue()) * 70;
+      const height = (value / this.getMaxHeightValue()) * 70;
       return height < 20 ? height + 10 : height;
     },
     getColorOfSet(value) {
@@ -357,7 +412,7 @@ export default {
       this.blockBeingDragged = block;
       ev.dataTransfer.setData("block", JSON.stringify(block));
     },
-    getMaxValue() {
+    getMaxHeightValue() {
       let max = 0;
       for (const block of this.addedBlocks) {
         for (const set of block.sets) {

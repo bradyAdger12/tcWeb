@@ -6,7 +6,19 @@ export const state = () => ({
 })
 
 export const mutations = {
-  // set workouts array
+  deleteWorkout(state, { workout, date }) {
+    const found = _.find(state.dates, (item) => {
+      if (item.date) {
+        return item.date.format('D MMMM YYYY') == date.format('D MMMM YYYY')
+      }
+    })
+    if (found) {
+      _.remove(found.workouts, (item) => {
+        return item.id == workout.id
+      })
+      state.dateToAddPlannedWorkout = date
+    }
+  },
   addWorkout(state, { workout, date }) {
     const found = _.find(state.dates, (item) => {
       if (item.date) {
@@ -54,6 +66,7 @@ export const mutations = {
       })
       if (index != -1) {
         Object.assign(found.workouts[index], workout)
+        state.dateToAddPlannedWorkout = workout.started_at
       }
     }
   },
