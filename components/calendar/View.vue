@@ -250,6 +250,7 @@ export default {
     },
   },
   async mounted() {
+    this.$store.commit('calendar/clearDates')
     await this.buildCalendar(this.today);
     this.scrollToToday();
     setTimeout(() => {
@@ -532,6 +533,8 @@ export default {
           endDate,
           isPrepend,
         });
+        // this.currentDates = this.$store.state.calendar.dates
+        console.log(this.currentDates)
       } catch (e) {}
     },
   },

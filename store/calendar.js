@@ -75,6 +75,9 @@ export const mutations = {
   },
   push(state, date) {
     state.dates.push(date)
+  },
+  clearDates(state) {
+    state.dates = []
   }
 }
 

@@ -82,26 +82,7 @@
         </v-card>
       </v-dialog>
       <v-dialog v-model="openDeleteDialog" width="400" light>
-        <v-card>
-          <v-card-title> Delete Workout? </v-card-title>
-          <v-card-text>
-            Are you sure you want to delete <strong>{{ workout.name }}</strong
-            >?
-          </v-card-text>
-          <v-card-actions>
-            <v-btn @click="deleteWorkout">
-              Yes
-              <v-progress-circular
-                v-if="deleting"
-                size="15"
-                indeterminate
-                width="2"
-                class="ml-1"
-              />
-            </v-btn>
-            <v-btn @click="openDeleteDialog = false"> No </v-btn>
-          </v-card-actions>
-        </v-card>
+        <DialogsDeleteWorkout :workout="workout" @onDelete="openDeleteDialog = false" />
       </v-dialog>
     </div>
   </div>
@@ -156,23 +137,6 @@ export default {
   methods: {
     formatDuration: formatDuration,
     formatDate: formatDate,
-
-    async deleteWorkout() {
-      const id = this.workoutId;
-      const token = this.authentication;
-      this.deleting = true;
-      try {
-        await this.$store.dispatch("workouts/deleteWorkout", { id, token });
-        this.$store.dispatch("snackbar/showSnack", {
-          text: "Workout successfully deleted!",
-          color: "green",
-          timeout: 3500,
-        });
-        this.openDeleteDialog = false;
-        this.$emit("onDelete");
-      } catch (e) {}
-      this.deleting = false;
-    },
     async getWorkout() {
       try {
         const response = await this.$axios.get(

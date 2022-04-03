@@ -142,7 +142,7 @@
         </div>
       </v-col>
       <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
-        <v-btn color="red"> Delete <v-progress-circular v-if="deleting" size="15" width="2" class="ml-1" indeterminate /> </v-btn>
+        <v-btn color="red"> Delete </v-btn>
       </v-col>
       <v-col cols="auto">
         <v-btn :disabled="addedBlocks.length == 0" @click="saveDialog = true">
@@ -222,28 +222,9 @@
         />
       </v-card>
     </v-dialog>
-     <v-dialog v-model="openDeleteDialog" width="400" light>
-        <v-card v-if="workout">
-          <v-card-title> Delete Workout? </v-card-title>
-          <v-card-text>
-            Are you sure you want to delete <strong>{{ workout.name }}</strong
-            >?
-          </v-card-text>
-          <v-card-actions>
-            <v-btn @click="deleteWorkout">
-              Yes
-              <v-progress-circular
-                v-if="deleting"
-                size="15"
-                indeterminate
-                width="2"
-                class="ml-1"
-              />
-            </v-btn>
-            <v-btn @click="openDeleteDialog = false"> No </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+    <v-dialog v-model="openDeleteDialog" width="400" light>
+      <DialogsDeleteWorkout :workout="workout" />
+    </v-dialog>
   </div>
 </template>
 
@@ -274,7 +255,6 @@ export default {
       blocks: [],
       addedBlocks: [],
       isPower: true,
-      deleting: false,
       openDeleteDialog: false,
       blockBeingDragged: null,
       dataTypes: [
@@ -301,8 +281,8 @@ export default {
       return this.$store.state.auth.me;
     },
     authentication() {
-      return this.$store.state.auth.access_token
-    }
+      return this.$store.state.auth.access_token;
+    },
   },
   watch: {
     isPower() {
@@ -325,7 +305,7 @@ export default {
   },
   mounted() {
     if (this.workout) {
-      this.isPower = this.workout.effort ?? false;
+      this.isPower = this.workout.effort ? true : false;
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
     }
     this.init();
@@ -333,24 +313,6 @@ export default {
   methods: {
     getColor: getColor,
     formatDuration: formatDuration,
-    async deleteWorkout() {
-      const id = this.workout.id;
-      const token = this.authentication;
-      const workout = this.workout
-      this.deleting = true;
-      try {
-        await this.$store.dispatch("workouts/deleteWorkout", { id, token, workout });
-        this.$store.dispatch("snackbar/showSnack", {
-          text: "Workout successfully deleted!",
-          color: "green",
-          timeout: 3500,
-        });
-        this.openDeleteDialog = false;
-      } catch (e) {
-        console.log(e)
-      }
-      this.deleting = false;
-    },
     onSuccessfulSave() {
       this.saveDialog = false;
       this.$emit("onSuccess");

@@ -5,7 +5,15 @@
      cursor: grab`"
     @click="openWorkout(workout)"
   >
-    <div v-if="!workout.is_completed" class="pa-1 rounded-t font-weight-medium" style="background-color: rgba(0,0,255, .2); font-size: 13px">Planned</div>
+    <div
+      v-if="workout.planned"
+      class="pa-1 rounded-t font-weight-medium"
+      :style="`background-color: ${
+        workout.is_completed ? 'rgba(0, 255, 0, .4)' : 'rgba(0,0,255, .2)'
+      }; font-size: 13px`"
+    >
+      {{ workout.is_completed ? "Completed" : "Planned" }}
+    </div>
     <div class="pa-1">
       <div class="font-weight-black" style="font-size: 13px">
         {{ workout.name }}
