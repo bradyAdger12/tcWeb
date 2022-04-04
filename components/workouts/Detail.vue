@@ -82,7 +82,10 @@
         </v-card>
       </v-dialog>
       <v-dialog v-model="openDeleteDialog" width="400" light>
-        <DialogsDeleteWorkout :workout="workout" @onDelete="openDeleteDialog = false" />
+        <DialogsDeleteWorkout
+          :workout="workout"
+          @onDelete="openDeleteDialog = false"
+        />
       </v-dialog>
     </div>
   </div>
@@ -119,6 +122,7 @@ export default {
   },
   async mounted() {
     await this.getWorkout();
+    this.buildStats();
     this.loading = false;
   },
   computed: {
@@ -242,15 +246,16 @@ export default {
     },
     buildStats() {
       if (this.workout) {
+        console.log;
         this.stats = [
           { name: "Duration", value: formatDuration(this.workout.duration) },
           { name: "Distance", value: toMiles(this.workout.length) },
         ];
         if (this.workout.hr_effort) {
-          this.push({ name: "HR Effort", value: this.workout.hr_effort });
+          this.stats.push({ name: "HR Effort", value: this.workout.hr_effort });
         }
         if (this.workout.effort) {
-          this.push({ name: "Effort", value: this.workout.effort });
+          this.stats.push({ name: "Effort", value: this.workout.effort });
         }
       }
     },

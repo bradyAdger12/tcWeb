@@ -1,12 +1,35 @@
 <template>
   <div class="mt-2">
-    <v-select
-      v-model="isPower"
-      :items="dataTypes"
-      light
-      label="Build Type"
-      style="width: 20%"
-    />
+    <v-row align="center">
+      <v-col cols="auto" style="width: 20%">
+        <v-select
+          v-model="isPower"
+          :items="dataTypes"
+          light
+          label="Build Type"
+        />
+      </v-col>
+      <v-col>
+        <v-switch light dense v-model="isPercentage" :label="`%`" />
+      </v-col>
+      <v-col
+        cols="auto"
+        v-if="thresholdValue && addedBlocks.length > 0 && isPower"
+      >
+        <a
+          :href="`data:attachment/text,${encodeURI(
+            zwoFile(addedBlocks, thresholdValue, me, workout)
+          )}`"
+          :download="`${
+            workout ? workout.name : 'my_spin_cycle_' + new Date().toString()
+          } (via ${$app_config.title}).zwo`"
+          style="text-decoration: none"
+        >
+          <v-btn color="#FFA500"> Download Zwift File </v-btn>
+        </a>
+      </v-col>
+    </v-row>
+
     <p>
       <i>Drag the blocks below to build your workout</i>
     </p>
@@ -21,6 +44,7 @@
         @dragend="blockBeingDragged = null"
         @dragstart="dragStart($event, block)"
         >{{ block.type }}
+        {{ isPercentage && block.type != "Intervals" ? "%" : "" }}
         <div v-if="block.type != 'Intervals'">
           {{ getZoneRange(block.type) }}
         </div></v-col
@@ -135,10 +159,15 @@
     </div>
 
     <!-- Display Total Duration -->
-    <v-row class="mt-4">
-      <v-col>
+    <v-row class="mt-4" align="center">
+      <v-col cols="auto">
         <div v-if="totalDuration" class="font-weight-bold">
           Duration: {{ formatDuration(totalDuration) }}
+        </div>
+      </v-col>
+      <v-col>
+        <div v-if="stress" class="font-weight-bold">
+          {{ isPower ? "Effort: " : "HR Effort: " }} {{ stress }}
         </div>
       </v-col>
       <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
@@ -200,12 +229,14 @@
               />
             </div>
             <v-text-field
-              v-model="set.value"
+              :value="formatValue(set.value)"
               light
               dense
-              :label="`Target ${isPower ? 'Watts' : 'HR'}`"
+              :label="`Target ${isPower ? 'Watts' : 'HR'} ${
+                isPercentage ? '%' : ''
+              }`"
               style="display: inline-block"
-              @input="updateZoneTitle($event, block)"
+              @input="updateZoneTitle($event, block, set)"
             />
           </v-col>
         </v-row>
@@ -232,7 +263,9 @@
 import draggable from "vuedraggable";
 import _ from "lodash";
 import { getColor } from "~/tools/zone_color";
-import { formatDuration } from "../../../tools/format_moment";
+import { formatDuration } from "~/tools/format_moment";
+import { findHRTSS, findTSS } from "~/tools/stress";
+import { zwoFile } from "~/tools/export";
 import moment from "moment";
 
 export default {
@@ -255,6 +288,9 @@ export default {
       blocks: [],
       addedBlocks: [],
       isPower: true,
+      isPercentage: false,
+      stress: 0,
+      thresholdValue: null,
       openDeleteDialog: false,
       blockBeingDragged: null,
       dataTypes: [
@@ -286,6 +322,9 @@ export default {
   },
   watch: {
     isPower() {
+      this.thresholdValue = this.isPower
+        ? this.me.threshold_power
+        : this.me.threshold_hr;
       this.init();
     },
     addedBlocks: {
@@ -299,6 +338,7 @@ export default {
           }
         }
         this.totalDuration = duration;
+        this.getStress();
       },
       deep: true,
     },
@@ -308,11 +348,44 @@ export default {
       this.isPower = this.workout.effort ? true : false;
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
     }
+    this.thresholdValue = this.isPower
+      ? this.me.threshold_power
+      : this.me.threshold_hr;
     this.init();
   },
   methods: {
     getColor: getColor,
     formatDuration: formatDuration,
+    findHRTSS: findHRTSS,
+    findTSS: findTSS,
+    zwoFile: zwoFile,
+    formatValue(value) {
+      value = JSON.parse(JSON.stringify(value));
+      if (this.isPercentage) {
+        return Math.round((value / this.thresholdValue) * 100);
+      }
+      return value;
+    },
+    getStress() {
+      const me = this.me;
+      const values = [];
+      for (const block of this.addedBlocks) {
+        for (let i = 0; i < block.numSets; i++) {
+          for (const set of block.sets) {
+            const duration = moment.duration(set.duration).asSeconds();
+            for (let sec = 0; sec < duration; sec++) {
+              values.push(parseInt(set.value.toString()));
+            }
+          }
+        }
+      }
+      if (this.isPower) {
+        const duration = this.totalDuration;
+        this.stress = this.findTSS({ me, values, duration });
+      } else {
+        this.stress = this.findHRTSS({ me, values });
+      }
+    },
     onSuccessfulSave() {
       this.saveDialog = false;
       this.$emit("onSuccess");
@@ -332,7 +405,12 @@ export default {
         this.addedBlocks.splice(index, 0, block);
       }
     },
-    updateZoneTitle(event, block) {
+    updateZoneTitle(event, block, set) {
+      if (this.isPercentage) {
+        set.value = Math.round((parseInt(event) / 100) * this.thresholdValue);
+      } else {
+        set.value = parseInt(event);
+      }
       if (block.type != "Intervals") {
         try {
           for (const zone of this.zones) {
@@ -358,8 +436,8 @@ export default {
       return value;
     },
     getHeight(value) {
-      const height = (value / this.getMaxHeightValue()) * 70;
-      return height < 20 ? height + 10 : height;
+      const height = (value / this.getMaxHeightValue()) * 80;
+      return height;
     },
     getColorOfSet(value) {
       for (const zone of this.zones) {
@@ -390,6 +468,15 @@ export default {
         return item.title == zone;
       });
       if (found) {
+        if (this.isPercentage) {
+          return (
+            Math.round((found.low / this.thresholdValue) * 100) +
+            " - " +
+            (found.high == "MAX"
+              ? "MAX"
+              : Math.round((found.high / this.thresholdValue) * 100))
+          );
+        }
         return found.low + " - " + found.high;
       }
       return "";
