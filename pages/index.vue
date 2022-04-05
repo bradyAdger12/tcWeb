@@ -25,6 +25,9 @@
             Todays Fitness
           </p>
           <UserTrainingLoad />
+          <!-- <div>
+            <Weather />
+          </div> -->
         </div>
       </v-col>
     </v-row>
