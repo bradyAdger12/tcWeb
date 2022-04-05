@@ -16,17 +16,29 @@
         cols="auto"
         v-if="thresholdValue && addedBlocks.length > 0 && isPower"
       >
-        <a
-          :href="`data:attachment/text,${encodeURI(
-            zwoFile(addedBlocks, thresholdValue, me, workout)
-          )}`"
-          :download="`${
-            workout ? workout.name : 'my_spin_cycle_' + new Date().toString()
-          } (via ${$app_config.title}).zwo`"
-          style="text-decoration: none"
-        >
-          <v-btn color="#FFA500"> Download Zwift File </v-btn>
-        </a>
+        <v-menu open-on-hover bottom offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn v-bind="attrs" v-on="on"> Export </v-btn>
+          </template>
+
+          <v-list light>
+            <v-list-item>
+              <a
+                :href="`data:attachment/text,${encodeURI(
+                  zwoFile(addedBlocks, thresholdValue, me, workout)
+                )}`"
+                :download="`${
+                  workout
+                    ? workout.name
+                    : 'my_spin_cycle_' + new Date().toString()
+                } (via ${$app_config.title}).zwo`"
+                style="text-decoration: none; color: black"
+              >
+                Zwift
+              </a>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </v-col>
     </v-row>
 
