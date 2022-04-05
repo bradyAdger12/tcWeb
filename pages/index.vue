@@ -20,6 +20,12 @@
             </NuxtLink></v-col
           >
         </v-row>
+        <div v-if="authenticated" class="pt-16">
+          <p class="text-h4 title">
+            Todays Fitness
+          </p>
+          <UserTrainingLoad />
+        </div>
       </v-col>
     </v-row>
   </v-container>

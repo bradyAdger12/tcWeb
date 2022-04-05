@@ -4,43 +4,6 @@
       <v-row justify="center" align="center" class="my-16">
         <v-col cols="11">
           <div class="mt-10">
-            <div v-if="trainingLoad" class="mb-10">
-              <v-row>
-                <v-col cols="auto">
-                  <v-avatar class="blue" size="150">
-                    <div>
-                      <span class="training-load-value">{{
-                        trainingLoad.fitness
-                      }}</span>
-                      <p>Fitness</p>
-                    </div>
-                  </v-avatar>
-                </v-col>
-                <v-col cols="auto">
-                  <v-avatar class="orange" size="150">
-                    <div>
-                      <span class="training-load-value">{{
-                        trainingLoad.fatigue
-                      }}</span>
-                      <p>Fatigue</p>
-                    </div>
-                  </v-avatar>
-                </v-col>
-                <v-col cols="auto">
-                  <v-avatar
-                    :class="`${trainingLoad.form < 0 ? 'red' : 'green'}`"
-                    size="150"
-                  >
-                    <div>
-                      <span class="training-load-value">{{
-                        trainingLoad.form
-                      }}</span>
-                      <p>Form</p>
-                    </div>
-                  </v-avatar>
-                </v-col>
-              </v-row>
-            </div>
             <!-- Bests for workout -->
             <div class="py-4">
               <p class="text-h4">All Time Bests</p>
@@ -114,7 +77,6 @@ export default {
     return {
       hrZones: [],
       powerZones: [],
-      trainingLoad: null,
     };
   },
   watch: {
@@ -127,7 +89,6 @@ export default {
   mounted() {
     this.hrZones = this.me.hr_zones;
     this.powerZones = this.me.power_zones;
-    this.getTrainingLoad();
   },
   computed: {
     me() {
@@ -136,20 +97,6 @@ export default {
   },
   methods: {
     getColor: getColor,
-    async getTrainingLoad() {
-      try {
-        const response = await this.$axios.get(
-          this.$axios.defaults.baseURL +
-            `/users/me/training_load?date=${moment().toISOString()}`,
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
-          }
-        );
-        this.trainingLoad = response.data;
-      } catch (e) {}
-    },
   },
 };
 </script>
