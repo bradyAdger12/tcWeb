@@ -29,7 +29,7 @@ function formatZWOWorkout(blocks, thresholdValue) {
       let offDuration = moment.duration(block.sets[1].duration).asSeconds()
       let onPower = block.sets[0].value / thresholdValue
       let offPower = block.sets[1].value / thresholdValue
-      entries.push(`<IntervalsT Repeat="${block.numSets}" OnDuration="${onDuration}" OffDuration="${offDuration}" OnPower="${onPower.toFixed(4)}" OffPower="${offPower.toFixed(4)}" pace="0" />`)
+      entries.push(`<IntervalsT Repeat="${block.numSets}" OnDuration="${onDuration}" OffDuration="${offDuration}" OnPower="${onPower.toFixed(4)}" OffPower="${offPower.toFixed(4)}" pace="0" show_avg="1" />`)
     }
   }
   const format = `<workout>

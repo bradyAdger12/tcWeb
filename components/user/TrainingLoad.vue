@@ -42,6 +42,13 @@
 <script>
 import moment from 'moment'
 export default {
+  props: {
+    date: {
+      type: Object,
+      required: false,
+      default: moment()
+    }
+  },
   data() {
     return {
       trainingLoad: null,
@@ -55,7 +62,7 @@ export default {
       try {
         const response = await this.$axios.get(
           this.$axios.defaults.baseURL +
-            `/users/me/training_load?date=${moment().toISOString()}`,
+            `/users/me/training_load?date=${this.date.toISOString()}`,
           {
             headers: {
               Authorization: "Bearer " + this.$store.state.auth.access_token,

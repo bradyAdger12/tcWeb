@@ -111,7 +111,7 @@
               :style="`background-color: ${getDayHeaderColor(item.date)}; ${
                 isAfterToday(item.date) ? 'color: grey' : ''
               }`"
-              :class="`pa-1 font-weight-black`"
+              :class="`pa-1 font-weight-black date-header`"
             >
               {{ isToday(item.date) ? "Today, " : "" }}
               {{
@@ -121,6 +121,15 @@
                   ? item.date.format("MMMM D")
                   : item.date.format("D")
               }}
+              <a
+                class="view-form"
+                @click="
+                  showTrainingLoad = true;
+                  trainingLoadDate = item.date;
+                "
+              >
+                View Form
+              </a>
             </div>
 
             <!-- Workout View -->
@@ -160,12 +169,28 @@
         width="900"
         @click:outside="addDialog = false"
         scrollable
-        :key="addDialog"
+        :key="addDate"
       >
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
           <v-card-text class="black--text">
-            <WorkoutsBuilder :date="addDate" @onSuccess="addDialog = false"  />
+            <WorkoutsBuilder :date="addDate" @onSuccess="addDialog = false" />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog
+        v-model="showTrainingLoad"
+        width="900"
+        scrollable
+        :key="trainingLoadDate"
+      >
+        <v-card v-if="trainingLoadDate" class="white black--text">
+          <v-card-title>
+            Training Load for {{ trainingLoadDate.format("MMMM D, YYYY") }}
+          </v-card-title>
+          <v-card-text class="mt-4">
+            <UserTrainingLoad :date="trainingLoadDate" />
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -214,6 +239,8 @@ export default {
       addDialog: false,
       loading: true,
       refreshing: false,
+      showTrainingLoad: false,
+      trainingLoadDate: null,
       workoutBeingDragged: null,
       numColumns: 8,
       addDate: null,
@@ -239,9 +266,9 @@ export default {
     },
   },
   watch: {
-     "$store.state.calendar.dates": {
+    "$store.state.calendar.dates": {
       handler(val) {
-        console.log('change')
+        console.log("change");
       },
       deep: true,
     },
@@ -256,7 +283,7 @@ export default {
     },
   },
   async mounted() {
-    this.$store.commit('calendar/clearDates')
+    this.$store.commit("calendar/clearDates");
     await this.buildCalendar(this.today);
     this.scrollToToday();
     setTimeout(() => {
@@ -540,7 +567,7 @@ export default {
           isPrepend,
         });
         // this.currentDates = this.$store.state.calendar.dates
-        console.log(this.currentDates)
+        console.log(this.currentDates);
       } catch (e) {}
     },
   },
@@ -548,6 +575,14 @@ export default {
 </script>
 
 <style>
+.date-header:hover .view-form {
+  opacity: 1;
+}
+.view-form {
+  font-size: 11px;
+  margin-left: 5px;
+  opacity: 0;
+}
 .html {
   scroll-behavior: smooth;
 }
