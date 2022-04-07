@@ -49,6 +49,9 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-dialog v-model="showPrs" width="800" :key="prs.toString()" light>
+      <DialogsPRs v-if="prs" :prs="prs" />
+    </v-dialog>
     <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="workoutId">
         <WorkoutsDetail
@@ -64,6 +67,7 @@
 <script>
 import moment from "moment";
 import { formatDate } from "~/tools/format_moment.js";
+import { getPRs } from '~/tools/pr.js'
 export default {
   name: "StravaConnect",
   head: {
@@ -75,6 +79,8 @@ export default {
       loading: true,
       showWorkout: false,
       page: 1,
+      showPrs: false,
+      prs: [],
       per_page: 30,
       workoutId: null,
       activities: [],
@@ -108,10 +114,13 @@ export default {
   },
   methods: {
     onDelete() {
-      const found = _.find(this.activities, (item) => item.workoutId == this.workoutId);
+      const found = _.find(
+        this.activities,
+        (item) => item.workoutId == this.workoutId
+      );
       if (found) {
         found.workoutId = null;
-        this.showWorkout = false
+        this.showWorkout = false;
       }
     },
     viewWorkout(id) {
@@ -132,12 +141,17 @@ export default {
             },
           }
         );
-
         if (response && response.data) {
           activity.workoutId = response.data.id;
-          await this.$store.dispatch('auth/getMe')
+          this.prs = getPRs(response.data.bests, this.me)
+          if (this.prs) {
+            this.showPrs = true;
+          }
+          await this.$store.dispatch("auth/getMe");
         }
-      } catch (e) {}
+      } catch (e) {
+        console.log(e);
+      }
       activity.importing = false;
       this.$forceUpdate();
     },

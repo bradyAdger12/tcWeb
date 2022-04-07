@@ -84,7 +84,7 @@
       <v-dialog v-model="openDeleteDialog" width="400" light>
         <DialogsDeleteWorkout
           :workout="workout"
-          @onDelete="openDeleteDialog = false"
+          @onDelete="openDeleteDialog = false; $emit('onDelete')"
         />
       </v-dialog>
     </div>
