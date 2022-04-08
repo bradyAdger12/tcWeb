@@ -24,7 +24,7 @@
           <p class="text-h4 title">
             Todays Fitness
           </p>
-          <UserTrainingLoad />
+          <UserTrainingLoad :date="getMoment()" />
           <!-- <div>
             <Weather />
           </div> -->
@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 export default {
   head: {
     titleTemplate: "My Spin Cycle",
@@ -48,6 +49,11 @@ export default {
       return this.$store.state.auth.me;
     },
   },
+  methods: {
+    getMoment() {
+      return moment()
+    }
+  }
 };
 </script>
 

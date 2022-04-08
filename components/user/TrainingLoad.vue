@@ -45,8 +45,7 @@ export default {
   props: {
     date: {
       type: Object,
-      required: false,
-      default: moment()
+      required: true
     }
   },
   data() {
