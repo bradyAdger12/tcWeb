@@ -144,7 +144,7 @@ export default {
         if (response && response.data) {
           activity.workoutId = response.data.id;
           this.prs = getPRs(response.data.bests, this.me)
-          if (this.prs) {
+          if (this.prs.length > 0) {
             this.showPrs = true;
           }
           await this.$store.dispatch("auth/getMe");

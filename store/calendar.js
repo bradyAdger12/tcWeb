@@ -65,7 +65,6 @@ export const mutations = {
         return item.id == workout.id
       })
       if (index != -1) {
-        console.log(workout)
         Object.assign(found.workouts[index], workout)
         state.dateToAddPlannedWorkout = workout.started_at
       }

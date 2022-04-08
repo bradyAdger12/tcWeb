@@ -21,7 +21,6 @@ export function zwoFile(blocks, thresholdValue, me, workout) {
 function formatZWOWorkout(blocks, thresholdValue) {
   const entries = []
   for (const block of blocks) {
-    console.log(block.numSets)
     if (block.numSets == 1) {
       entries.push(`<SteadyState Duration="${moment.duration(block.sets[0].duration).asSeconds()}" Power="${((block.sets[0].value / thresholdValue)).toFixed(4)}" pace="0" />`)
     } else {
@@ -35,6 +34,5 @@ function formatZWOWorkout(blocks, thresholdValue) {
   const format = `<workout>
   ${entries.join('\n')}
   </workout>`
-  console.log(format)
   return format
 }

@@ -266,12 +266,6 @@ export default {
     },
   },
   watch: {
-    "$store.state.calendar.dates": {
-      handler(val) {
-        console.log("change");
-      },
-      deep: true,
-    },
     "$store.state.calendar.dates": function () {
       this.currentDates = this.$store.state.calendar.dates;
     },
@@ -566,8 +560,6 @@ export default {
           endDate,
           isPrepend,
         });
-        // this.currentDates = this.$store.state.calendar.dates
-        console.log(this.currentDates);
       } catch (e) {}
     },
   },

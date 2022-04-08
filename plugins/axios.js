@@ -3,7 +3,6 @@ export default function ({ $axios, redirect, store }) {
 
   //Handle authenticating requests
   $axios.onRequest((config) => {
-    console.log(config)
     if (store.state.auth.accessToken && !config.forceAuthentication) {
       config.headers.Authorization = 'Bearer ' + store.state.auth.accessToken;
     }

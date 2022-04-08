@@ -36,7 +36,6 @@ export default {
     showPosition(position) {
       this.lat = position.coords.latitude;
       this.lon = position.coords.longitude;
-      console.log(this.lat, this.lon);
       this.getWeather();
     },
     async getWeather() {
