@@ -65,9 +65,7 @@
 </template>
 
 <script>
-import moment from "moment";
 import { formatDate } from "~/tools/format_moment.js";
-import { getPRs } from '~/tools/pr.js'
 export default {
   name: "StravaConnect",
   head: {
@@ -143,8 +141,10 @@ export default {
         );
         if (response && response.data) {
           activity.workoutId = response.data.id;
-          this.prs = getPRs(response.data.bests, this.me)
-          if (this.prs.length > 0) {
+          console.log(response.data)
+          this.prs = response.data.prs
+          console.log(this.prs)
+          if (this.prs && this.prs.length > 0) {
             this.showPrs = true;
           }
           await this.$store.dispatch("auth/getMe");

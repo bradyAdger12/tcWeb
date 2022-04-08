@@ -2,13 +2,28 @@
   <v-card v-if="prs">
     <v-card-title> You have new PRs! </v-card-title>
     <v-card-text>
+      <div class="mb-10">
+        <div v-for="(pr, i) of prs" :key="i" class="mb-3">
+          <div v-if="!pr.time">
+            <span class="font-weight-light">{{ pr.name }}</span>
+            <v-icon size="15">{{
+              pr.type == "watts" ? "mdi-lightning-bolt" : "mdi-heart"
+            }}</v-icon>
+            <div class="text-h5">
+              {{ pr.value }} {{ pr.type == "watts" ? "watts" : "bpm" }}
+            </div>
+          </div>
+        </div>
+      </div>
       <div v-for="(pr, i) of prs" :key="i" class="mb-5">
-        <div>
+        <div v-if="pr.time">
           <span class="font-weight-light">{{ pr.time }}</span>
           <v-icon size="15">{{
             pr.type == "watts" ? "mdi-lightning-bolt" : "mdi-heart"
           }}</v-icon>
-          <div class="text-h5">{{ pr.value }} {{ pr.type == 'watts' ? 'watts' : 'bpm'}}</div>
+          <div class="text-h5">
+            {{ pr.value }} {{ pr.type == "watts" ? "watts" : "bpm" }}
+          </div>
         </div>
       </div>
     </v-card-text>

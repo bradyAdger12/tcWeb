@@ -2,7 +2,7 @@
   <v-row>
     <v-col cols="auto">
       <div v-for="time in timeRanges" :key="time">
-        <div v-if="bests.heartrate.hasOwnProperty(time)">
+        <div v-if="bests.heartrate.hasOwnProperty(time) && bests.heartrate[time] > 0">
           <v-icon size="13" color="grey" class="mr-1">mdi-heart</v-icon
           >{{ time }} : {{ bests.heartrate[time] }} bpm
            <v-icon small color="#FCC201">
@@ -13,7 +13,7 @@
     </v-col>
     <v-col cols="auto">
       <div v-for="time in timeRanges" :key="time">
-        <div v-if="bests.watts.hasOwnProperty(time)">
+        <div v-if="bests.watts.hasOwnProperty(time) && bests.watts[time] > 0">
           <v-icon size="15" color="grey" class="mr-1">mdi-lightning-bolt</v-icon
           >{{ time }} : {{ bests.watts[time] }} watts
           <v-icon small color="#FCC201">
