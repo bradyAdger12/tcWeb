@@ -169,7 +169,7 @@
         width="900"
         @click:outside="addDialog = false"
         scrollable
-        :key="addDate"
+        :key="addDate.toString()"
       >
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
@@ -243,7 +243,7 @@ export default {
       trainingLoadDate: null,
       workoutBeingDragged: null,
       numColumns: 8,
-      addDate: null,
+      addDate: '',
       loadingMore: {},
       displayFloatingHeaders: [
         "Monday",

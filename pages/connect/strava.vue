@@ -142,8 +142,7 @@ export default {
         if (response && response.data) {
           activity.workoutId = response.data.id;
           console.log(response.data)
-          this.prs = response.data.prs
-          console.log(this.prs)
+          this.prs = response.data.prs ?? []
           if (this.prs && this.prs.length > 0) {
             this.showPrs = true;
           }

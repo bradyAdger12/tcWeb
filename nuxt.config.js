@@ -25,7 +25,7 @@ export default {
   ],
 
   //middleware
-  middelware: ['auth'],
+  middleware: ['auth'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
