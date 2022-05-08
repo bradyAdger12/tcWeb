@@ -41,8 +41,8 @@
             :class="`text-center ${
               item == 'Summary' ? 'font-weight-bold' : ''
             }`"
-            v-for="item of displayFloatingHeaders"
-            :key="item"
+            v-for="(item, i) of displayFloatingHeaders"
+            :key="i"
             :style="`
           width: ${100 / numColumns}%;
           overflow-y: hidden;
@@ -183,7 +183,7 @@
         v-model="showTrainingLoad"
         width="900"
         scrollable
-        :key="trainingLoadDate"
+        :key="showTrainingLoad"
       >
         <v-card v-if="trainingLoadDate" class="white black--text">
           <v-card-title>
@@ -266,11 +266,17 @@ export default {
     },
   },
   watch: {
-    "$store.state.calendar.dates": function () {
-      this.currentDates = this.$store.state.calendar.dates;
+    "$store.state.calendar.dates": {
+      handler(newValue, oldValue) {
+        if (newValue) {
+          this.currentDates = newValue
+        }
+      },
+      deep: true
     },
-    "$store.state.calendar.dateToAddPlannedWorkout": async function () {
-      const date = this.$store.state.calendar.dateToAddPlannedWorkout;
+    "$store.state.calendar.dateOfWorkoutUpdate": async function () {
+      const date = this.$store.state.calendar.dateOfWorkoutUpdate;
+      console.log(date)
       if (date) {
         await this.updateSummaries(date, date);
       }

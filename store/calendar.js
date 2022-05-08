@@ -2,7 +2,7 @@ import _ from 'lodash'
 import moment from 'moment'
 export const state = () => ({
   dates: [],
-  dateToAddPlannedWorkout: null
+  dateOfWorkoutUpdate: null
 })
 
 export const mutations = {
@@ -16,7 +16,7 @@ export const mutations = {
       _.remove(found.workouts, (item) => {
         return item.id == workout.id
       })
-      state.dateToAddPlannedWorkout = date
+      state.dateOfWorkoutUpdate = date
     }
   },
   addWorkout(state, { workout, date }) {
@@ -27,7 +27,7 @@ export const mutations = {
     })
     if (found) {
       found.workouts.push(workout)
-      state.dateToAddPlannedWorkout = date
+      state.dateOfWorkoutUpdate = date
     }
   },
   setWorkouts(state, dates) {
@@ -66,7 +66,7 @@ export const mutations = {
       })
       if (index != -1) {
         Object.assign(found.workouts[index], workout)
-        state.dateToAddPlannedWorkout = workout.started_at
+        state.dateOfWorkoutUpdate = moment(workout.started_at)
       }
     }
   },

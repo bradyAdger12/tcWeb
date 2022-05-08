@@ -9,10 +9,10 @@
       v-if="workout.planned"
       class="pa-1 rounded-t font-weight-medium"
       :style="`background-color: ${
-        workout.is_completed ? 'rgba(0, 185, 0, .7)' : 'rgba(0,0,255, .2)'
-      }; font-size: 13px`"
+        getHeaderBackgroundColor()
+      }; font-size: 13px;`"
     >
-      {{ workout.is_completed ? "Completed" : "Planned" }}
+      {{ getHeaderText() }}
     </div>
     <div class="pa-1">
       <div class="font-weight-black" style="font-size: 13px">
@@ -106,6 +106,22 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    getHeaderBackgroundColor() {
+       if (this.workout.is_completed) {
+        return 'rgba(0, 185, 0, .7)'
+      } else if (this.workout.planned && moment().endOf('day').isAfter(moment(this.workout.started_at).endOf('day'))) {
+        return 'rgba(255, 00, 0, .7)'
+      }
+      return 'rgba(0,0,255, .2)'
+    },
+    getHeaderText() {
+      if (this.workout.is_completed) {
+        return 'Completed'
+      } else if (this.workout.planned && moment().endOf('day').isAfter(moment(this.workout.started_at).endOf('day'))) {
+        return 'Not Completed'
+      }
+      return 'Planned'
+    },
     getMoment(date) {
       return moment(date);
     },
