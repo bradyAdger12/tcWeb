@@ -318,7 +318,7 @@ export default {
       saveDialog: false,
       totalDuration: 0,
       zones: [],
-      setsList: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+      setsList: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
       rules: {
         min: (v) => v > 0 || "1 or more",
       },
@@ -338,6 +338,7 @@ export default {
         ? this.me.threshold_power
         : this.me.threshold_hr;
       this.init();
+      this.getStress()
     },
     addedBlocks: {
       handler(val) {

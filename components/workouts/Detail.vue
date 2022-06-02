@@ -85,6 +85,7 @@
         <DialogsDeleteWorkout
           :workout="workout"
           @onDelete="openDeleteDialog = false; $emit('onDelete')"
+          @onClose="openDeleteDialog = false"
         />
       </v-dialog>
     </div>

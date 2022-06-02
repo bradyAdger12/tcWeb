@@ -43,7 +43,8 @@ export const actions = {
     }
   },
   async deleteWorkout({ commit, state }, { id, token, workout }) {
-    const response = await this.$axios.delete('/workouts/' + id, { headers: { 'Authorization': 'Bearer ' + token } })
+    
+    const response = await this.$axios.delete(`/workouts/${id}`, { headers: { 'Authorization': 'Bearer ' + token } })
     if (response.data && response.data.success) {
       commit('deleteWorkout', { id })
       if (workout) {

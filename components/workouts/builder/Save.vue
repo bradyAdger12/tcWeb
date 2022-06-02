@@ -2,8 +2,8 @@
   <div>
     <v-card-title> Save Workout </v-card-title>
     <v-card-text>
-      <v-text-field v-model="workoutName" label="Name" />
-      <v-text-field v-model="description" label="Description" />
+      <v-text-field v-model="workoutName" label="Name" @keyup.enter="save" />
+      <v-text-field v-model="description" label="Description" @keyup.enter="save" />
     </v-card-text>
     <v-card-actions>
       <v-btn @click="save" dark>
