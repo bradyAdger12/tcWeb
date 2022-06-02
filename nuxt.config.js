@@ -52,7 +52,7 @@ export default {
   ],
 
   axios: {
-    baseURL: 'http://localhost:8080', // Used as fallback if no runtime config is provided
+    baseURL: 'https://tcweb.onrender.com', // Used as fallback if no runtime config is provided
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
