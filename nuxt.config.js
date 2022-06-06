@@ -21,7 +21,7 @@ export default {
   },
 
   env: {
-    baseUrl: process.env.BASE_URL || 'http://localhost:8080',
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000',
     stravaClientSecret: process.env.STRAVA_CLIENT_SECRET,
     stravaClientId: process.env.STRAVA_CLIENT_ID,
     stravaAccessToken: process.env.STRAVA_ACCESS_TOKEN
@@ -59,7 +59,7 @@ export default {
   ],
 
   axios: {
-    baseURL: process.env.BASE_URL, // Used as fallback if no runtime config is provided
+    baseURL: process.env.API_URL, // Used as fallback if no runtime config is provided
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
