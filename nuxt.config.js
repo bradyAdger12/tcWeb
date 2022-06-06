@@ -52,7 +52,7 @@ export default {
   ],
 
   axios: {
-    baseURL: 'https://tcapi.onrender.com', // Used as fallback if no runtime config is provided
+    baseURL: process.env.BASE_URL, // Used as fallback if no runtime config is provided
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify

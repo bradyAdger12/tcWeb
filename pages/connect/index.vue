@@ -9,7 +9,7 @@
         <v-col cols="auto" style="position: relative">
           <a
              v-if="!connectedToStrava"
-            :href="`https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=http://localhost:3000/connect/strava&approval_prompt=auto&scope=activity:read`"
+            :href="`https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=${baseUrl}/connect/strava&approval_prompt=auto&scope=activity:read`"
           >
             <v-img
               class="app-image"
@@ -54,11 +54,12 @@ export default {
   computed: {
     me() {
       return this.$store.state.auth.me;
-    },
+    }
   },
   data() {
     return {
       stravaClientId: process.env.STRAVA_CLIENT_ID,
+      baseUrl: process.env.BASE_URL,
       connectedToStrava: false,
       loading: true,
     };
