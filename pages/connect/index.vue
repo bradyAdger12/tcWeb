@@ -58,8 +58,8 @@ export default {
   },
   data() {
     return {
-      stravaClientId: process.env.STRAVA_CLIENT_ID,
-      baseUrl: process.env.BASE_URL,
+      stravaClientId: process.env.stravaClientId,
+      baseUrl: process.env.baseUrl,
       connectedToStrava: false,
       loading: true,
     };

@@ -20,6 +20,13 @@ export default {
     ]
   },
 
+  env: {
+    baseUrl: process.env.BASE_URL || 'http://localhost:8080',
+    stravaClientSecret: process.env.STRAVA_CLIENT_SECRET,
+    stravaClientId: process.env.STRAVA_CLIENT_ID,
+    stravaAccessToken: process.env.STRAVA_ACCESS_TOKEN
+  },
+
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
   ],
