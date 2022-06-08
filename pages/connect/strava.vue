@@ -49,9 +49,9 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-dialog v-model="showPrs" width="800" :key="prs.toString()" light>
+    <!-- <v-dialog v-model="showPrs" width="800" :key="prs.toString()" light>
       <DialogsPRs v-if="prs" :prs="prs" />
-    </v-dialog>
+    </v-dialog> -->
     <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="workoutId">
         <WorkoutsDetail
@@ -77,8 +77,8 @@ export default {
       loading: true,
       showWorkout: false,
       page: 1,
-      showPrs: false,
-      prs: [],
+      // showPrs: false,
+      // prs: [],
       per_page: 30,
       workoutId: null,
       activities: [],
@@ -141,11 +141,10 @@ export default {
         );
         if (response && response.data) {
           activity.workoutId = response.data.id;
-          console.log(response.data)
-          this.prs = response.data.prs ?? []
-          if (this.prs && this.prs.length > 0) {
-            this.showPrs = true;
-          }
+          // this.prs = response.data.prs ?? []
+          // if (this.prs && this.prs.length > 0) {
+          //   this.showPrs = true;
+          // }
           await this.$store.dispatch("auth/getMe");
         }
       } catch (e) {
