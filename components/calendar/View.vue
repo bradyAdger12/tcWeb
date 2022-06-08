@@ -4,7 +4,7 @@
       <v-progress-circular size="50" indeterminate />
     </div>
     <div
-      v-else
+      v-else-if="currentDates"
       id="calendarView"
       style="
         min-height: 600px;
