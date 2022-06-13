@@ -38,7 +38,7 @@
 import moment from 'moment'
 export default {
   head: {
-    titleTemplate: "My Spin Cycle",
+    titleTemplate: "Training Club",
   },
   name: "IndexPage",
   computed: {
