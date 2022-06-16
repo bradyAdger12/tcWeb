@@ -270,13 +270,13 @@ export default {
       handler(newValue, oldValue) {
         if (newValue) {
           this.currentDates = newValue
+          console.log(this.currentDates)
         }
       },
       deep: true
     },
     "$store.state.calendar.dateOfWorkoutUpdate": async function () {
       const date = this.$store.state.calendar.dateOfWorkoutUpdate;
-      console.log(date)
       if (date) {
         await this.updateSummaries(date, date);
       }
@@ -539,7 +539,6 @@ export default {
           endDate.add(1, "day");
         }
       }
-      console.log(startDate, endDate)
       await this.getWorkouts(startDate, endDate, isPrepend, isInitialLoad);
       this.getMonthElements();
       this.loading = false;
