@@ -109,7 +109,7 @@ export const actions = {
       // Add incoming dates to temporary list
       for (let item of response.data) {
         if (item.date) {
-          item.date = moment(item.date.toString());
+          item.date = moment(item.date.toString()).utc();
         }
         datesToAdd.push(item);
       }
