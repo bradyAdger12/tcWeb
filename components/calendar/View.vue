@@ -169,7 +169,6 @@
         width="900"
         @click:outside="addDialog = false"
         scrollable
-        :key="addDate.toString()"
       >
         <v-card class="white black--text">
           <v-card-title> Add Workout </v-card-title>
@@ -407,10 +406,10 @@ export default {
         .endOf("day");
     },
     async updateSummaries(oldDate, newDate) {
-      let oldWeekStart = this.getStartOfWeek(moment(oldDate.toString()));
-      let oldWeekEnd = this.getEndOfWeek(moment(oldDate.toString()));
-      let newWeekStart = this.getStartOfWeek(moment(newDate.toString()));
-      let newWeekEnd = this.getEndOfWeek(moment(newDate.toString()));
+      let oldWeekStart = this.getStartOfWeek(moment(oldDate.toISOString()));
+      let oldWeekEnd = this.getEndOfWeek(moment(oldDate.toISOString()));
+      let newWeekStart = this.getStartOfWeek(moment(newDate.toISOString()));
+      let newWeekEnd = this.getEndOfWeek(moment(newDate.toISOString()));
       const headers = {
         headers: {
           Authorization: "Bearer " + this.$store.state.auth.access_token,
@@ -468,7 +467,7 @@ export default {
     },
     async moveWorkout(workout, date) {
       try {
-        date = moment(date.toString());
+        date = moment(date.toISOString());
         const newDate = moment(workout.started_at)
           .set({
             year: date.year(),
@@ -493,9 +492,9 @@ export default {
     },
 
     getDayHeaderColor(date) {
-      date = moment(date.toString()).set({ hour: 2 });
-      const startOfWeek = this.getStartOfWeek(moment(this.today.toString()));
-      const endOfWeek = this.getEndOfWeek(moment(this.today.toString()));
+      date = moment(date.toISOString()).set({ hour: 2 });
+      const startOfWeek = this.getStartOfWeek(moment(this.today.toISOString()));
+      const endOfWeek = this.getEndOfWeek(moment(this.today.toISOString()));
       if (this.isToday(date)) {
         return "rgba(200, 0, 0, .5);";
       }
@@ -519,14 +518,14 @@ export default {
       let endDate = null;
 
       if (isInitialLoad) {
-        startDate = moment(fromDate.toString()).subtract(2, "month");
-        endDate = moment(fromDate.toString()).add(2, "month");
+        startDate = moment(fromDate.toISOString()).subtract(2, "month");
+        endDate = moment(fromDate.toISOString()).add(2, "month");
       } else if (isPrepend) {
-        startDate = moment(fromDate.toString()).subtract(30, "day");
-        endDate = moment(fromDate.toString()).subtract(1, "day");
+        startDate = moment(fromDate.toISOString()).subtract(30, "day");
+        endDate = moment(fromDate.toISOString()).subtract(1, "day");
       } else {
-        startDate = moment(fromDate.toString()).add(1, "day");
-        endDate = moment(fromDate.toString()).add(30, "day");
+        startDate = moment(fromDate.toISOString()).add(1, "day");
+        endDate = moment(fromDate.toISOString()).add(30, "day");
       }
 
       if (isPrepend || isInitialLoad) {
@@ -544,9 +543,9 @@ export default {
     
     },
     getMonthElements() {
-      const currentDate = moment(this.currentDates[0].date.toString());
+      const currentDate = moment(this.currentDates[0].date.toISOString());
       const endDate = moment(
-        this.currentDates[this.currentDates.length - 2].date.toString()
+        this.currentDates[this.currentDates.length - 2].date.toISOString()
       );
       const difference = Math.abs(currentDate.diff(endDate, "months")) + 1;
       this.monthElements = [];
