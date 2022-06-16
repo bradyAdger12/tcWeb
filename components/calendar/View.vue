@@ -243,7 +243,7 @@ export default {
       trainingLoadDate: null,
       workoutBeingDragged: null,
       numColumns: 8,
-      addDate: '',
+      addDate: "",
       loadingMore: {},
       displayFloatingHeaders: [
         "Monday",
@@ -269,11 +269,10 @@ export default {
     "$store.state.calendar.dates": {
       handler(newValue, oldValue) {
         if (newValue) {
-          this.currentDates = newValue
-          console.log(this.currentDates)
+          this.currentDates = newValue;
         }
       },
-      deep: true
+      deep: true,
     },
     "$store.state.calendar.dateOfWorkoutUpdate": async function () {
       const date = this.$store.state.calendar.dateOfWorkoutUpdate;
@@ -285,8 +284,10 @@ export default {
   async mounted() {
     this.$store.commit("calendar/clearDates");
     await this.buildCalendar(this.today);
-    this.scrollToToday();
+    this.loading = false
+    this.getMonthElements();
     setTimeout(() => {
+      this.scrollToToday();
       window.addEventListener("scroll", this.listenToScrollEvents);
       this.listenToDrag();
     }, 1000);
@@ -540,8 +541,7 @@ export default {
         }
       }
       await this.getWorkouts(startDate, endDate, isPrepend, isInitialLoad);
-      this.getMonthElements();
-      this.loading = false;
+    
     },
     getMonthElements() {
       const currentDate = moment(this.currentDates[0].date.toString());
