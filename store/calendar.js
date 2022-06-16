@@ -96,7 +96,7 @@ export const actions = {
   async getCalendar({ commit, dispatch, state }, { token, startDate, endDate, isPrepend }) {
     const response = await this.$axios.get(
       this.$axios.defaults.baseURL +
-      `/workouts/me/calendar?startsAt=${startDate.format('D MMMM YYYY').toISOString()}&endsAt=${endDate.format('D MMMM YYYY').toISOString()}`,
+      `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}`,
       {
         headers: {
           Authorization: "Bearer " + token,
@@ -109,7 +109,7 @@ export const actions = {
       // Add incoming dates to temporary list
       for (let item of response.data) {
         if (item.date) {
-          item.date = moment(item.date.toString());
+          item.date = moment(item.date.toISOString());
         }
         datesToAdd.push(item);
       }
