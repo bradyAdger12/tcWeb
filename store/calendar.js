@@ -103,6 +103,7 @@ export const actions = {
         },
       }
     );
+    console.log(response.data)
     if (response && response.data) {
       const datesToAdd = [];
 
