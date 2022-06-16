@@ -539,6 +539,7 @@ export default {
           endDate.add(1, "day");
         }
       }
+      console.log(startDate, endDate)
       await this.getWorkouts(startDate, endDate, isPrepend, isInitialLoad);
       this.getMonthElements();
       this.loading = false;
