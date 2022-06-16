@@ -94,10 +94,9 @@ export const actions = {
     }
   },
   async getCalendar({ commit, dispatch, state }, { token, startDate, endDate, isPrepend }) {
-    console.log(startDate, startDate.utc().toISOString(), startDate.toISOString())
     const response = await this.$axios.get(
       this.$axios.defaults.baseURL +
-      `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}`,
+      `/workouts/me/calendar?startsAt=${startDate.format('D MMMM YYYY').toISOString()}&endsAt=${endDate.format('D MMMM YYYY').toISOString()}`,
       {
         headers: {
           Authorization: "Bearer " + token,
