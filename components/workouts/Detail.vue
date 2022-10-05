@@ -29,7 +29,7 @@
         </v-row>
 
         <!-- Bests for workout -->
-        <WorkoutsBests :bests="workout.bests" />
+        <WorkoutsBests :bests="workout.bests" :key="workout.id" />
 
         <div class="mt-5">
           <v-row>

@@ -55,6 +55,18 @@ export const actions = {
       }
     }
   },
+  async getWorkoutById({ commit, state }, { id, token }) {
+      const response = await this.$axios.get(
+        this.$axios.defaults.baseURL + `/workouts/${id}`,
+        {
+          headers: {
+            Authorization: "Bearer " + token
+          },
+        }
+      );
+      this.workout = response.data; 
+      return this.workout
+  },
   async getWorkouts({ commit, state }, { me, token }) {
     const response = await this.$axios.get('/workouts/me', { headers: { 'Authorization': 'Bearer ' + token } })
     if (response.data) {

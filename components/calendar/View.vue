@@ -3,7 +3,7 @@
     <div v-if="loading" class="text-center pa-16">
       <v-progress-circular size="50" indeterminate />
     </div>
-    <div
+    <!-- <div
       v-else-if="currentDates"
       id="calendarView"
       style="
@@ -14,14 +14,14 @@
       "
       class="white black--text"
     >
-      <!-- Floating Date Header -->
+      Floating Date Header
       <v-card
         id="floating-header"
         transition="scroll-y-reverse-transition"
         class="rounded-0 white black--text"
         style="min-width: 1000px"
       >
-        <!-- Month Selection -->
+        Month Selection
         <v-row justify="center" align="center" class="my-2">
           <v-col cols="auto" class="text-center">
             <div class="font-weight-bold text-h5">
@@ -52,9 +52,9 @@
           </v-col>
         </v-row>
       </v-card>
-      <!-- End Floating Header -->
+      End Floating Header
 
-      <!-- Calendar Days -->
+      Calendar Days
       <v-row id="calendar" no-gutters>
         <v-col
           cols="auto"
@@ -132,7 +132,7 @@
               </a>
             </div>
 
-            <!-- Workout View -->
+            Workout View
 
             <div
               v-for="workout of item.workouts"
@@ -214,7 +214,7 @@
           <v-progress-circular indeterminate color="blue" />
         </v-avatar>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

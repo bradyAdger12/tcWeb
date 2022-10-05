@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 export const state = () => ({
-  dates: [],
+  workouts: [],
   dateOfWorkoutUpdate: null
 })
 
@@ -55,20 +55,22 @@ export const mutations = {
     }
   },
   updateWorkout(state, { workout }) {
-    const found = _.find(state.dates, (item) => {
-      if (item.date) {
-        return item.date.format('D MMMM YYYY') == moment(workout.started_at).format('D MMMM YYYY')
-      }
+    const found = _.find(state.workouts, (item) => {
+      return workout.id === item.id
     })
     if (found) {
-      const index = _.findIndex(found.workouts, (item) => {
-        return item.id == workout.id
-      })
-      if (index != -1) {
-        Object.assign(found.workouts[index], workout)
-        state.dateOfWorkoutUpdate = moment(workout.started_at)
-      }
+      console.log(found)
+      // const index = _.findIndex(found.workouts, (item) => {
+      //   return item.id == workout.id
+      // })
+      // if (index != -1) {
+      //   Object.assign(found.workouts[index], workout)
+      //   state.dateOfWorkoutUpdate = moment(workout.started_at)
+      // }
     }
+  },
+  addToCalendar(state, workout) {
+    state.workouts.push(workout)
   },
   unshift(state, date) {
     state.dates.unshift(date)
@@ -87,13 +89,9 @@ export const actions = {
     await this.$axios.put('/workouts/' + workout.id, { started_at: newDate.toISOString() }, { headers: { 'Authorization': 'Bearer ' + token } })
   },
   async updateWorkout({ commit, dispatch }, { id, token, payload }) {
-    const response = await this.$axios.put('/workouts/' + id, payload, { headers: { 'Authorization': 'Bearer ' + token } })
-    if (response && response.data) {
-      const workout = response.data
-      commit('updateWorkout', { workout })
-    }
+    await this.$axios.put('/workouts/' + id, payload, { headers: { 'Authorization': 'Bearer ' + token } })
   },
-  async getCalendar({ commit, dispatch, state }, { token, startDate, endDate, isPrepend }) {
+  async getCalendar({ commit, dispatch, state }, { token, startDate, endDate }) {
     const response = await this.$axios.get(
       this.$axios.defaults.baseURL +
       `/workouts/me/calendar?startsAt=${startDate.toISOString()}&endsAt=${endDate.toISOString()}`,
@@ -103,28 +101,30 @@ export const actions = {
         },
       }
     );
-    console.log(response.data)
     if (response && response.data) {
-      const datesToAdd = [];
-
-      // Add incoming dates to temporary list
       for (let item of response.data) {
-        if (item.date) {
-          item.date = moment(item.date.toString()).utc();
-        }
-        datesToAdd.push(item);
+        commit('addToCalendar', item)
       }
+      // const datesToAdd = [];
 
-      // If the dates are before initial month, prepend, if not, push to end
-      if (isPrepend) {
-        for (let date of datesToAdd.reverse()) {
-          commit('unshift', date)
-        }
-      } else {
-        for (let date of datesToAdd) {
-          commit('push', date)
-        }
-      }
+      // // Add incoming dates to temporary list
+      // for (let item of response.data) {
+      //   if (item.date) {
+      //     item.date = moment(item.date.toString()).utc();
+      //   }
+      //   datesToAdd.push(item);
+      // }
+
+      // // If the dates are before initial month, prepend, if not, push to end
+      // if (isPrepend) {
+      //   for (let date of datesToAdd.reverse()) {
+      //     commit('unshift', date)
+      //   }
+      // } else {
+      //   for (let date of datesToAdd) {
+      //     commit('push', date)
+      //   }
+      // }
     }
   }
 }
