@@ -2,7 +2,7 @@
   <v-row justify="center" align="center" class="mt-16">
     <v-col cols="12" sm="8" class="text-center">
       <div class="mb-12">
-        <p class="white--text text-h2">Update Account</p>
+        <p class="black--text text-h2">Update Account</p>
       </div>
       <v-text-field
         v-model="displayName"

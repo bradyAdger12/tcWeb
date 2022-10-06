@@ -67,10 +67,10 @@ export default {
     customVariables: ['@/assets/variables.scss'],
     treeShake: false,
     theme: {
-      dark: true,
+      dark: false,
       themes: {
         light: {
-          primary: '#0079ff'
+          primary: '#fff'
         },
         dark: {
           primary: colors.blue.darken2,

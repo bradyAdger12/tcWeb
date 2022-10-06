@@ -1,5 +1,5 @@
 <template>
-  <v-app dark>
+  <v-app>
     <v-row justify="center">
       <v-col cols="auto" class="text-center">
         <h1 v-if="error.statusCode === 404">
@@ -8,7 +8,7 @@
         <h1 v-else>
           {{ otherError }}
         </h1>
-        <NuxtLink to="/" class="white--text">
+        <NuxtLink to="/" class="black--text">
           Home page
         </NuxtLink>
       </v-col>

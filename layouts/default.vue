@@ -1,8 +1,8 @@
 <template>
-  <v-app dark>
+  <v-app>
     <Snackbar />
     <v-app-bar :clipped-left="true" fixed app>
-      <NuxtLink to="/" style="text-decoration: none" class="white--text ml-8">
+      <NuxtLink to="/" style="text-decoration: none" class="black--text ml-8">
         <v-toolbar-title v-text="title" />
       </NuxtLink>
       <v-spacer />
@@ -11,7 +11,7 @@
         v-if="authenticated"
         to="/connect"
         style="text-decoration: none"
-        class="white--text"
+        class="black--text"
       >
         <v-btn text> Connect Apps </v-btn>
       </NuxtLink>
@@ -20,7 +20,7 @@
         v-if="authenticated"
         to="/calendar"
         style="text-decoration: none"
-        class="white--text"
+        class="black--text"
       >
         <v-btn text> Calendar </v-btn>
       </NuxtLink>
@@ -28,7 +28,7 @@
       <v-menu open-on-hover bottom offset-y v-if="authenticated">
         <template v-slot:activator="{ on, attrs }">
           <NuxtLink to="/profile" style="text-decoration: none">
-            <v-btn dark v-bind="attrs" v-on="on" text> Profile </v-btn>
+            <v-btn v-bind="attrs" v-on="on" text> Profile </v-btn>
           </NuxtLink>
         </template>
 
@@ -49,11 +49,11 @@
         v-if="!authenticated"
         to="/login"
         style="text-decoration: none"
-        class="white--text"
+        class="black--text"
       >
         <v-btn text> Login </v-btn>
       </NuxtLink>
-      <v-btn v-else text class="white--text" @click="logout"> Logout </v-btn>
+      <v-btn v-else text class="black--text" @click="logout"> Logout </v-btn>
     </v-app-bar>
     <v-main>
       <Nuxt />

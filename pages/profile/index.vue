@@ -3,7 +3,11 @@
     <div v-if="this.me">
       <v-row justify="center" align="center" class="my-16">
         <v-col cols="11">
-          <div class="mt-10">
+          <div class="mt-1">
+            <div v-if="authenticated">
+              <p class="text-h4 title">Todays Fitness</p>
+              <UserTrainingLoad :date="getMoment()" />
+            </div>
             <!-- Bests for workout -->
             <div class="py-4">
               <p class="text-h4">All Time Bests</p>
@@ -25,7 +29,7 @@
                     v-for="zone in hrZones"
                     :key="zone.title"
                     :class="
-                      getColor(zone.title) + ' rounded mt-3 pa-2 text-center'
+                      getColor(zone.title) + ' rounded mt-3 pa-2 text-center white--text'
                     "
                   >
                     <div class="title">{{ zone.title }}</div>
@@ -48,7 +52,7 @@
                     v-for="zone in powerZones"
                     :key="zone.title"
                     :class="
-                      getColor(zone.title) + ' rounded mt-3 pa-2 text-center'
+                      getColor(zone.title) + ' rounded mt-3 pa-2 text-center white--text'
                     "
                   >
                     <div class="title">{{ zone.title }}</div>
@@ -91,11 +95,17 @@ export default {
     this.powerZones = this.me.power_zones;
   },
   computed: {
+    authenticated() {
+      return this.$store.state.auth.access_token;
+    },
     me() {
       return this.$store.state.auth.me;
     },
   },
   methods: {
+    getMoment() {
+      return moment()
+    },
     getColor: getColor,
   },
 };

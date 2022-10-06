@@ -2,7 +2,7 @@
   <div>
     <div v-if="!loading && workouts.length == 0">
       No workouts uploaded yet. Connect with our compatible apps
-      <NuxtLink to="/connect" class="white--text">
+      <NuxtLink to="/connect" class="black--text">
         <span>here</span>
       </NuxtLink>
       to upload workouts.

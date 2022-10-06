@@ -4,6 +4,11 @@
       <v-progress-circular indeterminate size="80" />
     </div>
     <div v-else-if="workout">
+      <div v-if="workout.planned" class="mb-3">
+        <span class="white--text purple rounded-lg pa-2 d-inline">
+          Planned
+        </span>
+      </div>
       <div class="text-h5 text-sm-h2 font-weight-bold">
         {{ workout.name }}
       </div>
@@ -29,7 +34,9 @@
         </v-row>
 
         <!-- Bests for workout -->
-        <WorkoutsBests :bests="workout.bests" :key="workout.id" />
+        <div v-if="!workout.planned">
+          <WorkoutsBests :bests="workout.bests" :key="workout.id" />
+        </div>
 
         <div class="mt-5">
           <v-row>
@@ -67,8 +74,8 @@
       <v-switch light v-model="showZones" :label="`Show zones`"></v-switch>
       <highchart class="mt-4" style="height: 300px" :options="chartOptions" />
       <v-card-actions>
-        <v-btn color="blue" @click="openEditDialog = true"> Edit </v-btn>
-        <v-btn color="red" @click="openDeleteDialog = true"> Delete </v-btn>
+        <v-btn color="blue" class="white--text" @click="openEditDialog = true"> Edit </v-btn>
+        <v-btn color="red" class="white--text" @click="openDeleteDialog = true"> Delete </v-btn>
       </v-card-actions>
       <v-dialog v-model="openEditDialog" width="400" light>
         <v-card>

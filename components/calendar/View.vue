@@ -83,16 +83,16 @@
                 >{{ item.summary.effort }}
               </div>
               <div class="text-center mt-5">
-                <div class="blue rounded white--text">
+                <div class="blue rounded black--text">
                   Fitness {{ item.summary.fitness }}
                 </div>
-                <div class="orange rounded white--text mt-2">
+                <div class="orange rounded black--text mt-2">
                   Fatigue {{ item.summary.fatigue }}
                 </div>
                 <div
                   :class="`${
                     item.summary.form < 0 ? 'red' : 'green'
-                  } white--text mt-2 rounded`"
+                  } black--text mt-2 rounded`"
                 >
                   Form {{ item.summary.form }}
                 </div>

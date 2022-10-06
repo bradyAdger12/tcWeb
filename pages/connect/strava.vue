@@ -17,7 +17,7 @@
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-btn
-              :class="(activity.workoutId ? 'green elevation-0' : '') + ' ml-5'"
+              :class="(activity.workoutId ? 'green elevation-0' : '') + `ml-5 ${activity.workoutId ? 'white--text' : ''}`"
               @click="
                 activity.workoutId
                   ? viewWorkout(activity.workoutId)

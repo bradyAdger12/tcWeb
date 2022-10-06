@@ -50,7 +50,7 @@
         v-for="(block, i) of blocks"
         :key="i"
         cols="auto"
-        class="rounded white--text text-center mr-2"
+        class="rounded black--text text-center mr-2"
         :style="`background-color: ${block.color}; cursor: grab;`"
         :draggable="true"
         @dragend="blockBeingDragged = null"
@@ -125,7 +125,7 @@
               width: 100%;
              
             `"
-                    class="white--text text-center remove-block"
+                    class="black--text text-center remove-block"
                   >
                     <div
                       style="

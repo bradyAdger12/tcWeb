@@ -3,7 +3,7 @@
     <div v-if="trainingLoad" class="mb-10">
       <v-row>
         <v-col cols="auto">
-          <v-avatar class="blue" size="150">
+          <v-avatar class="blue white--text" size="150">
             <div>
               <span class="training-load-value">{{
                 trainingLoad.fitness
@@ -13,7 +13,7 @@
           </v-avatar>
         </v-col>
         <v-col cols="auto">
-          <v-avatar class="orange" size="150">
+          <v-avatar class="orange white--text" size="150">
             <div>
               <span class="training-load-value">{{
                 trainingLoad.fatigue
@@ -24,7 +24,7 @@
         </v-col>
         <v-col cols="auto">
           <v-avatar
-            :class="`${trainingLoad.form < 0 ? 'red' : 'green'}`"
+            :class="`${trainingLoad.form < 0 ? 'red' : 'green'} white--text`"
             size="150"
           >
             <div>

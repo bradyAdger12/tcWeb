@@ -2,7 +2,7 @@
   <v-row justify="center" align="center" class="mt-16">
     <v-col cols="12" sm="5" class="text-center">
       <div class="mb-12">
-        <p class="white--text text-h2">Login</p>
+        <p class="black--text text-h2">Login</p>
       </div>
       <v-text-field
         v-model="email"
@@ -37,7 +37,7 @@
       </div>
       <p class="text-left mt-10">
         Dont have an account? register
-        <NuxtLink to="/register" class="white--text">here</NuxtLink>
+        <NuxtLink to="/register" class="black--text">here</NuxtLink>
       </p>
     </v-col>
   </v-row>

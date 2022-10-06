@@ -2,7 +2,7 @@
   <v-row justify="center" align="center" class="mt-16">
     <v-col cols="12" sm="8" class="text-center">
       <div class="mb-12">
-        <p class="white--text text-h2">Register an Account</p>
+        <p class="black--text text-h2">Register an Account</p>
         <p class="mt-7">
           Begin your fitness journey by creating an account with us.
         </p>
@@ -96,7 +96,7 @@
       </div>
       <p class="text-left mt-10">
         Already have an account? login
-        <NuxtLink to="/login" class="white--text">here</NuxtLink>
+        <NuxtLink to="/login" class="black--text">here</NuxtLink>
       </p>
     </v-col>
   </v-row>

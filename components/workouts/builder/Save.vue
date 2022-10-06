@@ -6,7 +6,7 @@
       <v-text-field v-model="description" label="Description" @keyup.enter="save" />
     </v-card-text>
     <v-card-actions>
-      <v-btn @click="save" dark>
+      <v-btn @click="save">
         Save
         <v-progress-circular
           v-if="saving"
