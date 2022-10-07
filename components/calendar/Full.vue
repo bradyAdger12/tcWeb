@@ -37,7 +37,7 @@
             :style="`height: ${row.clientHeight}px; background-color: rgba(200, 200, 200, .2)`"
           >
             <span class="font-weight-bold">Summary</span>
-            <div v-if="summaries[i]" class="pa-2 text-left">
+            <div v-if="summaries[i] && !loadingSummaries" class="pa-2 text-left">
               <div>
                 <span class="summary-title">Duration: </span
                 >{{ formatDuration(summaries[i].summary.duration) }}
@@ -65,6 +65,9 @@
                   Form {{ summaries[i].summary.form }}
                 </div>
               </div>
+            </div>
+            <div v-else>
+              <v-progress-linear indeterminate />
             </div>
           </div>
         </div>
@@ -129,6 +132,7 @@ export default {
       calendar: null,
       calendarStart: null,
       calendarEnd: null,
+      loadingSummaries: false,
       loading: true,
       tableRows: [],
       summaries: [],
@@ -249,6 +253,7 @@ export default {
     formatDuration: formatDuration,
     async updateSummaries() {
       if (this.calendar) {
+        this.loadingSummaries = true
         const items = [];
         const headers = {
           headers: {
@@ -269,6 +274,7 @@ export default {
         }
         this.summaries = items;
       }
+      this.loadingSummaries = false
     },
     async handleEventDrop(e) {
       const id = parseInt(e.event.id);
