@@ -7,23 +7,17 @@
           Begin your fitness journey by creating an account with us.
         </p>
       </div>
-      <v-text-field
-        v-model="email"
-        label="Email*"
-        placeholder="Enter Email"
-        color="white"
-      />
+      <v-text-field v-model="email" label="Email*" placeholder="Enter Email" />
       <v-text-field
         v-model="displayName"
         label="Display Name*"
+        class="black--text"
         placeholder="Enter Display Name"
-        color="white"
       />
       <v-text-field
         v-model="password"
         label="Password*"
         placeholder="Enter Password"
-        color="white"
         :rules="[rules.min]"
         :type="seePassword ? 'text' : 'password'"
         :append-outer-icon="
@@ -35,7 +29,6 @@
         v-model="confirmPassword"
         label="Confirm Password*"
         placeholder="Enter Confirm Password"
-        color="white"
         :rules="[rules.min]"
         :type="seePassword ? 'text' : 'password'"
         :append-outer-icon="
@@ -53,35 +46,26 @@
         label="Max Heart Rate"
         type="number"
         placeholder="Enter Max Heart Rate"
-        color="white"
       />
       <v-text-field
         v-model="restingHr"
         label="Resting Heart Rate"
         type="number"
         placeholder="Enter Resting Heart Rate"
-        color="white"
       />
       <v-text-field
         v-model="thresholdHr"
         label="Threshold Heart Rate"
         type="number"
         placeholder="Enter Threshold Heart Rate"
-        color="white"
       />
       <v-text-field
         v-model="ftp"
         label="Functional Threshold Power"
         type="number"
         placeholder="Enter Functional Threshold Power"
-        color="white"
       />
-      <v-select
-        v-model="gender"
-        :items="genderChoices"
-        label="Gender"
-        color="white"
-      />
+      <v-select v-model="gender" :items="genderChoices" label="Gender" />
       <div class="text-left mt-5">
         <v-btn @click="register">
           Register
@@ -161,8 +145,8 @@ export default {
           color: "green",
           timeout: 3500,
         });
-        const email = this.email
-        const password = this.password
+        const email = this.email;
+        const password = this.password;
         await this.$store.dispatch("auth/login", { email, password });
         this.$router.push("/profile");
         this.saving = false;
