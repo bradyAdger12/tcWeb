@@ -29,7 +29,7 @@
       <v-col
         v-if="tableRows.length > 0"
         class="col-2"
-        :style="`margin-top: 3.3em`"
+        :style="`margin-top: 5.3em`"
       >
         <div v-for="(row, i) of tableRows" :key="i">
           <div
@@ -254,7 +254,7 @@ export default {
     async updateSummaries() {
       if (this.calendar) {
         this.loadingSummaries = true
-        const items = [];
+        this.summaries = []
         const headers = {
           headers: {
             Authorization: "Bearer " + this.$store.state.auth.access_token,
@@ -269,10 +269,9 @@ export default {
               `/workouts/weekly_summary?startDate=${first}&endDate=${last}`,
             headers
           );
-          items.push(summary.data);
+          this.summaries.push(summary.data);
           curr.add(1, "day");
         }
-        this.summaries = items;
       }
       this.loadingSummaries = false
     },
