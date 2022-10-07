@@ -9,7 +9,7 @@
           })`
         }}
         <div
-          class="black--text"
+          class="white--text"
           style="
             background-color: rgba(0, 0, 0, 0.3);
             width: 100%;

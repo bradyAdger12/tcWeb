@@ -48,9 +48,8 @@ export const actions = {
     if (response.data && response.data.success) {
       commit('deleteWorkout', { id })
       if (workout) {
-        const date = moment(workout.started_at)
-        commit('calendar/deleteWorkout', {
-          workout, date
+        commit('calendar/removeWorkout', {
+          id
         }, { root: true })
       }
     }

@@ -46,6 +46,9 @@ export default {
       const workout = this.workout;
       this.deleting = true;
       try {
+        this.$store.commit("calendar/removeWorkout", {
+          id
+        });
         await this.$store.dispatch("workouts/deleteWorkout", {
           id,
           token,

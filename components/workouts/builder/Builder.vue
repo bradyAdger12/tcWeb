@@ -1,5 +1,11 @@
 <template>
   <div class="mt-2">
+    <v-row>
+      <v-col cols="8">
+        <v-text-field v-model="workoutName" class="black--text" label="Name" @keyup.enter="save" />
+        <v-text-field v-model="description" class="black--text" label="Description" @keyup.enter="save" />
+      </v-col>
+    </v-row>
     <v-row align="center">
       <v-col cols="auto" style="width: 20%">
         <v-select
@@ -10,7 +16,7 @@
         />
       </v-col>
       <v-col>
-        <v-switch light dense v-model="isPercentage" :label="`%`" />
+        <v-switch v-model="isPercentage" :label="`%`" />
       </v-col>
       <v-col
         cols="auto"
@@ -21,7 +27,7 @@
             <v-btn v-bind="attrs" v-on="on"> Export </v-btn>
           </template>
 
-          <v-list light>
+          <v-list>
             <v-list-item>
               <a
                 :href="`data:attachment/text,${encodeURI(
@@ -50,7 +56,7 @@
         v-for="(block, i) of blocks"
         :key="i"
         cols="auto"
-        class="rounded black--text text-center mr-2"
+        class="rounded white--text text-center mr-2"
         :style="`background-color: ${block.color}; cursor: grab;`"
         :draggable="true"
         @dragend="blockBeingDragged = null"
@@ -125,7 +131,7 @@
               width: 100%;
              
             `"
-                    class="black--text text-center remove-block"
+                    class="white--text text-center remove-block"
                   >
                     <div
                       style="
@@ -136,12 +142,14 @@
                     >
                       <v-icon
                         @click="copyBlock(block, i)"
+                        color="white"
                         style="pointer-events: auto"
                       >
                         mdi-content-copy
                       </v-icon>
                       <v-icon
                         @click="removeBlock(i)"
+                        color="white"
                         style="pointer-events: auto"
                       >
                         mdi-close-circle
@@ -186,7 +194,7 @@
         <v-btn color="red"> Delete </v-btn>
       </v-col>
       <v-col cols="auto">
-        <v-btn :disabled="addedBlocks.length == 0" @click="saveDialog = true">
+        <v-btn :disabled="addedBlocks.length == 0" @click="save()">
           Save
         </v-btn>
       </v-col>
@@ -300,6 +308,9 @@ export default {
       blocks: [],
       addedBlocks: [],
       isPower: true,
+      workoutName: 'New Workout ' +  moment().format('MMMM D, YYYY'),
+      saving: false,
+      description: "",
       isPercentage: false,
       stress: 0,
       thresholdValue: null,
@@ -372,6 +383,61 @@ export default {
     findHRTSS: findHRTSS,
     findTSS: findTSS,
     zwoFile: zwoFile,
+    async save() {
+      this.saving = true;
+      try {
+        const headers = {
+          headers: {
+            Authorization: "Bearer " + this.$store.state.auth.access_token,
+          },
+        };
+
+        if (!this.workout) {
+          const response = await this.$axios.post(
+            this.$axios.defaults.baseURL + `/workouts/create/planned`,
+            {
+              name: this.workoutName,
+              description: this.description,
+              isPower: this.isPower,
+              planned: this.addedBlocks,
+              startedAt: this.date.set({ hour: 12 }).toISOString(),
+            },
+            headers
+          );
+          const date = moment(this.date);
+          const workout = response.data;
+          if (workout && date) {
+            this.$store.commit("calendar/addWorkout", { workout, date });
+            this.$emit("onSuccess");
+          }
+        } else {
+          // Save Workout
+          const response = await this.$axios.put(
+            this.$axios.defaults.baseURL + `/workouts/update/planned/${this.workout.id}`,
+            {
+              name: this.workoutName,
+              description: this.description,
+              isPower: this.isPower,
+              planned: this.addedBlocks,
+            },
+            headers
+          );
+          if (response?.data) {
+            const workout = response.data
+            this.$store.commit('calendar/updateWorkout', { workout })
+            this.$emit("onSuccess");
+          }
+        }
+        this.$store.dispatch("snackbar/showSnack", {
+          text: "Workout successfully saved!",
+          color: "green",
+          timeout: 3500,
+        });
+      } catch (e) {
+        console.log(e);
+      }
+      this.saving = false;
+    },
     formatValue(value) {
       value = JSON.parse(JSON.stringify(value));
       if (this.isPercentage) {

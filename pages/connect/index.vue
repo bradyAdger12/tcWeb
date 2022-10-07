@@ -32,10 +32,10 @@
           <div
             v-if="connectedToStrava"
             style="position: absolute; right: 0px; top: 0px"
-            class="green rounded text-center px-4 py-2"
+            class="green rounded text-center px-4 py-2 white--text"
           >
             Connected
-            <v-icon class="ml-1" style="text-align: middle" size="22">
+            <v-icon class="ml-1 white--text" style="text-align: middle" size="22">
               mdi-check
             </v-icon>
           </div>

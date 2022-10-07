@@ -6,28 +6,24 @@ export const state = () => ({
 })
 
 export const mutations = {
-  deleteWorkout(state, { workout, date }) {
-    const found = _.find(state.dates, (item) => {
-      if (item.date) {
-        return item.date.format('D MMMM YYYY') == date.format('D MMMM YYYY')
-      }
+  removeWorkout(state, { id }) {
+    const found = _.find(state.workouts, (item) => {
+      return item.id === id
     })
     if (found) {
-      _.remove(found.workouts, (item) => {
-        return item.id == workout.id
+      _.remove(state.workouts, (item) => {
+        return item.id == id
       })
-      state.dateOfWorkoutUpdate = date
     }
   },
   addWorkout(state, { workout, date }) {
-    const found = _.find(state.dates, (item) => {
-      if (item.date) {
-        return item.date.format('D MMMM YYYY') == date.format('D MMMM YYYY')
-      }
+    const found = _.find(state.workouts, (item) => {
+      return item.id === workout.id
     })
     if (found) {
-      found.workouts.push(workout)
-      state.dateOfWorkoutUpdate = date
+      console.log('found')
+    } else {
+      state.workouts.push(workout)
     }
   },
   setWorkouts(state, dates) {
@@ -52,21 +48,6 @@ export const mutations = {
     if (foundNewDate) {
       workout.started_at = newDate.toString()
       foundNewDate.workouts.push(workout)
-    }
-  },
-  updateWorkout(state, { workout }) {
-    const found = _.find(state.workouts, (item) => {
-      return workout.id === item.id
-    })
-    if (found) {
-      console.log(found)
-      // const index = _.findIndex(found.workouts, (item) => {
-      //   return item.id == workout.id
-      // })
-      // if (index != -1) {
-      //   Object.assign(found.workouts[index], workout)
-      //   state.dateOfWorkoutUpdate = moment(workout.started_at)
-      // }
     }
   },
   addToCalendar(state, workout) {
@@ -105,26 +86,6 @@ export const actions = {
       for (let item of response.data) {
         commit('addToCalendar', item)
       }
-      // const datesToAdd = [];
-
-      // // Add incoming dates to temporary list
-      // for (let item of response.data) {
-      //   if (item.date) {
-      //     item.date = moment(item.date.toString()).utc();
-      //   }
-      //   datesToAdd.push(item);
-      // }
-
-      // // If the dates are before initial month, prepend, if not, push to end
-      // if (isPrepend) {
-      //   for (let date of datesToAdd.reverse()) {
-      //     commit('unshift', date)
-      //   }
-      // } else {
-      //   for (let date of datesToAdd) {
-      //     commit('push', date)
-      //   }
-      // }
     }
   }
 }
