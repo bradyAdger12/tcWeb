@@ -1,7 +1,25 @@
 <template>
+  <div>
   <div class="pa-8">
     <v-row no-gutters>
       <v-col class="col-10">
+        <div v-if="calendar" class="mb-4">
+          <v-row justify="center" align="center">
+            <v-col cols="auto">
+              <v-btn fab small @click="calendar.prev()">
+                <v-icon class="mdi mdi-arrow-left" />
+              </v-btn>
+            </v-col>
+            <v-col class="font-weight-bold text-h4" cols="auto">
+              {{ calendar.getDate().toLocaleDateString('en-us', { year:"numeric", month:"long"})}}
+            </v-col>
+            <v-col cols="auto">
+              <v-btn fab small @click="calendar.next()">
+                <v-icon class="mdi mdi-arrow-right" />
+              </v-btn>
+            </v-col>
+          </v-row>
+        </div>
         <FullCalendar
           id="fullCalendar"
           ref="fullCalendar"
@@ -11,14 +29,14 @@
       <v-col
         v-if="tableRows.length > 0"
         class="col-2"
-        :style="`margin-top: 6.0em`"
+        :style="`margin-top: 3.3em`"
       >
         <div v-for="(row, i) of tableRows" :key="i">
           <div
-            class="text-center font-bold pt-2"
+            class="text-center pt-2"
             :style="`height: ${row.clientHeight}px; background-color: rgba(200, 200, 200, .2)`"
           >
-            Summary
+            <span class="font-weight-bold">Summary</span>
             <div v-if="summaries[i]" class="pa-2 text-left">
               <div>
                 <span class="summary-title">Duration: </span
@@ -84,6 +102,13 @@
       </v-card>
     </v-dialog>
   </div>
+  <v-overlay v-if="loading">
+      <v-progress-circular
+        indeterminate
+        size="64"
+      ></v-progress-circular>
+    </v-overlay>
+</div>
 </template>
 
 <script>
@@ -104,6 +129,7 @@ export default {
       calendar: null,
       calendarStart: null,
       calendarEnd: null,
+      loading: true,
       tableRows: [],
       summaries: [],
       selectedWorkout: null,
@@ -114,6 +140,7 @@ export default {
       calendarOptions: {
         editable: true,
         plugins: [dayGridPlugin, interactionPlugin],
+        headerToolbar: false,
         firstDay: 1,
         eventContent: (e) => {
           const workout = e.event.extendedProps;
@@ -199,6 +226,7 @@ export default {
     },
   },
   async mounted() {
+    this.loading = true
     this.calendar = this.$refs.fullCalendar.getApi();
     this.calendar.addEvent({
       id: "addEvent", // recurrent events in this group move together
@@ -212,8 +240,9 @@ export default {
       endTime: "23:59:00",
     });
     if (this.calendar) {
-      this.updateSummaries();
+      await this.updateSummaries();
     }
+    this.loading = false
   },
   methods: {
     toMiles: toMiles,
