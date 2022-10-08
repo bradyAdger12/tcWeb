@@ -253,7 +253,6 @@ export default {
     formatDuration: formatDuration,
     async updateSummaries() {
       if (this.calendar) {
-        this.loadingSummaries = true
         this.summaries = []
         const headers = {
           headers: {
@@ -273,7 +272,6 @@ export default {
           curr.add(1, "day");
         }
       }
-      this.loadingSummaries = false
     },
     async handleEventDrop(e) {
       const id = parseInt(e.event.id);
