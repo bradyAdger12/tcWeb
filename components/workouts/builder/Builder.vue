@@ -191,7 +191,7 @@
         </div>
       </v-col>
       <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
-        <v-btn color="red"> Delete </v-btn>
+        <v-btn color="red" class="white--text"> Delete </v-btn>
       </v-col>
       <v-col cols="auto">
         <v-btn :disabled="addedBlocks.length == 0" @click="save()">
@@ -371,6 +371,8 @@ export default {
     if (this.workout) {
       this.isPower = this.workout.effort ? true : false;
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
+      this.workoutName = this.workout.name
+      this.description = this.workout.description
     }
     this.thresholdValue = this.isPower
       ? this.me.threshold_power

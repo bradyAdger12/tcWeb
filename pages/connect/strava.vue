@@ -8,9 +8,12 @@
             <v-progress-circular indeterminate />
           </div>
           <v-list-item v-else v-for="activity in activities" :key="activity.id">
+            <div class="mr-3">
+              <WorkoutIcon :activity="activity.type.toLowerCase()" :size="'2.0em'" />
+            </div>
             <v-list-item-content>
               <v-list-item-title style="word-break: break-word">{{
-                activity.name
+                activity.name 
               }}</v-list-item-title>
               <v-list-item-subtitle>
                 {{ formatDate(activity.start_date) }}
@@ -66,129 +69,122 @@
 
 <script>
 import { formatDate } from "~/tools/format_moment.js";
+import WorkoutIcon from '../../components/WorkoutIcon.vue';
 export default {
-  name: "StravaConnect",
-  head: {
-    title: "Strava",
-  },
-  data() {
-    return {
-      code: "",
-      loading: true,
-      showWorkout: false,
-      page: 1,
-      // showPrs: false,
-      // prs: [],
-      per_page: 30,
-      workoutId: null,
-      activities: [],
-    };
-  },
-  computed: {
-    me() {
-      return this.$store.state.auth.me;
+    name: "StravaConnect",
+    head: {
+        title: "Strava",
     },
-  },
-  async mounted() {
-    this.code = this.$route.query.code;
-    if (!this.code && !this.$route.query.connected) {
-      this.$store.dispatch("snackbar/showSnack", {
-        text: "Strava authentication failed!",
-        color: "red",
-        timeout: 3500,
-      });
-      this.$router.push("/connect");
-    } else if (this.$route.query.connected) {
-      await this.getStravaActivities();
-    } else {
-      await this.getAccessToken();
-    }
-    this.loading = false;
-  },
-  watch: {
-    page() {
-      this.getStravaActivities();
+    data() {
+        return {
+            code: "",
+            loading: true,
+            showWorkout: false,
+            page: 1,
+            per_page: 30,
+            workoutId: null,
+            activities: [],
+        };
     },
-  },
-  methods: {
-    onDelete() {
-      const found = _.find(
-        this.activities,
-        (item) => item.workoutId == this.workoutId
-      );
-      if (found) {
-        found.workoutId = null;
-        this.showWorkout = false;
-      }
+    computed: {
+        me() {
+            return this.$store.state.auth.me;
+        },
     },
-    viewWorkout(id) {
-      this.showWorkout = true;
-      this.workoutId = id;
-    },
-    async importActivity(activity) {
-      activity.importing = true;
-      this.$forceUpdate();
-      try {
-        const response = await this.$axios.post(
-          this.$axios.defaults.baseURL +
-            `/strava/activity/${activity.id}/import`,
-          null,
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
-          }
-        );
-        if (response && response.data) {
-          activity.workoutId = response.data.id;
-          // this.prs = response.data.prs ?? []
-          // if (this.prs && this.prs.length > 0) {
-          //   this.showPrs = true;
-          // }
-          await this.$store.dispatch("auth/getMe");
+    async mounted() {
+        this.code = this.$route.query.code;
+        if (!this.code && !this.$route.query.connected) {
+            this.$store.dispatch("snackbar/showSnack", {
+                text: "Strava authentication failed!",
+                color: "red",
+                timeout: 3500,
+            });
+            this.$router.push("/connect");
         }
-      } catch (e) {
-        console.log(e);
-      }
-      activity.importing = false;
-      this.$forceUpdate();
-    },
-    formatDate: formatDate,
-    async getStravaActivities() {
-      this.loading = true;
-      if (this.me.strava_token) {
-        try {
-          const stravaActivities = await this.$axios.get(
-            this.$axios.defaults.baseURL +
-              `/strava/activities?page=${this.page}&per_page=${this.per_page}`,
-            {
-              headers: {
-                Authorization: "Bearer " + this.$store.state.auth.access_token,
-              },
-            }
-          );
-          this.activities = stravaActivities.data;
-          for (let activity of this.activities) {
-            activity.importing = false;
-          }
-        } catch (e) {
-          console.log(e);
+        else if (this.$route.query.connected) {
+            await this.getStravaActivities();
+        }
+        else {
+            await this.getAccessToken();
         }
         this.loading = false;
-      }
     },
-    async getAccessToken() {
-      try {
-        const { data } = await this.$axios.post(
-          `https://www.strava.com/oauth/token?client_id=${process.env.stravaClientId}&client_secret=${process.env.stravaClientSecret}&code=${this.code}&grant_type=authorization_code`
-        );
-        if (data && data.access_token) {
-          const payload = { strava_token: data.access_token };
-          await this.$store.dispatch("auth/updateUser", { payload });
-          await this.getStravaActivities();
-        }
-      } catch (e) {}
+    watch: {
+        page() {
+            this.getStravaActivities();
+        },
     },
-  },
+    methods: {
+        onDelete() {
+            const found = _.find(this.activities, (item) => item.workoutId == this.workoutId);
+            if (found) {
+                found.workoutId = null;
+                this.showWorkout = false;
+            }
+        },
+        viewWorkout(id) {
+            this.showWorkout = true;
+            this.workoutId = id;
+        },
+        async importActivity(activity) {
+            activity.importing = true;
+            this.$forceUpdate();
+            try {
+                const response = await this.$axios.post(this.$axios.defaults.baseURL +
+                    `/strava/activity/${activity.id}/import`, null, {
+                    headers: {
+                        Authorization: "Bearer " + this.$store.state.auth.access_token,
+                    },
+                });
+                if (response && response.data) {
+                    activity.workoutId = response.data.id;
+                    // this.prs = response.data.prs ?? []
+                    // if (this.prs && this.prs.length > 0) {
+                    //   this.showPrs = true;
+                    // }
+                    await this.$store.dispatch("auth/getMe");
+                }
+            }
+            catch (e) {
+                console.log(e);
+            }
+            activity.importing = false;
+            this.$forceUpdate();
+        },
+        formatDate: formatDate,
+        async getStravaActivities() {
+            this.loading = true;
+            if (this.me.strava_token) {
+                try {
+                    const stravaActivities = await this.$axios.get(this.$axios.defaults.baseURL +
+                        `/strava/activities?page=${this.page}&per_page=${this.per_page}`, {
+                        headers: {
+                            Authorization: "Bearer " + this.$store.state.auth.access_token,
+                        },
+                    });
+                    this.activities = stravaActivities.data;
+                    for (let activity of this.activities) {
+                        activity.importing = false;
+                    }
+                }
+                catch (e) {
+                    console.log(e);
+                }
+                this.loading = false;
+            }
+        },
+        async getAccessToken() {
+            try {
+                const { data } = await this.$axios.post(`https://www.strava.com/oauth/token?client_id=${process.env.stravaClientId}&client_secret=${process.env.stravaClientSecret}&code=${this.code}&grant_type=authorization_code`);
+                if (data && data.access_token) {
+                    const payload = { strava_token: data.access_token };
+                    await this.$store.dispatch("auth/updateUser", { payload });
+                    await this.getStravaActivities();
+                }
+            }
+            catch (e) { }
+        },
+    },
+    components: { WorkoutIcon }
 };
 </script>

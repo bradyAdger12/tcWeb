@@ -8,42 +8,38 @@
         v-model="displayName"
         label="Display Name*"
         placeholder="Enter Display Name"
-        color="white"
       />
       <v-text-field
         v-model.number="maxHr"
         label="Max Heart Rate"
         type="number"
         placeholder="Enter Max Heart Rate"
-        color="white"
       />
       <v-text-field
         v-model.number="restingHr"
         label="Resting Heart Rate"
         type="number"
         placeholder="Enter Resting Heart Rate"
-        color="white"
       />
       <v-text-field
         v-model.number="thresholdHr"
         label="Threshold Heart Rate"
         type="number"
         placeholder="Enter Threshold Heart Rate"
-        color="white"
+      />
+      <v-text-field
+        v-model="thresholdPace"
+        label="Threshold Running Pace"
+        type="text"
+        placeholder="Enter Threshold Pace (pace for 10k. Ex. 8:30)"
       />
       <v-text-field
         v-model.number="ftp"
         label="Functional Threshold Power"
         type="number"
         placeholder="Enter Functional Threshold Power"
-        color="white"
       />
-      <v-select
-        v-model="gender"
-        :items="genderChoices"
-        label="Gender"
-        color="white"
-      />
+      <v-select v-model="gender" :items="genderChoices" label="Gender" />
       <div class="text-left mt-5">
         <v-btn @click="updateMe">
           Update
@@ -77,6 +73,7 @@ export default {
       genderChoices: ["none", "male", "female"],
       restingHr: null,
       thresholdHr: null,
+      thresholdPace: null,
       maxHr: null,
       ftp: null,
       seePassword: false,
@@ -97,6 +94,7 @@ export default {
     this.restingHr = this.me.resting_hr;
     this.ftp = this.me.threshold_power;
     this.thresholdHr = this.me.threshold_hr;
+    this.thresholdPace = new Date(this.me.running_threshold_pace * 1000).toISOString().substring(14, 19)
     this.gender = this.me.gender;
   },
   methods: {
@@ -104,6 +102,18 @@ export default {
       return this.displayName;
     },
     async updateMe() {
+      let totalSeconds = null;
+      if (this.thresholdPace && this.thresholdPace.includes(":")) {
+        const actualTime = this.thresholdPace.split(":");
+        if (actualTime.length !== 2) {
+          return this.$store.dispatch("snackbar/showSnack", {
+            text: "Invalid pace format!",
+            color: "red",
+            timeout: 3500,
+          });
+        }
+        totalSeconds = parseInt(actualTime[0]) * 60 + parseInt(actualTime[1]);
+      }
       if (this.isValid()) {
         this.saving = true;
         const payload = {
@@ -111,6 +121,7 @@ export default {
           gender: this.gender == "None" ? null : this.gender.toLowerCase(),
           resting_hr: this.restingHr ?? null,
           threshold_hr: this.thresholdHr ?? null,
+          running_threshold_pace: totalSeconds,
           max_hr: this.maxHr ?? null,
           threshold_power: this.ftp ?? null,
         };

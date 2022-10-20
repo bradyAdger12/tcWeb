@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CalendarFull />
+    <CalendarMyCalendar />
   </div>
 </template>
 

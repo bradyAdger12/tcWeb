@@ -5,8 +5,8 @@
     </div>
     <div v-else-if="workout">
       <div v-if="workout.planned" class="mb-3">
-        <span class="white--text purple rounded-lg pa-2 d-inline">
-          Planned
+        <span :class="`white--text ${workout.is_completed ? 'green' : 'purple'} rounded-lg pa-2 d-inline`">
+          {{ workout.is_completed ? 'Completed Workout' : 'Planned Workout' }}
         </span>
       </div>
       <div class="text-h5 text-sm-h2 font-weight-bold">
@@ -31,6 +31,9 @@
               <div>{{ stat.name }}</div>
             </div>
           </v-col>
+          <v-col class="text-right mr-2">
+            <WorkoutIcon :activity="workout.activity" />
+          </v-col>
         </v-row>
 
         <!-- Bests for workout -->
@@ -42,7 +45,7 @@
           <v-row>
             <!-- Heart Rate Zones -->
             <v-col
-              v-if="workout.zones.hasHeartRate"
+              v-if="workout.zones && workout.zones.hasHeartRate"
               cols="12"
               :sm="workout.zones.hasWatts ? '6' : '12'"
             >
@@ -56,7 +59,7 @@
 
             <!-- Power Zones -->
             <v-col
-              v-if="workout.zones.hasWatts"
+              v-if="workout.zones && workout.zones.hasWatts"
               cols="12"
               :sm="workout.zones.hasHeartRate ? '6' : '12'"
             >
@@ -71,8 +74,8 @@
           </v-row>
         </div>
       </div>
-      <v-switch light v-model="showZones" :label="`Show zones`"></v-switch>
-      <highchart class="mt-4" style="height: 300px" :options="chartOptions" />
+      <v-switch v-if="workout.zones" light v-model="showZones" :label="`Show zones`"></v-switch>
+      <highchart v-if="workout.zones" class="mt-4" style="height: 300px" :options="chartOptions" />
       <v-card-actions>
         <v-btn color="blue" class="white--text" @click="openEditDialog = true"> Edit </v-btn>
         <v-btn color="red" class="white--text" @click="openDeleteDialog = true"> Delete </v-btn>
@@ -83,7 +86,7 @@
           <v-card-text>
             <WorkoutsEdit
               :workout="workout"
-              @onUpdate="openEditDialog = false"
+              @onUpdate="onUpdatedWorkout"
             />
           </v-card-text>
         </v-card>
@@ -105,6 +108,7 @@ import { formatDate, formatDuration } from "~/tools/format_moment";
 import { toMiles } from "~/tools/conversion.js";
 import duration from "format-duration";
 import ZoneDistribution from "~/components/workouts/ZoneDistribution.vue";
+import WorkoutIcon from '../WorkoutIcon.vue';
 export default {
   name: "Workout",
   middleware: "auth",
@@ -114,7 +118,7 @@ export default {
       required: true,
     },
   },
-  components: { ZoneDistribution },
+  components: { ZoneDistribution, WorkoutIcon },
   data() {
     return {
       chartsOptions: null,
@@ -149,6 +153,21 @@ export default {
   methods: {
     formatDuration: formatDuration,
     formatDate: formatDate,
+    onUpdatedWorkout (e) {
+      this.workout = e
+      this.openEditDialog = false
+    },
+    getActivity () {
+      const activity = this.workout.activity
+      if (this.workout) {
+        if (activity === 'ride') {
+          return 'bike'
+        } else if (activity === 'run') {
+          return 'run'
+        }
+      }
+      return 'bike'
+    },
     async getWorkout() {
       try {
         const response = await this.$axios.get(
@@ -191,7 +210,7 @@ export default {
     },
     buildChart() {
       const series = [];
-      if (this.workout.streams.heartrate) {
+      if (this.workout.streams?.heartrate) {
         series.push({
           lineWidth: 1.0,
           name: "Heart Rate",
@@ -210,7 +229,7 @@ export default {
           data: this.workout.streams.heartrate.data,
         });
       }
-      if (this.workout.streams.watts) {
+      if (this.workout.streams?.watts) {
         series.push({
           lineWidth: 1.0,
           color: "blue",
@@ -254,11 +273,16 @@ export default {
     },
     buildStats() {
       if (this.workout) {
-        console.log;
         this.stats = [
           { name: "Duration", value: formatDuration(this.workout.duration) },
-          { name: "Distance", value: toMiles(this.workout.length) },
         ];
+        if (this.workout.activity !== 'workout') {
+          this.stats.push({ name: "Distance", value: toMiles(this.workout.length) })
+        }
+        if (this.workout.activity === 'run') {
+          const pace = new Date((this.workout.duration) / (this.workout.length * 0.000621371) * 1000).toISOString().substring(14, 19)
+          this.stats.push({ name: "Pace", value: pace })
+        }
         if (this.workout.hr_effort) {
           this.stats.push({ name: "HR Effort", value: this.workout.hr_effort });
         }

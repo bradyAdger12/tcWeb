@@ -8,6 +8,12 @@
       rounded
       class="rounded-lg"
     />
+    <v-select
+      v-model="updatedWorkout.activity"
+      :items="activities"
+      light
+      label="Activity"
+    />
     <v-card-actions>
       <v-btn @click="save">
         Save
@@ -40,6 +46,7 @@ export default {
     return {
       updatedWorkout: null,
       saving: false,
+      activities: ['run', 'ride']
     };
   },
   mounted() {
@@ -54,6 +61,7 @@ export default {
         const payload = {
           name: this.updatedWorkout.name,
           description: this.updatedWorkout.description,
+          activity: this.updatedWorkout.activity
         };
         await this.$store.dispatch("workouts/updateWorkout", {
           id,
