@@ -375,7 +375,7 @@ export default {
         let curr = moment(this.calendar.view.activeStart);
         for (let i = 0; i < 6; i++) {
           const first = moment(curr).startOf("day").toISOString();
-          const last = curr.add(6, "day").endOf("day").toISOString();
+          const last = curr.add(6, "day").endOf("day").utc().toISOString();
           const summary = await this.$axios.get(
             this.$axios.defaults.baseURL +
               `/workouts/weekly_summary?startDate=${first}&endDate=${last}`,
