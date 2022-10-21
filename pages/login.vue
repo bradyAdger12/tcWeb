@@ -8,13 +8,11 @@
         v-model="email"
         label="Email"
         placeholder="Enter email"
-        color="white"
       />
       <v-text-field
         v-model="password"
         label="Password"
         placeholder="Enter password"
-        color="white"
         :rules="[rules.min]"
         :type="seePassword ? 'text' : 'password'"
         :append-outer-icon="
