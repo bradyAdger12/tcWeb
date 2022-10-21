@@ -38,7 +38,7 @@
               <v-list-item-title>Edit Profile</v-list-item-title>
             </v-list-item>
           </NuxtLink>
-           <NuxtLink to="/profile/workouts" style="text-decoration: none">
+          <NuxtLink to="/profile/workouts" style="text-decoration: none">
             <v-list-item>
               <v-list-item-title>Workouts</v-list-item-title>
             </v-list-item>
@@ -58,8 +58,22 @@
     <v-main>
       <Nuxt />
     </v-main>
-    <v-footer absolute app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+    <v-footer absolute class="pa-4">
+      <v-row justify="center" no-gutters>
+        <v-col cols="auto">
+          <div class="ml-3">&copy; {{ new Date().getFullYear() }}</div>
+          <div class="mt-2">
+            <a href="https://strava.com" target="_blank">
+              <img
+                :src="
+                  require('../assets/api_logo_cptblWith_strava_horiz_light.png')
+                "
+                style="width: 300px"
+              />
+            </a>
+          </div>
+        </v-col>
+      </v-row>
     </v-footer>
   </v-app>
 </template>
