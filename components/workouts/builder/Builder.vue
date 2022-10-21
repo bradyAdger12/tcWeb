@@ -1,127 +1,152 @@
 <template>
   <div class="mt-2">
     <v-row>
-      <v-col cols="8">
-        <v-text-field v-model="workoutName" class="black--text" label="Name" @keyup.enter="save" />
-        <v-text-field v-model="description" class="black--text" label="Description" @keyup.enter="save" />
+      <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
+        <v-btn color="red" class="white--text"> Delete </v-btn>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn :disabled="isDisabled()" @click="save()">
+          Save
+        </v-btn>
       </v-col>
     </v-row>
-    <v-row align="center">
-      <v-col cols="auto" style="width: 20%">
-        <v-select
-          v-model="isPower"
-          :items="dataTypes"
-          light
-          label="Build Type"
+    <v-row>
+      <v-col cols="8">
+        <v-text-field
+          v-model="workoutName"
+          class="black--text"
+          label="Name"
+          @keyup.enter="save"
+        />
+        <v-text-field
+          v-model="description"
+          class="black--text"
+          label="Description"
+          @keyup.enter="save"
+        />
+        <WorkoutsActivityDropdown
+          :currentActivity="activity"
+          @onActivityChange="(e) => activity = e"
         />
       </v-col>
-      <v-col>
-        <v-switch v-model="isPercentage" :label="`%`" />
-      </v-col>
-      <v-col
-        cols="auto"
-        v-if="thresholdValue && addedBlocks.length > 0 && isPower"
-      >
-        <v-menu open-on-hover bottom offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on"> Export </v-btn>
-          </template>
-
-          <v-list>
-            <v-list-item>
-              <a
-                :href="`data:attachment/text,${encodeURI(
-                  zwoFile(addedBlocks, thresholdValue, me, workout)
-                )}`"
-                :download="`${
-                  workout
-                    ? workout.name
-                    : 'my_spin_cycle_' + new Date().toString()
-                } (via ${$app_config.title}).zwo`"
-                style="text-decoration: none; color: black"
-              >
-                Zwift
-              </a>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-col>
     </v-row>
+    <div v-if="activity == 'ride'">
+      <v-row align="center">
+        <v-col cols="auto" style="width: 20%">
+          <v-select
+            v-model="isPower"
+            :items="dataTypes"
+            light
+            label="Build Type"
+          />
+        </v-col>
+        <v-col>
+          <v-switch v-model="isPercentage" :label="`%`" />
+        </v-col>
+        <v-col
+          cols="auto"
+          v-if="thresholdValue && addedBlocks.length > 0 && isPower"
+        >
+          <v-menu open-on-hover bottom offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn v-bind="attrs" v-on="on"> Export </v-btn>
+            </template>
 
-    <p>
-      <i>Drag the blocks below to build your workout</i>
-    </p>
-    <v-row class="ml-1 mt-1">
-      <v-col
-        v-for="(block, i) of blocks"
-        :key="i"
-        cols="auto"
-        class="rounded white--text text-center mr-2"
-        :style="`background-color: ${block.color}; cursor: grab;`"
-        :draggable="true"
-        @dragend="blockBeingDragged = null"
-        @dragstart="dragStart($event, block)"
-        >{{ block.type }}
-        {{ isPercentage && block.type != "Intervals" ? "%" : "" }}
-        <div v-if="block.type != 'Intervals'">
-          {{ getZoneRange(block.type) }}
-        </div></v-col
-      >
-    </v-row>
+            <v-list>
+              <v-list-item>
+                <a
+                  :href="`data:attachment/text,${encodeURI(
+                    zwoFile(addedBlocks, thresholdValue, me, workout)
+                  )}`"
+                  :download="`${
+                    workout
+                      ? workout.name
+                      : 'my_spin_cycle_' + new Date().toString()
+                  } (via ${$app_config.title}).zwo`"
+                  style="text-decoration: none; color: black"
+                >
+                  Zwift
+                </a>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-col>
+      </v-row>
 
-    <!-- Blocks Added -->
-    <div
-      class="mt-12 rounded text-left"
-      style="
-        height: 250px;
-        background-color: rgba(100, 100, 100, 0.2);
-        white-space: nowrap;
-        overflow-x: scroll;
-        overflow-y: hidden;
-      "
-      align="end"
-      @dragover="onDragOver"
-      @drop="onDrop($event, addedBlocks.length)"
-    >
-      <draggable v-model="addedBlocks">
-        <div
-          v-for="(block, i) of addedBlocks"
+      <p>
+        <i>Drag the blocks below to build your workout</i>
+      </p>
+      <v-row class="ml-1 mt-1">
+        <v-col
+          v-for="(block, i) of blocks"
           :key="i"
           cols="auto"
-          style="display: inline-block; position: relative"
+          class="rounded white--text text-center mr-2"
+          :style="`background-color: ${block.color}; cursor: grab;`"
+          :draggable="true"
+          @dragend="blockBeingDragged = null"
+          @dragstart="dragStart($event, block)"
+          >{{ block.type }}
+          {{ isPercentage && block.type != "Intervals" ? "%" : "" }}
+          <div v-if="block.type != 'Intervals'">
+            {{ getZoneRange(block.type) }}
+          </div></v-col
         >
-          <v-row no-gutters align="end" style="height: 250px">
-            <v-col
-              v-if="i == 0"
-              cols="auto"
-              :style="`
+      </v-row>
+
+      <!-- Blocks Added -->
+      <div
+        class="mt-12 rounded text-left"
+        style="
+          height: 250px;
+          background-color: rgba(100, 100, 100, 0.2);
+          white-space: nowrap;
+          overflow-x: scroll;
+          overflow-y: hidden;
+        "
+        align="end"
+        @dragover="onDragOver"
+        @drop="onDrop($event, addedBlocks.length)"
+      >
+        <draggable v-model="addedBlocks">
+          <div
+            v-for="(block, i) of addedBlocks"
+            :key="i"
+            cols="auto"
+            style="display: inline-block; position: relative"
+          >
+            <v-row no-gutters align="end" style="height: 250px">
+              <v-col
+                v-if="i == 0"
+                cols="auto"
+                :style="`
                 width: 10px;
                 height: 70%;
                 background-color: rgba(100, 100, 100, ${
                   blockBeingDragged ? '0.2' : '0.0'
                 });
               `"
-              class="mx-1 rounded-t-xl"
-              @dragover="onDragOver"
-              @drop="onDrop($event, i, true)"
-            />
-            <v-col v-for="index in block.numSets" cols="auto" :key="index">
-              <v-row no-gutters style="height: 250px" align="end">
-                <v-col
-                  v-for="(set, index2) of block.sets"
-                  cols="auto"
-                  :key="index2"
-                  class="elevation-3 rounded-t-lg set text-center"
-                  :style="`background-color: ${getColorOfSet(
-                    set.value
-                  )}; height: ${getHeight(set.value)}%; width: ${getWidth(
-                    set.duration
-                  )}px; cursor: grab;`"
-                >
-                  <!-- Overlay Block -->
-                  <div
-                    v-if="index2 == 0"
-                    :style="`
+                class="mx-1 rounded-t-xl"
+                @dragover="onDragOver"
+                @drop="onDrop($event, i, true)"
+              />
+              <v-col v-for="index in block.numSets" cols="auto" :key="index">
+                <v-row no-gutters style="height: 250px" align="end">
+                  <v-col
+                    v-for="(set, index2) of block.sets"
+                    cols="auto"
+                    :key="index2"
+                    class="elevation-3 rounded-t-lg set text-center"
+                    :style="`background-color: ${getColorOfSet(
+                      set.value
+                    )}; height: ${getHeight(set.value)}%; width: ${getWidth(
+                      set.duration
+                    )}px; cursor: grab;`"
+                  >
+                    <!-- Overlay Block -->
+                    <div
+                      v-if="index2 == 0"
+                      :style="`
               position: absolute;
               bottom: 35px;
               pointer-events: none;
@@ -131,135 +156,128 @@
               width: 100%;
              
             `"
-                    class="white--text text-center remove-block"
-                  >
-                    <div
-                      style="
-                        background-color: rgba(0, 0, 0, 0.2);
-                        display: inline-block;
-                      "
-                      class="pa-2 rounded"
+                      class="white--text text-center remove-block"
                     >
-                      <v-icon
-                        @click="copyBlock(block, i)"
-                        color="white"
-                        style="pointer-events: auto"
+                      <div
+                        style="
+                          background-color: rgba(0, 0, 0, 0.2);
+                          display: inline-block;
+                        "
+                        class="pa-2 rounded"
                       >
-                        mdi-content-copy
-                      </v-icon>
-                      <v-icon
-                        @click="removeBlock(i)"
-                        color="white"
-                        style="pointer-events: auto"
-                      >
-                        mdi-close-circle
-                      </v-icon>
+                        <v-icon
+                          @click="copyBlock(block, i)"
+                          color="white"
+                          style="pointer-events: auto"
+                        >
+                          mdi-content-copy
+                        </v-icon>
+                        <v-icon
+                          @click="removeBlock(i)"
+                          color="white"
+                          style="pointer-events: auto"
+                        >
+                          mdi-close-circle
+                        </v-icon>
+                      </div>
                     </div>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-col
-              cols="auto"
-              :style="`
+                  </v-col>
+                </v-row>
+              </v-col>
+              <v-col
+                cols="auto"
+                :style="`
                 width: 10px;
                 height: 70%;
                 background-color: rgba(100, 100, 100, ${
                   blockBeingDragged ? '0.2' : '0.0'
                 });
               `"
-              class="mx-1 rounded-t-xl"
-              @dragover="onDragOver"
-              @drop="onDrop($event, i + 1, true)"
+                class="mx-1 rounded-t-xl"
+                @dragover="onDragOver"
+                @drop="onDrop($event, i + 1, true)"
+              >
+              </v-col>
+            </v-row>
+          </div>
+        </draggable>
+      </div>
+
+      <!-- Display Total Duration -->
+      <v-row class="mt-4" align="center">
+        <v-col cols="auto">
+          <div v-if="totalDuration" class="font-weight-bold">
+            Duration: {{ formatDuration(totalDuration) }}
+          </div>
+        </v-col>
+        <v-col>
+          <div v-if="stress" class="font-weight-bold">
+            {{ isPower ? "Effort: " : "HR Effort: " }} {{ stress }}
+          </div>
+        </v-col>
+      </v-row>
+
+      <!-- Block Edit -->
+      <div class="mt-10">
+        <div v-for="(block, i) of addedBlocks.slice().reverse()" :key="i">
+          <div style="display: inline-block" class="list-remove-block">
+            <v-icon
+              color="red"
+              class="mr-2"
+              @click="removeBlock(addedBlocks.length - 1 - i)"
+              >mdi-close-circle</v-icon
+            >{{ addedBlocks.length - i }}). {{ block.type }}
+            <a
+              class="blue--text ml-1"
+              style="text-decoration: underline"
+              @click="copyBlock(block, addedBlocks.length - 1)"
+              >copy</a
             >
+          </div>
+          <v-row no-gutters class="my-3">
+            <v-col v-if="block.numSets > 1" cols="12" class="mt-2">
+              <v-select
+                dense
+                style="width: 10%"
+                v-model="block.numSets"
+                :items="setsList"
+                light
+                label="Sets"
+                color="black"
+              />
+            </v-col>
+            <v-col
+              cols="auto"
+              v-for="(set, i) of block.sets"
+              :key="i"
+              class="mr-2"
+            >
+              <div style="display: inline-block">
+                <div class="mb-3 font-weight-bold">
+                  {{ set.type }}
+                </div>
+                <v-text-field
+                  v-model="set.duration"
+                  light
+                  dense
+                  label="Duration"
+                  style="display: inline-block"
+                  class="mr-2"
+                />
+              </div>
+              <v-text-field
+                :value="formatValue(set.value)"
+                light
+                dense
+                :label="`Target ${isPower ? 'Watts' : 'HR'} ${
+                  isPercentage ? '%' : ''
+                }`"
+                style="display: inline-block"
+                @input="updateZoneTitle($event, block, set)"
+              />
             </v-col>
           </v-row>
         </div>
-      </draggable>
-    </div>
-
-    <!-- Display Total Duration -->
-    <v-row class="mt-4" align="center">
-      <v-col cols="auto">
-        <div v-if="totalDuration" class="font-weight-bold">
-          Duration: {{ formatDuration(totalDuration) }}
-        </div>
-      </v-col>
-      <v-col>
-        <div v-if="stress" class="font-weight-bold">
-          {{ isPower ? "Effort: " : "HR Effort: " }} {{ stress }}
-        </div>
-      </v-col>
-      <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
-        <v-btn color="red" class="white--text"> Delete </v-btn>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn :disabled="addedBlocks.length == 0" @click="save()">
-          Save
-        </v-btn>
-      </v-col>
-    </v-row>
-
-    <!-- Block Edit -->
-    <div class="mt-10">
-      <div v-for="(block, i) of addedBlocks.slice().reverse()" :key="i">
-        <div style="display: inline-block" class="list-remove-block">
-          <v-icon
-            color="red"
-            class="mr-2"
-            @click="removeBlock(addedBlocks.length - 1 - i)"
-            >mdi-close-circle</v-icon
-          >{{ addedBlocks.length - i }}). {{ block.type }}
-          <a
-            class="blue--text ml-1"
-            style="text-decoration: underline"
-            @click="copyBlock(block, addedBlocks.length - 1)"
-            >copy</a
-          >
-        </div>
-        <v-row no-gutters class="my-3">
-          <v-col v-if="block.numSets > 1" cols="12" class="mt-2">
-            <v-select
-              dense
-              style="width: 10%"
-              v-model="block.numSets"
-              :items="setsList"
-              light
-              label="Sets"
-              color="black"
-            />
-          </v-col>
-          <v-col
-            cols="auto"
-            v-for="(set, i) of block.sets"
-            :key="i"
-            class="mr-2"
-          >
-            <div style="display: inline-block">
-              <div class="mb-3 font-weight-bold">
-                {{ set.type }}
-              </div>
-              <v-text-field
-                v-model="set.duration"
-                light
-                dense
-                label="Duration"
-                style="display: inline-block"
-                class="mr-2"
-              />
-            </div>
-            <v-text-field
-              :value="formatValue(set.value)"
-              light
-              dense
-              :label="`Target ${isPower ? 'Watts' : 'HR'} ${
-                isPercentage ? '%' : ''
-              }`"
-              style="display: inline-block"
-              @input="updateZoneTitle($event, block, set)"
-            />
-          </v-col>
-        </v-row>
       </div>
     </div>
     <v-dialog v-model="saveDialog" scrollable light width="600">
@@ -274,7 +292,13 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="openDeleteDialog" width="400" light>
-      <DialogsDeleteWorkout :workout="workout" />
+      <DialogsDeleteWorkout
+        :workout="workout"
+        @onDelete="
+          openDeleteDialog = false;
+          $emit('onSuccess');
+        "
+      />
     </v-dialog>
   </div>
 </template>
@@ -308,7 +332,8 @@ export default {
       blocks: [],
       addedBlocks: [],
       isPower: true,
-      workoutName: 'New Workout ' +  moment().format('MMMM D, YYYY'),
+      activity: "ride",
+      workoutName: "",
       saving: false,
       description: "",
       isPercentage: false,
@@ -349,7 +374,7 @@ export default {
         ? this.me.threshold_power
         : this.me.threshold_hr;
       this.init();
-      this.getStress()
+      this.getStress();
     },
     addedBlocks: {
       handler(val) {
@@ -368,11 +393,12 @@ export default {
     },
   },
   mounted() {
+    this.workoutName = "New Workout " + this.date.format("MMMM D, YYYY");
     if (this.workout) {
       this.isPower = this.workout.effort ? true : false;
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
-      this.workoutName = this.workout.name
-      this.description = this.workout.description
+      this.workoutName = this.workout.name;
+      this.description = this.workout.description;
     }
     this.thresholdValue = this.isPower
       ? this.me.threshold_power
@@ -380,11 +406,15 @@ export default {
     this.init();
   },
   methods: {
+    
     getColor: getColor,
     formatDuration: formatDuration,
     findHRTSS: findHRTSS,
     findTSS: findTSS,
     zwoFile: zwoFile,
+    isDisabled () {
+      return this.activity !== 'run' && this.addedBlocks == 0
+    },
     async save() {
       this.saving = true;
       try {
@@ -401,6 +431,7 @@ export default {
               name: this.workoutName,
               description: this.description,
               isPower: this.isPower,
+              activity: this.activity,
               planned: this.addedBlocks,
               startedAt: this.date.set({ hour: 12 }).toISOString(),
             },
@@ -415,7 +446,8 @@ export default {
         } else {
           // Save Workout
           const response = await this.$axios.put(
-            this.$axios.defaults.baseURL + `/workouts/update/planned/${this.workout.id}`,
+            this.$axios.defaults.baseURL +
+              `/workouts/update/planned/${this.workout.id}`,
             {
               name: this.workoutName,
               description: this.description,
@@ -425,8 +457,8 @@ export default {
             headers
           );
           if (response?.data) {
-            const workout = response.data
-            this.$store.commit('calendar/updateWorkout', { workout })
+            const workout = response.data;
+            this.$store.commit("calendar/updateWorkout", { workout });
             this.$emit("onSuccess");
           }
         }

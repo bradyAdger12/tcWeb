@@ -2,20 +2,19 @@ import _ from 'lodash'
 import moment from 'moment'
 export const state = () => ({
   workouts: [],
+  workoutIdToBeRemoved: null
 })
 
 export const mutations = {
   removeWorkout(state, { id }) {
-    const found = _.find(state.workouts, (item) => {
-      return item.id === id
+    const removedWorkouts = _.remove(state.workouts, (item) => {
+      return item.id == id
     })
-    if (found) {
-      _.remove(state.workouts, (item) => {
-        return item.id == id
-      })
+    if (removedWorkouts?.length > 0) {
+      state.workoutIdToBeRemoved = removedWorkouts[0].id
     }
   },
-  updateWorkout (state, { workout }) {
+  updateWorkout(state, { workout }) {
     state.updatedWorkout = null
     const index = _.findIndex(state.workouts, (item) => {
       return item.id === workout.id
@@ -32,9 +31,6 @@ export const mutations = {
     if (!found) {
       state.workouts.push(workout)
     }
-  },
-  setWorkouts(state, dates) {
-    state.dates = dates
   },
   addToCalendar(state, workout) {
     state.workouts.push(workout)

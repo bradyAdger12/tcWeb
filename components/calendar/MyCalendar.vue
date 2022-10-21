@@ -138,7 +138,7 @@
         @click:outside="addDialog = false"
         scrollable
       >
-        <v-card v-if="addDate" class="white black--text">
+        <v-card v-if="addDate" class="white black--text" :key="addDate.toISOString()">
           <v-card-title>
             Add Workout for {{ addDate.format("MMMM D, YYYY") }}
           </v-card-title>
@@ -287,14 +287,18 @@ export default {
         windowResize: (e) => {
           setTimeout(() => {
             this.tableRows = $(".fc-scrollgrid-sync-table tr");
-            console.log(this.tableRows);
           }, 100);
         },
-        // handleWindowResize: false
+        // handleWindowResize: false ()
       },
     };
   },
   watch: {
+    "$store.state.calendar.workoutIdToBeRemoved" () {
+      const id = this.$store.state.calendar.workoutIdToBeRemoved
+      const event = this.calendar.getEventById(id);
+      event.remove();
+    },
     "$store.state.calendar.workouts"() {
       const workouts = this.$store.state.calendar.workouts;
       for (const workout of workouts) {
@@ -378,7 +382,6 @@ export default {
             headers
           );
           this.summaries.push(summary.data);
-          console.log(this.summaries);
           curr.add(1, "day");
         }
       }

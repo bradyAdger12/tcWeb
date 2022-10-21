@@ -8,12 +8,7 @@
       rounded
       class="rounded-lg"
     />
-    <v-select
-      v-model="updatedWorkout.activity"
-      :items="activities"
-      light
-      label="Activity"
-    />
+    <WorkoutsActivityDropdown :currentActivity="updatedWorkout.activity" @onActivityChange="(e) => updatedWorkout.activity = e" />
     <v-card-actions>
       <v-btn @click="save">
         Save

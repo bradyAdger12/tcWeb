@@ -55,9 +55,6 @@ export default {
       required: true,
     },
   },
-  mounted () {
-    console.log(this.workout_zones)
-  },
   data() {
     return {
       zoneNames: [
