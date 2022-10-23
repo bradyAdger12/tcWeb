@@ -53,6 +53,7 @@
               <ZoneDistribution
                 :workout_zones="workout.zones"
                 :me_zones="me.hr_zones"
+                :activity="workout.activity"
                 :zone_type="'hr'"
               />
             </v-col>
@@ -68,6 +69,7 @@
               <ZoneDistribution
                 :workout_zones="workout.zones"
                 :me_zones="me.power_zones"
+                :activity="workout.activity"
                 :zone_type="'watt'"
               />
             </v-col>

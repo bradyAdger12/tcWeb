@@ -138,7 +138,7 @@
         @click:outside="addDialog = false"
         scrollable
       >
-        <v-card v-if="addDate" class="white black--text" :key="addDate.toISOString()">
+        <v-card v-if="addDate" class="white black--text" :key="new Date().toString()">
           <v-card-title>
             Add Workout for {{ addDate.format("MMMM D, YYYY") }}
           </v-card-title>
@@ -147,6 +147,7 @@
               :date="addDate"
               :workout="selectedPlannedWorkout"
               @onSuccess="onSuccessfullAddWorkout"
+              @onClose="addDialog = false; updateSummaries()"
             />
           </v-card-text>
         </v-card>
@@ -207,8 +208,8 @@ export default {
           } else if (workout.planned) {
             workoutHeader += `
               <div style="width: 100%; background-color: ${
-                workout.is_completed ? "green" : "purple"
-              }; color: white" class="text-center rounded px-2 py-1">
+                workout.is_completed ? "green" : "white"
+              }; color: ${this.getActivityBackgroundColor(workout.activity)}" class="text-center rounded px-2 py-1">
                 ${workout.is_completed ? "completed" : "planned"}
               </div>
             `;
@@ -433,6 +434,7 @@ export default {
       this.tableRows = $(".fc-scrollgrid-sync-table tr");
     },
     onSuccessfullAddWorkout(e) {
+      console.log('delete')
       this.addDialog = false;
       this.updateSummaries();
     },

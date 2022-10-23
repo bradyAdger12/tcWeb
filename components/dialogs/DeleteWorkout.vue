@@ -45,6 +45,7 @@ export default {
       const token = this.authentication;
       const workout = this.workout;
       this.deleting = true;
+      this.$emit("onDelete");
       try {
         await this.$store.dispatch("workouts/deleteWorkout", {
           id,
@@ -56,9 +57,8 @@ export default {
           color: "green",
           timeout: 3500,
         });
-        this.$emit("onDelete");
       } catch (e) {
-        console.log(e);
+        console.log(error)
       }
       this.deleting = false;
     },

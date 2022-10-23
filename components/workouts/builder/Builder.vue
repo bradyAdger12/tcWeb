@@ -5,9 +5,7 @@
         <v-btn color="red" class="white--text"> Delete </v-btn>
       </v-col>
       <v-col cols="auto">
-        <v-btn :disabled="isDisabled()" @click="save()">
-          Save
-        </v-btn>
+        <v-btn :disabled="isDisabled()" @click="save()"> Save </v-btn>
       </v-col>
     </v-row>
     <v-row>
@@ -26,13 +24,14 @@
         />
         <WorkoutsActivityDropdown
           :currentActivity="activity"
-          @onActivityChange="(e) => activity = e"
+          :key="activity"
+          @onActivityChange="(e) => (activity = e)"
         />
       </v-col>
     </v-row>
-    <div v-if="activity == 'ride'">
+    <div>
       <v-row align="center">
-        <v-col cols="auto" style="width: 20%">
+        <v-col v-if="activity === 'ride'" cols="auto" style="width: 20%">
           <v-select
             v-model="isPower"
             :items="dataTypes"
@@ -292,13 +291,7 @@
       </v-card>
     </v-dialog>
     <v-dialog v-model="openDeleteDialog" width="400" light>
-      <DialogsDeleteWorkout
-        :workout="workout"
-        @onDelete="
-          openDeleteDialog = false;
-          $emit('onSuccess');
-        "
-      />
+      <DialogsDeleteWorkout :workout="workout" @onDelete="onDelete" />
     </v-dialog>
   </div>
 </template>
@@ -369,10 +362,40 @@ export default {
     },
   },
   watch: {
+    activity() {
+      this.zones = this.isPower
+        ? this.me.power_zones
+        : this.me.hr_zones[this.activity];
+      if (this.activity === "ride") {
+        this.dataTypes = [
+          {
+            text: "Power",
+            value: true,
+          },
+          {
+            text: "Heart Rate",
+            value: false,
+          },
+        ];
+      } else {
+        this.thresholdValue = this.me.max_hr;
+        this.isPower = false;
+        this.dataTypes = [
+          {
+            text: "Heart Rate",
+            value: false,
+          },
+        ];
+      }
+    },
     isPower() {
-      this.thresholdValue = this.isPower
-        ? this.me.threshold_power
-        : this.me.threshold_hr;
+      if (this.activity === "run") {
+        this.thresholdValue = this.me.max_hr;
+      } else {
+        this.thresholdValue = this.isPower
+          ? this.me.threshold_power
+          : this.me.threshold_hr;
+      }
       this.init();
       this.getStress();
     },
@@ -396,6 +419,10 @@ export default {
     this.workoutName = "New Workout " + this.date.format("MMMM D, YYYY");
     if (this.workout) {
       this.isPower = this.workout.effort ? true : false;
+      this.activity = this.workout.activity
+      if (this.activity === 'run') {
+        this.isPower = false
+      }
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
       this.workoutName = this.workout.name;
       this.description = this.workout.description;
@@ -406,14 +433,17 @@ export default {
     this.init();
   },
   methods: {
-    
     getColor: getColor,
     formatDuration: formatDuration,
     findHRTSS: findHRTSS,
     findTSS: findTSS,
     zwoFile: zwoFile,
-    isDisabled () {
-      return this.activity !== 'run' && this.addedBlocks == 0
+    onDelete(e) {
+      this.openDeleteDialog = false;
+      this.$emit("onClose");
+    },
+    isDisabled() {
+      return this.activity !== "run" && this.addedBlocks == 0;
     },
     async save() {
       this.saving = true;
@@ -452,6 +482,7 @@ export default {
               name: this.workoutName,
               description: this.description,
               isPower: this.isPower,
+              activity: this.activity,
               planned: this.addedBlocks,
             },
             headers
@@ -496,7 +527,8 @@ export default {
         const duration = this.totalDuration;
         this.stress = this.findTSS({ me, values, duration });
       } else {
-        this.stress = this.findHRTSS({ me, values });
+        const activity = this.activity
+        this.stress = this.findHRTSS({ me, values, activity });
       }
     },
     onSuccessfulSave() {
@@ -603,7 +635,9 @@ export default {
         : Math.round(found?.low + found?.low * 0.03);
     },
     init() {
-      this.zones = this.isPower ? this.me.power_zones : this.me.hr_zones;
+      this.zones = this.isPower
+        ? this.me.power_zones
+        : this.me.hr_zones[this.activity];
       this.blocks = [
         {
           type: "Recovery",

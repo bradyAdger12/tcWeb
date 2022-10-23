@@ -55,10 +55,10 @@
       </NuxtLink>
       <v-btn v-else text class="black--text" @click="logout"> Logout </v-btn>
     </v-app-bar>
-    <v-main>
+    <v-main class="my-10">
       <Nuxt />
     </v-main>
-    <v-footer absolute class="pa-4">
+    <v-footer absolute app>
       <v-row justify="center" no-gutters>
         <v-col cols="auto">
           <div class="ml-3">&copy; {{ new Date().getFullYear() }}</div>

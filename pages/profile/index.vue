@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div v-if="this.me">
-      <v-row justify="center" align="center" class="my-16">
+      <v-row justify="center" align="center">
         <v-col cols="11">
           <div class="mt-1">
             <div v-if="authenticated">
@@ -15,18 +15,23 @@
             </div>
             <v-row>
               <v-col cols="12" sm="5">
-                <div>
-                  <p class="text-h4 mr-2">
-                    HR Zones <span class="subtitle-1">(bpm)</span>
-                  </p>
-                </div>
+                <v-row no-gutters>
+                  <v-col cols="7">
+                    <p class="text-h4 mr-2">
+                      HR Zones <span class="subtitle-1">(bpm)</span>
+                    </p>
+                  </v-col>
+                  <v-col cols="4">
+                    <WorkoutsActivityDropdown :currentActivity="selectedActivity" @onActivityChange="(e) => selectedActivity = e" />
+                  </v-col>
+                </v-row>
                 <div v-if="!me.threshold_hr" class="subtitle-2">
                   You must enter your Threshold Heart Rate in order to see your
                   HR zones
                 </div>
                 <div v-else>
                   <div
-                    v-for="zone in hrZones"
+                    v-for="zone in hrZones[selectedActivity]"
                     :key="zone.title"
                     :class="
                       getColor(zone.title) + ' rounded mt-3 pa-2 text-center white--text'
@@ -79,7 +84,8 @@ export default {
   middleware: "auth",
   data() {
     return {
-      hrZones: [],
+      selectedActivity: 'ride',
+      hrZones: {},
       powerZones: [],
     };
   },

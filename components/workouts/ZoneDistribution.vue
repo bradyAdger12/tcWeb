@@ -1,11 +1,20 @@
 <template>
   <div>
     <div v-for="zone in zoneNames" :key="zone" style="position: relative">
-      <div v-if="workout_zones[zone][`${zone_type}-percentage`] >= 0" class="mt-2">
+      <div
+        v-if="workout_zones[zone][`${zone_type}-percentage`] >= 0"
+        class="mt-2"
+      >
         {{ zone }}
         {{
-          `(${me_zones.find((item) => item.title == zone).low} - ${
-            me_zones.find((item) => item.title == zone).high
+          `(${
+            me_zones[activity].find(
+              (item) => item.title == zone
+            ).low
+          } - ${
+            me_zones[activity].find(
+              (item) => item.title == zone
+            ).high
           })`
         }}
         <div
@@ -21,7 +30,9 @@
             class="pr-2 text-right"
             style="padding-top: 3px; position: relative; z-index: 2"
           >
-            {{ (workout_zones[zone][`${zone_type}-percentage`] * 100).toFixed() }}% /
+            {{
+              (workout_zones[zone][`${zone_type}-percentage`] * 100).toFixed()
+            }}% /
             {{ formatDuration(workout_zones[zone][`${zone_type}-seconds`]) }}
           </div>
           <div
@@ -44,14 +55,18 @@ export default {
   props: {
     zone_type: {
       type: String,
-      required: true
+      required: true,
     },
     workout_zones: {
       type: Object,
       required: true,
     },
     me_zones: {
-      type: Array,
+      type: Object,
+      required: true,
+    },
+    activity: {
+      type: String,
       required: true,
     },
   },
@@ -64,7 +79,7 @@ export default {
         "Threshold",
         "VO2 Max",
         "Anaerobic",
-      ]
+      ],
     };
   },
   methods: {

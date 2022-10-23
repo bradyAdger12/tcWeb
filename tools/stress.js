@@ -31,7 +31,7 @@ export function findTSS({ me, values, duration }) {
 }
 
 
-export function findHRTSS({ me, values }) {
+export function findHRTSS({ me, values, activity }) {
   try {
     let hrtss = null
     const k = me.gender == 'male' ? 1.92 : 1.67
@@ -47,6 +47,9 @@ export function findHRTSS({ me, values }) {
       const lthrr = (thresholdhr - restinghr) / (maxhr - restinghr)
       const trimpthresh = (lthrr * 0.64 * Math.exp(k * lthrr)) * 3600
       hrtss = Math.round((sum / trimpthresh) * 100)
+      if (activity === 'run') {
+        return Math.round(hrtss * 1.65)
+      }
       return hrtss
     } else {
       return 0;
