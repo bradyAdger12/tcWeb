@@ -187,25 +187,26 @@ export default {
       }
     },
     showChartZones(zones) {
+      const activityZones = zones[this.workout.activity]
       return [
         {
-          value: _.find(zones, (item) => item.title == "Recovery")?.high,
+          value: _.find(activityZones, (item) => item.title == "Recovery")?.high,
           color: "grey",
         },
         {
-          value: _.find(zones, (item) => item.title == "Endurance")?.high,
+          value: _.find(activityZones, (item) => item.title == "Endurance")?.high,
           color: "blue",
         },
         {
-          value: _.find(zones, (item) => item.title == "Tempo")?.high,
+          value: _.find(activityZones, (item) => item.title == "Tempo")?.high,
           color: "green",
         },
         {
-          value: _.find(zones, (item) => item.title == "Threshold")?.high,
+          value: _.find(activityZones, (item) => item.title == "Threshold")?.high,
           color: "orange",
         },
         {
-          value: _.find(zones, (item) => item.title == "VO2 Max")?.high,
+          value: _.find(activityZones, (item) => item.title == "VO2 Max")?.high,
           color: "red",
         },
       ];
