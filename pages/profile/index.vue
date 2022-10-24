@@ -14,7 +14,7 @@
               <WorkoutsBests :bests="me.bests" :is-all-time="true" />
             </div>
             <v-row>
-              <v-col cols="12" sm="5">
+              <v-col cols="auto" sm="5">
                 <v-row no-gutters>
                   <v-col cols="7">
                     <p class="text-h4 mr-2">
@@ -42,7 +42,7 @@
                   </div>
                 </div>
               </v-col>
-              <v-col cols="12" sm="5">
+              <v-col v-if="selectedActivity === 'ride'" cols="auto" sm="5">
                 <div>
                   <p class="text-h4 mr-2">
                     Power Zones <span class="subtitle-1">(watts)</span>

@@ -36,27 +36,27 @@
           class="col-2"
           :style="`margin-top: 5.3em`"
         >
-          <div v-for="(row, i) of tableRows" :key="i">
+          <div v-for="(summary, i) of summaries.slice(1)" :key="i">
             <div
               class="text-center pt-2"
-              :style="`height: ${row.clientHeight}px; background-color: rgba(200, 200, 200, .2);`"
+              :style="`height: ${tableRows[i].clientHeight}px; background-color: rgba(200, 200, 200, .2);`"
             >
               <span class="font-weight-bold">Summary</span>
               <div
-                v-if="summaries[i] && !loadingSummaries"
+                v-if="summary && !loadingSummaries"
                 class="pa-2 text-left"
               >
                 <div>
                   <span class="summary-title">Duration: </span
-                  >{{ formatDuration(summaries[i].summary.total_duration) }}
+                  >{{ formatDuration(summary.summary.total_duration) }}
                 </div>
                 <div
                   v-for="activity of Object.keys(
-                    summaries[i].summary.activity_duration
+                    summary.summary.activity_duration
                   )"
                   :key="`duration_${activity}`"
                 >
-                  <div v-if="summaries[i].summary.activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
+                  <div v-if="summary.summary.activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
                     <span>
                       {{
                         activity.charAt(0).toUpperCase() +
@@ -64,22 +64,22 @@
                       }}: </span
                     >{{
                       formatDuration(
-                        summaries[i].summary.activity_duration[activity]
+                        summary.summary.activity_duration[activity]
                       )
                     }}
                   </div>
                 </div>
-                <div :class="`${summaries[i].summary.total_duration > 0 ? 'mt-2' : ''}`">
+                <div :class="`${summary.summary.total_duration > 0 ? 'mt-2' : ''}`">
                   <span class="summary-title">Distance: </span
-                  >{{ toMiles(summaries[i].summary.total_distance) }}
+                  >{{ toMiles(summary.summary.total_distance) }}
                 </div>
                 <div
                   v-for="activity of Object.keys(
-                    summaries[i].summary.activity_distance
+                    summary.summary.activity_distance
                   )"
                   :key="`distance_${activity}`"
                 >
-                  <div v-if="summaries[i].summary.activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
+                  <div v-if="summary.summary.activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
                     <span>
                       {{
                         activity.charAt(0).toUpperCase() +
@@ -87,28 +87,28 @@
                       }}: </span
                     >{{
                       toMiles(
-                        summaries[i].summary.activity_distance[activity]
+                        summary.summary.activity_distance[activity]
                       )
                     }}
                   </div>
                 </div>
-                <div :class="`${summaries[i].summary.total_distance > 0 ? 'mt-2' : ''}`">
+                <div :class="`${summary.summary.total_distance > 0 ? 'mt-2' : ''}`">
                   <span class="summary-title">Stress: </span
-                  >{{ summaries[i].summary.effort }}
+                  >{{ summary.summary.effort }}
                 </div>
                 <div class="text-center mt-5">
                   <div class="blue rounded white--text">
-                    Fitness {{ summaries[i].summary.fitness }}
+                    Fitness {{ summary.summary.fitness }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness') }}</span>
                   </div>
                   <div class="orange rounded white--text mt-2">
-                    Fatigue {{ summaries[i].summary.fatigue }}
+                    Fatigue {{ summary.summary.fatigue }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fatigue') }}</span>
                   </div>
                   <div
                     :class="`${
-                      summaries[i].summary.form < 0 ? 'red' : 'green'
+                      summary.summary.form < 0 ? 'red' : 'green'
                     } white--text mt-2 rounded`"
                   >
-                    Form {{ summaries[i].summary.form }}
+                    Form {{ summary.summary.form }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'form') }}</span>
                   </div>
                 </div>
               </div>
@@ -357,6 +357,15 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    getFitnessDifference (index, metric) {
+      const previousWeek = this.summaries[index]?.summary[metric]
+      const thisWeek = this.summaries[index + 1]?.summary[metric]
+      if (thisWeek !== undefined && previousWeek !== undefined) {
+        const change = thisWeek - previousWeek
+        return `${change >= 0 ? '+' : '-'}${change}`
+      }
+      return ''
+    },
     getActivityBackgroundColor(activity) {
       if (activity == 'run'){
         return '#FE654F'
@@ -373,8 +382,8 @@ export default {
             Authorization: "Bearer " + this.$store.state.auth.access_token,
           },
         };
-        let curr = moment(this.calendar.view.activeStart);
-        for (let i = 0; i < 6; i++) {
+        let curr = moment(this.calendar.view.activeStart).subtract(7, 'days');
+        for (let i = 0; i < 7; i++) {
           const first = moment(curr).startOf("day").toISOString();
           const last = curr.add(6, "day").endOf("day").toISOString();
           const summary = await this.$axios.get(
