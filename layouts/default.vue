@@ -59,10 +59,9 @@
       <Nuxt />
     </v-main>
     <v-footer absolute app>
-      <v-row justify="center" no-gutters>
+      <v-row justify="center" align="center" no-gutters>
         <v-col cols="auto">
-          <div class="ml-3">&copy; {{ new Date().getFullYear() }}</div>
-          <div class="mt-2">
+          <div>
             <a href="https://strava.com" target="_blank">
               <img
                 :src="
@@ -72,6 +71,9 @@
               />
             </a>
           </div>
+        </v-col>
+        <v-col cols="auto">
+          <span>&copy; {{ new Date().getFullYear() }}</span>
         </v-col>
       </v-row>
     </v-footer>
