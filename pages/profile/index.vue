@@ -54,7 +54,7 @@
                 </div>
                 <div v-else>
                   <div
-                    v-for="zone in powerZones"
+                    v-for="zone in powerZones['ride']"
                     :key="zone.title"
                     :class="
                       getColor(zone.title) + ' rounded mt-3 pa-2 text-center white--text'
