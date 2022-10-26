@@ -9,7 +9,7 @@
         <v-col cols="auto" style="position: relative">
           <a
              v-if="!connectedToStrava"
-            :href="`https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=${baseUrl}/connect/strava&approval_prompt=auto&scope=activity:read_all`"
+            :href="`https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&response_type=code&redirect_uri=${baseUrl}/connect/strava&approval_prompt=auto&scope=activity:read`"
           >
             <v-img
               class="app-image"
