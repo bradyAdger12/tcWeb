@@ -36,85 +36,79 @@
           class="col-2"
           :style="`margin-top: 5.3em`"
         >
-          <div v-for="(summary, i) of summaries.slice(1)" :key="i">
+          <div v-for="(row, i) of tableRows" :key="i">
             <div
               class="text-center pt-2"
-              :style="`height: ${tableRows[i].clientHeight}px; background-color: rgba(200, 200, 200, .2);`"
+              :style="`height: ${row.clientHeight}px; background-color: rgba(200, 200, 200, .2);`"
             >
               <span class="font-weight-bold">Summary</span>
-              <div v-if="summary && !loadingSummaries" class="pa-2 text-left">
+              <div
+                v-if="summaries[i + 1] && !loadingSummaries"
+                class="pa-2 text-left"
+              >
                 <div>
                   <span class="summary-title">Duration: </span
-                  >{{ formatDuration(summary.total_duration) }}
+                  >{{ formatDuration(summaries[i + 1].total_duration) }}
                 </div>
                 <div
-                  v-for="activity of Object.keys(summary.activity_duration)"
+                  v-for="activity of Object.keys(
+                    summaries[i + 1].activity_duration
+                  )"
                   :key="`duration_${activity}`"
                 >
-                  <div
-                    v-if="summary.activity_duration[activity] > 0"
-                    class="activity_breakdown_container"
-                    :style="`background-color: ${getActivityBackgroundColor(
-                      activity
-                    )}`"
-                  >
+                  <div v-if="summaries[i + 1].activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
                     <span>
                       {{
                         activity.charAt(0).toUpperCase() +
                         activity.substring(1)
                       }}: </span
-                    >{{ formatDuration(summary.activity_duration[activity]) }}
+                    >{{
+                      formatDuration(
+                        summaries[i + 1].activity_duration[activity]
+                      )
+                    }}
                   </div>
                 </div>
-                <div :class="`${summary.total_duration > 0 ? 'mt-2' : ''}`">
+                <div :class="`${summaries[i + 1].total_duration > 0 ? 'mt-2' : ''}`">
                   <span class="summary-title">Distance: </span
-                  >{{ toMiles(summary.total_distance) }}
+                  >{{ toMiles(summaries[i + 1].total_distance) }}
                 </div>
                 <div
-                  v-for="activity of Object.keys(summary.activity_distance)"
+                  v-for="activity of Object.keys(
+                    summaries[i + 1].activity_distance
+                  )"
                   :key="`distance_${activity}`"
                 >
-                  <div
-                    v-if="summary.activity_distance[activity] > 0"
-                    class="activity_breakdown_container"
-                    :style="`background-color: ${getActivityBackgroundColor(
-                      activity
-                    )}`"
-                  >
+                  <div v-if="summaries[i + 1].activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
                     <span>
                       {{
                         activity.charAt(0).toUpperCase() +
                         activity.substring(1)
                       }}: </span
-                    >{{ toMiles(summary.activity_distance[activity]) }}
+                    >{{
+                      toMiles(
+                        summaries[i + 1].activity_distance[activity]
+                      )
+                    }}
                   </div>
                 </div>
-                <div :class="`${summary.total_distance > 0 ? 'mt-2' : ''}`">
+                <div :class="`${summaries[i + 1].total_distance > 0 ? 'mt-2' : ''}`">
                   <span class="summary-title">Stress: </span
-                  >{{ summary.effort }}
+                  >{{ summaries[i + 1].effort }}
                 </div>
                 <div class="text-center mt-5">
                   <div class="blue rounded white--text">
-                    Fitness {{ summary.fitness }}
-                    <span style="font-size: 10px">{{
-                      getFitnessDifference(i, "fitness")
-                    }}</span>
+                    Fitness {{ summaries[i + 1].fitness }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness')  }}</span>
                   </div>
                   <div class="orange rounded white--text mt-2">
-                    Fatigue {{ summary.fatigue }}
-                    <span style="font-size: 10px">{{
-                      getFitnessDifference(i, "fatigue")
-                    }}</span>
+                    Fatigue {{ summaries[i + 1].fatigue }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness')  }}</span>
                   </div>
                   <div
                     :class="`${
-                      summary.form < 0 ? 'red' : 'green'
+                      summaries[i + 1].form < 0 ? 'red' : 'green'
                     } white--text mt-2 rounded`"
                   >
-                    Form {{ summary.form }}
-                    <span style="font-size: 10px">{{
-                      getFitnessDifference(i, "form")
-                    }}</span>
+                    Form {{ summaries[i + 1].form }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness') }}</span>
                   </div>
                 </div>
               </div>
@@ -144,11 +138,7 @@
         @click:outside="addDialog = false"
         scrollable
       >
-        <v-card
-          v-if="addDate"
-          class="white black--text"
-          :key="new Date().toString()"
-        >
+        <v-card v-if="addDate" class="white black--text" :key="new Date().toString()">
           <v-card-title>
             Add Workout for {{ addDate.format("MMMM D, YYYY") }}
           </v-card-title>
@@ -157,10 +147,7 @@
               :date="addDate"
               :workout="selectedPlannedWorkout"
               @onSuccess="onSuccessfullAddWorkout"
-              @onClose="
-                addDialog = false;
-                updateSummaries();
-              "
+              @onClose="addDialog = false; updateSummaries()"
             />
           </v-card-text>
         </v-card>
@@ -178,7 +165,7 @@ import { toMiles } from "~/tools/conversion";
 import { formatDuration } from "~/tools/format_moment";
 import moment from "moment";
 import FullCalendar from "@fullcalendar/vue";
-import WorkoutIcon from "~/components/WorkoutIcon.vue";
+import WorkoutIcon from '~/components/WorkoutIcon.vue'
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
@@ -212,7 +199,7 @@ export default {
           let activity = "";
           let workoutLength = "";
           let workoutHeader = "";
-          if (!workout.planned && workout.activity !== "workout") {
+          if (!workout.planned && workout.activity !== 'workout') {
             workoutLength += `
               <div>
                 <span class="mdi mdi-ruler" /> ${toMiles(workout.length)}
@@ -222,9 +209,7 @@ export default {
             workoutHeader += `
               <div style="width: 100%; background-color: ${
                 workout.is_completed ? "green" : "white"
-              }; color: ${this.getActivityBackgroundColor(
-              workout.activity
-            )}" class="text-center rounded px-2 py-1">
+              }; color: ${this.getActivityBackgroundColor(workout.activity)}" class="text-center rounded px-2 py-1">
                 ${workout.is_completed ? "completed" : "planned"}
               </div>
             `;
@@ -242,7 +227,8 @@ export default {
                   <span class="mdi mdi-run" style="font-size: 16px" />
                 </div>
               `;
-            } else if (workout.activity === "workout") {
+            }
+            else if (workout.activity === "workout") {
               activity += `
                 <div>
                   <span class="mdi mdi-dumbbell" style="font-size: 16px" />
@@ -258,7 +244,7 @@ export default {
                 </div>
               `;
             } else {
-              efforts += `
+            efforts += `
                 <div>
                   <span class="mdi mdi-heart" /> hrEffort: ${workout.hr_effort}
                 </div>
@@ -309,17 +295,15 @@ export default {
     };
   },
   watch: {
-    "$store.state.calendar.workoutIdToBeRemoved"() {
-      const id = this.$store.state.calendar.workoutIdToBeRemoved;
+    "$store.state.calendar.workoutIdToBeRemoved" () {
+      const id = this.$store.state.calendar.workoutIdToBeRemoved
       const event = this.calendar.getEventById(id);
       event.remove();
     },
     "$store.state.calendar.workouts"() {
       const workouts = this.$store.state.calendar.workouts;
       for (const workout of workouts) {
-        const backgroundColor = this.getActivityBackgroundColor(
-          workout.activity
-        );
+        const backgroundColor = this.getActivityBackgroundColor(workout.activity)
         if (!this.calendar.getEventById(workout.id)) {
           this.calendar.addEvent({
             id: workout.id,
@@ -373,48 +357,43 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
-    getFitnessDifference(index, metric) {
-      const previousWeek = this.summaries[index][metric];
-      const thisWeek = this.summaries[index + 1][metric];
+    getFitnessDifference (index, metric) {
+      const previousWeek = this.summaries[index][metric]
+      const thisWeek = this.summaries[index + 1][metric]
       if (thisWeek !== undefined && previousWeek !== undefined) {
-        const change = thisWeek - previousWeek;
-        return `${change >= 0 ? "+" : "-"}${change}`;
+        const change = thisWeek - previousWeek
+        return `${change >= 0 ? '+' : '-'}${change}`
       }
-      return "";
+      return ''
     },
     getActivityBackgroundColor(activity) {
-      if (activity == "run") {
-        return "#FE654F";
-      } else if (activity == "cycling" || activity.includes("ride")) {
-        return "#7798AB";
+      if (activity == 'run'){
+        return '#FE654F'
+      } else if (activity == 'cycling' || activity.includes('ride')){
+        return '#7798AB'
       }
-      return "#6BAB90";
+      return '#6BAB90'
     },
     async updateSummaries() {
       if (this.calendar) {
-        try {
-          const items = [];
-          this.loadingSummaries = true;
-          const headers = {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
-          };
-          let curr = moment(this.calendar.view.activeStart).subtract(7, "days");
-          for (let i = 0; i < 7; i++) {
-            const first = moment(curr).startOf("day").toISOString();
-            const last = curr.add(6, "day").endOf("day").toISOString();
-            const summary = await this.$axios.get(
-              this.$axios.defaults.baseURL +
-                `/workouts/weekly_summary?startDate=${first}&endDate=${last}`,
-              headers
-            );
-            items.push(summary.data.summary);
-            curr.add(1, "day");
-          }
-          this.summaries = [...items];
-        } catch (e) {}
-        this.loadingSummaries = false;
+        this.summaries = [];
+        const headers = {
+          headers: {
+            Authorization: "Bearer " + this.$store.state.auth.access_token,
+          },
+        };
+        let curr = moment(this.calendar.view.activeStart).subtract(7, 'days');
+        for (let i = 0; i < 7; i++) {
+          const first = moment(curr).startOf("day").toISOString();
+          const last = curr.add(6, "day").endOf("day").toISOString();
+          const summary = await this.$axios.get(
+            this.$axios.defaults.baseURL +
+              `/workouts/weekly_summary?startDate=${first}&endDate=${last}`,
+            headers
+          );
+          this.summaries.push(summary.data.summary);
+          curr.add(1, "day");
+        }
       }
     },
     async handleEventDrop(e) {
@@ -464,7 +443,7 @@ export default {
       this.tableRows = $(".fc-scrollgrid-sync-table tr");
     },
     onSuccessfullAddWorkout(e) {
-      console.log("delete");
+      console.log('delete')
       this.addDialog = false;
       this.updateSummaries();
     },
@@ -497,11 +476,7 @@ export default {
 
 <style>
 .activity_breakdown_container {
-  padding: 3px 5px 3px 5px;
-  border-radius: 5px;
-  font-size: 11px;
-  margin-bottom: 2px;
-  color: white;
+  padding: 3px 5px 3px 5px; border-radius: 5px; font-size: 11px; margin-bottom: 2px; color: white
 }
 .fc-event-time,
 .fc-event-title {
