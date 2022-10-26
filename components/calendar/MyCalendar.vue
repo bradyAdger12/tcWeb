@@ -140,7 +140,7 @@
       >
         <v-card v-if="addDate" class="white black--text" :key="new Date().toString()">
           <v-card-title>
-            Add Workout for {{ addDate.format("MMMM D, YYYY") }}
+            {{ selectedPlannedWorkout ? `Edit ${selectedPlannedWorkout.name}` : `Add Workout for ${addDate.format("MMMM D, YYYY")}` }}
           </v-card-title>
           <v-card-text class="black--text">
             <WorkoutsBuilder
