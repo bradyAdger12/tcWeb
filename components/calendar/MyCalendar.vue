@@ -208,9 +208,9 @@ export default {
           } else if (workout.planned) {
             workoutHeader += `
               <div style="width: 100%; background-color: ${
-                workout.is_completed ? "green" : "white"
+                workout.is_completed ? "white" : "white"
               }; color: ${this.getActivityBackgroundColor(workout.activity)}" class="text-center rounded px-2 py-1">
-                ${workout.is_completed ? "completed" : "planned"}
+                ${workout.is_completed ? "completed" : "planned"} ${workout.is_completed ? '<span class="mdi mdi-check-circle-outline text-sm"></span>' : ''}
               </div>
             `;
           }
@@ -298,7 +298,7 @@ export default {
     "$store.state.calendar.workoutIdToBeRemoved" () {
       const id = this.$store.state.calendar.workoutIdToBeRemoved
       const event = this.calendar.getEventById(id);
-      event.remove();
+      event?.remove();
     },
     "$store.state.calendar.workouts"() {
       const workouts = this.$store.state.calendar.workouts;

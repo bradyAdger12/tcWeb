@@ -364,7 +364,7 @@ export default {
   watch: {
     activity() {
       this.zones = this.isPower
-        ? this.me.power_zones
+        ? this.me.power_zones['ride']
         : this.me.hr_zones[this.activity];
       if (this.activity === "ride") {
         this.dataTypes = [
@@ -636,7 +636,7 @@ export default {
     },
     init() {
       this.zones = this.isPower
-        ? this.me.power_zones
+        ? this.me.power_zones['ride']
         : this.me.hr_zones[this.activity];
       this.blocks = [
         {
