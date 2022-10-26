@@ -2,8 +2,12 @@
   <div style="padding-top: 30px; padding-bottom: 100px">
     <v-row justify="center">
       <v-col cols="10" sm="8">
+        <v-switch
+            v-model="autoSync"
+            label="Auto Sync"
+            class="ml-4" />
         <v-list two-line subheader>
-          <v-subheader class="text-h5 py-10">Strava Activities</v-subheader>
+          <v-subheader class="text-h5 pb-10 pt-3">Strava Activities</v-subheader>
           <div v-if="loading" class="text-center pa-10">
             <v-progress-circular indeterminate />
           </div>
@@ -80,6 +84,7 @@ export default {
             code: "",
             loading: true,
             showWorkout: false,
+            autoSync: false,
             page: 1,
             per_page: 30,
             workoutId: null,
@@ -92,6 +97,7 @@ export default {
         },
     },
     async mounted() {
+        this.autoSync = this.me.strava_enable_auto_sync
         this.code = this.$route.query.code;
         if (!this.code && !this.$route.query.connected) {
             this.$store.dispatch("snackbar/showSnack", {
@@ -110,6 +116,10 @@ export default {
         this.loading = false;
     },
     watch: {
+        autoSync () {
+          const payload = { strava_enable_auto_sync: this.autoSync };
+          this.$store.dispatch("auth/updateUser", { payload });
+        },
         page() {
             this.getStravaActivities();
         },
