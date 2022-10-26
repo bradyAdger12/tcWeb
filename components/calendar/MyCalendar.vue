@@ -392,25 +392,29 @@ export default {
     },
     async updateSummaries() {
       if (this.calendar) {
-        const items = [];
-        const headers = {
-          headers: {
-            Authorization: "Bearer " + this.$store.state.auth.access_token,
-          },
-        };
-        let curr = moment(this.calendar.view.activeStart).subtract(7, "days");
-        for (let i = 0; i < 7; i++) {
-          const first = moment(curr).startOf("day").toISOString();
-          const last = curr.add(6, "day").endOf("day").toISOString();
-          const summary = await this.$axios.get(
-            this.$axios.defaults.baseURL +
-              `/workouts/weekly_summary?startDate=${first}&endDate=${last}`,
-            headers
-          );
-          items.push(summary.data.summary);
-          curr.add(1, "day");
-        }
-        this.summaries = [...items]
+        try {
+          const items = [];
+          this.loadingSummaries = true;
+          const headers = {
+            headers: {
+              Authorization: "Bearer " + this.$store.state.auth.access_token,
+            },
+          };
+          let curr = moment(this.calendar.view.activeStart).subtract(7, "days");
+          for (let i = 0; i < 7; i++) {
+            const first = moment(curr).startOf("day").toISOString();
+            const last = curr.add(6, "day").endOf("day").toISOString();
+            const summary = await this.$axios.get(
+              this.$axios.defaults.baseURL +
+                `/workouts/weekly_summary?startDate=${first}&endDate=${last}`,
+              headers
+            );
+            items.push(summary.data.summary);
+            curr.add(1, "day");
+          }
+          this.summaries = [...items];
+        } catch (e) {}
+        this.loadingSummaries = false;
       }
     },
     async handleEventDrop(e) {
