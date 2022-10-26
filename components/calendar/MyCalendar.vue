@@ -101,14 +101,14 @@
                     Fitness {{ summaries[i + 1].fitness }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness')  }}</span>
                   </div>
                   <div class="orange rounded white--text mt-2">
-                    Fatigue {{ summaries[i + 1].fatigue }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness')  }}</span>
+                    Fatigue {{ summaries[i + 1].fatigue }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fatigue')  }}</span>
                   </div>
                   <div
                     :class="`${
                       summaries[i + 1].form < 0 ? 'red' : 'green'
                     } white--text mt-2 rounded`"
                   >
-                    Form {{ summaries[i + 1].form }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'fitness') }}</span>
+                    Form {{ summaries[i + 1].form }} <span style="font-size: 10px">{{ getFitnessDifference(i, 'form') }}</span>
                   </div>
                 </div>
               </div>
