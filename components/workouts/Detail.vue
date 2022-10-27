@@ -64,8 +64,8 @@
               cols="12"
               :sm="workout.zones.hasHeartRate ? '6' : '12'"
             >
+              {{ workout.activity }}
               <p class="text-h5 text-sm-h4 font-weight-bold">Power Zones</p>
-
               <ZoneDistribution
                 :workout_zones="workout.zones"
                 :me_zones="me.power_zones"
