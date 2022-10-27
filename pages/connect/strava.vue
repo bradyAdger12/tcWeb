@@ -186,7 +186,6 @@ export default {
         async getAccessToken() {
             try {
                 const { data } = await this.$axios.post(`https://www.strava.com/oauth/token?client_id=${process.env.stravaClientId}&client_secret=${process.env.stravaClientSecret}&code=${this.code}&grant_type=authorization_code`);
-                console.log(data)
                 if (data && data.access_token) {
                     const payload = { strava_token: data.access_token, strava_owner_id: data.athlete.id };
                     await this.$store.dispatch("auth/updateUser", { payload });

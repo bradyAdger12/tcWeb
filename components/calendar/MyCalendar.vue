@@ -443,7 +443,6 @@ export default {
       this.tableRows = $(".fc-scrollgrid-sync-table tr");
     },
     onSuccessfullAddWorkout(e) {
-      console.log('delete')
       this.addDialog = false;
       this.updateSummaries();
     },
