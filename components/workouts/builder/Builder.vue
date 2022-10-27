@@ -632,7 +632,7 @@ export default {
       });
       return found.title == "Recovery"
         ? found?.high - 20
-        : Math.round(found?.low + found?.low * 0.03);
+        : Math.round(found?.low);
     },
     init() {
       this.zones = this.isPower

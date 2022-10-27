@@ -19,6 +19,12 @@
           @click="viewWorkout(workout)"
           style="cursor: pointer"
         >
+          <div class="mr-3">
+            <WorkoutIcon
+              :activity="workout.activity"
+              :size="'2.0em'"
+            />
+          </div>
           <v-list-item-content>
             <v-list-item-title style="word-break: break-word">{{
               workout.name
@@ -32,7 +38,10 @@
     </div>
     <v-dialog v-model="showWorkout" width="800">
       <v-card v-if="selectedWorkout">
-        <WorkoutsDetail :workout-id="selectedWorkout.id" :key="selectedWorkout.id" />
+        <WorkoutsDetail
+          :workout-id="selectedWorkout.id"
+          :key="selectedWorkout.id"
+        />
       </v-card>
     </v-dialog>
   </div>
