@@ -6,7 +6,7 @@
           Welcome to {{ $app_config.title }}
         </p>
         <p class="subtitle">
-          A simple and easy to use training app to help you reach your goals
+          A simple and easy to use training app to help you reach your endurance sport goals.
         </p>
         <v-row v-if="!authenticated" class="mt-2">
           <v-col cols="auto">
