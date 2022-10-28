@@ -3,7 +3,6 @@ export const actions = {
         const token = this.$cookies.get('access_token')
         const me = this.$cookies.get('me')
         this.$cookies.remove('auth')
-        console.log(this.$cookies.getAll())
         if (token && me) {
             if (token) {
                 commit('auth/setToken', { token });
