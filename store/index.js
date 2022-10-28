@@ -1,11 +1,16 @@
 export const actions = {
     async nuxtServerInit({ state, commit, dispatch }) {
-        const cookie = this.$cookies.get('auth');
-        if (cookie?.auth) {
-            const token = cookie.auth.access_token
-            const me = cookie.auth.me
-            commit('auth/setToken', { token });
-            commit('auth/setUser', me);
+        const token = this.$cookies.get('access_token')
+        const me = this.$cookies.get('me')
+        this.$cookies.remove('auth')
+        console.log(this.$cookies.getAll())
+        if (token && me) {
+            if (token) {
+                commit('auth/setToken', { token });
+            }
+            if (me) {
+                commit('auth/setUser', me);
+            }
         } else {
             dispatch('auth/logout')
         }
@@ -13,6 +18,7 @@ export const actions = {
 
         const { accessToken, refreshToken } = state.auth;
         if (accessToken && refreshToken) {
+            console.log('hi')
             try {
                 await dispatch('auth/refresh');
             } catch (e) {

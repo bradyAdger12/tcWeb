@@ -72,7 +72,9 @@ export default {
           color: "green",
           timeout: 3500,
         });
-        this.$router.push("/profile");
+        setTimeout(() => {
+          this.$router.push("/profile");
+        }, 200)
       } catch (e) {}
       this.waiting = false
     },
