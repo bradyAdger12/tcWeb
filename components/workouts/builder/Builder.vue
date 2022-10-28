@@ -14,18 +14,22 @@
           v-model="workoutName"
           class="black--text"
           label="Name"
-          @keyup.enter="save"
         />
         <v-text-field
           v-model="description"
           class="black--text"
           label="Description"
-          @keyup.enter="save"
         />
         <WorkoutsActivityDropdown
           :currentActivity="activity"
           :key="activity"
           @onActivityChange="(e) => (activity = e)"
+        />
+        <v-text-field
+          v-if="activity === 'run'"
+          v-model="length"
+          class="black--text"
+          label="Distance (mi)"
         />
       </v-col>
     </v-row>
@@ -327,6 +331,7 @@ export default {
       isPower: true,
       activity: "ride",
       workoutName: "",
+      length: 0,
       saving: false,
       description: "",
       isPercentage: false,
@@ -423,6 +428,7 @@ export default {
       if (this.activity === 'run') {
         this.isPower = false
       }
+      this.length = (this.workout.length * 0.000621371).toFixed(1)
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
       this.workoutName = this.workout.name;
       this.description = this.workout.description;
@@ -462,6 +468,7 @@ export default {
               description: this.description,
               isPower: this.isPower,
               activity: this.activity,
+              length: this.length ? Math.round(this.length * 1609.34) : 0,
               planned: this.addedBlocks,
               startedAt: this.date.set({ hour: 12 }).toISOString(),
             },
@@ -483,6 +490,7 @@ export default {
               description: this.description,
               isPower: this.isPower,
               activity: this.activity,
+              length: this.length ? Math.round(this.length * 1609.34) : 0,
               planned: this.addedBlocks,
             },
             headers

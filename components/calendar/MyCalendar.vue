@@ -193,13 +193,13 @@ export default {
           let activity = "";
           let workoutLength = "";
           let workoutHeader = "";
-          if (!workout.planned && workout.activity !== 'workout') {
+          if (workout.activity !== 'workout' && workout.length) {
             workoutLength += `
               <div>
                 <span class="mdi mdi-ruler" /> ${toMiles(workout.length)}
               </div>
             `;
-          } else if (workout.planned) {
+          } if (workout.planned) {
             workoutHeader += `
               <div style="width: 100%; background-color: ${
                 workout.is_completed ? "white" : "white"
