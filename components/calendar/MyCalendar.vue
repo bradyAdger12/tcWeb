@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="pa-8">
+    <div class="pa-8" style="min-width: 1200px">
       <v-row no-gutters>
         <v-col class="col-10">
           <div v-if="calendar" class="mb-4">
@@ -63,6 +63,7 @@
                         summaries[i + 1].activity_duration[activity]
                       )
                     }}
+                    <span class="activity_load_difference">{{ getActivityLoadDifference(i, activity, 'activity_duration') }}</span>
                   </div>
                 </div>
                 <div :class="`${summaries[i + 1].total_duration > 0 ? 'mt-2' : ''}`">
@@ -82,6 +83,7 @@
                         summaries[i + 1].activity_distance[activity]
                       )
                     }}
+                    <span class="activity_load_difference">{{ getActivityLoadDifference(i, activity, 'activity_distance') }}</span>
                   </div>
                 </div>
                 <div :class="`${summaries[i + 1].total_distance > 0 ? 'mt-2' : ''}`">
@@ -349,6 +351,16 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    getActivityLoadDifference (index, activity, metric) {
+      const previousWeek = this.summaries[index][metric][activity]
+      const thisWeek = this.summaries[index + 1][metric][activity]
+      if (previousWeek && thisWeek) {
+        const difference = thisWeek - previousWeek
+        const percentDifference = ((difference / previousWeek) * 100)
+        return `(${percentDifference > 0 ? '+' : ''}${percentDifference.toFixed(0)}%)`
+      }
+      return ''
+    },
     getFitnessDifference (index, metric) {
       const previousWeek = this.summaries[index][metric]
       const thisWeek = this.summaries[index + 1][metric]
@@ -466,6 +478,9 @@ export default {
 
 
 <style>
+.activity_load_difference {
+  font-size: 10px;
+}
 .activity_breakdown_container {
   padding: 3px 5px 3px 5px; border-radius: 5px; font-size: 11px; margin-bottom: 2px; color: white
 }
