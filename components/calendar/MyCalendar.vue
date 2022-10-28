@@ -56,13 +56,9 @@
                   )"
                   :key="`duration_${activity}`"
                 >
-                  <div v-if="summaries[i + 1].activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
-                    <span>
-                      {{
-                        activity.charAt(0).toUpperCase() +
-                        activity.substring(1)
-                      }}: </span
-                    >{{
+                  <div v-if="summaries[i + 1].activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">                   
+                   <span style="margin-right: 1px"><WorkoutIcon :activity="activity" size="14px" /></span> 
+                    {{
                       formatDuration(
                         summaries[i + 1].activity_duration[activity]
                       )
@@ -80,12 +76,8 @@
                   :key="`distance_${activity}`"
                 >
                   <div v-if="summaries[i + 1].activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
-                    <span>
-                      {{
-                        activity.charAt(0).toUpperCase() +
-                        activity.substring(1)
-                      }}: </span
-                    >{{
+                    <span style="margin-right: 1px"><WorkoutIcon :activity="activity" size="14px" /></span>
+                    {{
                       toMiles(
                         summaries[i + 1].activity_distance[activity]
                       )
@@ -369,7 +361,7 @@ export default {
     getActivityBackgroundColor(activity) {
       if (activity == 'run'){
         return '#FE654F'
-      } else if (activity == 'cycling' || activity.includes('ride')){
+      } else if (activity == 'ride'){
         return '#7798AB'
       }
       return '#6BAB90'

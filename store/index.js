@@ -17,7 +17,6 @@ export const actions = {
 
         const { accessToken, refreshToken } = state.auth;
         if (accessToken && refreshToken) {
-            console.log('hi')
             try {
                 await dispatch('auth/refresh');
             } catch (e) {

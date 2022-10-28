@@ -18,7 +18,7 @@ export default {
   },
   methods: {
     getActivity() {
-      if (this.activity.includes("ride")) {
+      if (this.activity === 'ride') {
         return "bike";
       } else if (this.activity === "run") {
         return "run";
