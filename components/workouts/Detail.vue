@@ -1,9 +1,6 @@
 <template>
   <div class="pa-5 black--text white" style="position: relative">
-    <div v-if="loading" class="ma-16 text-center">
-      <v-progress-circular indeterminate size="80" />
-    </div>
-    <div v-else-if="workout">
+    <div v-if="workout">
       <div v-if="workout.planned" class="mb-3">
         <span :class="`white--text ${workout.is_completed ? 'green' : 'purple'} rounded-lg pa-2 d-inline`">
           {{ workout.is_completed ? 'Completed Workout' : 'Planned Workout' }}
@@ -95,7 +92,7 @@
       <v-dialog v-model="openDeleteDialog" width="400" light>
         <DialogsDeleteWorkout
           :workout="workout"
-          @onDelete="openDeleteDialog = false; $emit('onDelete')"
+          @onDelete="openDeleteDialog = false;"
           @onClose="openDeleteDialog = false"
         />
       </v-dialog>
@@ -114,8 +111,8 @@ export default {
   name: "Workout",
   middleware: "auth",
   props: {
-    workoutId: {
-      type: Number,
+    workout: {
+      type: Object,
       required: true,
     },
   },
@@ -124,19 +121,16 @@ export default {
     return {
       chartsOptions: null,
       stats: [],
-      loading: true,
       deleting: false,
       updating: false,
       openDeleteDialog: false,
       openEditDialog: false,
-      workout: null,
       showZones: false,
     };
   },
   async mounted() {
-    await this.getWorkout();
+    this.buildChart()
     this.buildStats();
-    this.loading = false;
   },
   computed: {
     me() {
@@ -168,22 +162,6 @@ export default {
         }
       }
       return 'bike'
-    },
-    async getWorkout() {
-      try {
-        const response = await this.$axios.get(
-          this.$axios.defaults.baseURL + `/workouts/${this.workoutId}`,
-          {
-            headers: {
-              Authorization: "Bearer " + this.$store.state.auth.access_token,
-            },
-          }
-        );
-        this.workout = response.data;
-        this.buildChart();
-      } catch (e) {
-        console.log(e);
-      }
     },
     showChartZones(zones) {
       const activityZones = zones[this.workout.activity]

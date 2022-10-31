@@ -57,6 +57,7 @@ export default {
           color: "green",
           timeout: 3500,
         });
+        this.$router.back()
       } catch (e) {
         console.log(error)
       }

@@ -114,17 +114,6 @@
         </v-col>
       </v-row>
 
-      <!-- View Workout Detail -->
-      <v-dialog v-model="showWorkout" width="800">
-        <v-card v-if="selectedWorkout">
-          <WorkoutsDetail
-            :workout-id="selectedWorkout"
-            :key="selectedWorkout"
-            @onDelete="onDeleteWorkout"
-          />
-        </v-card>
-      </v-dialog>
-
       <!-- Add New Workout -->
       <v-dialog
         v-model="addDialog"
@@ -197,8 +186,7 @@ export default {
       dateSelected: null,
       addDialog: false,
       showTrainingLoad: false,
-      addDate: null,
-      showWorkout: false,
+      addDate: null, 
       expandRows: true,
       calendarOptions: {
         editable: true,
@@ -451,9 +439,7 @@ export default {
         this.selectedPlannedWorkout = e.event.extendedProps;
         this.addDate = moment(e.event.startStr);
       } else {
-        const id = parseInt(e.event.id);
-        this.showWorkout = true;
-        this.selectedWorkout = id;
+        this.$router.push('/workout/' + e.event.extendedProps.id)
       }
     },
     async handleDateSet(e) {

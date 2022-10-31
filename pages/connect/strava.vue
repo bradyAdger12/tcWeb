@@ -56,18 +56,6 @@
         </v-row>
       </v-col>
     </v-row>
-    <!-- <v-dialog v-model="showPrs" width="800" :key="prs.toString()" light>
-      <DialogsPRs v-if="prs" :prs="prs" />
-    </v-dialog> -->
-    <v-dialog v-model="showWorkout" width="800">
-      <v-card v-if="workoutId">
-        <WorkoutsDetail
-          :workout-id="workoutId"
-          :key="workoutId"
-          @onDelete="onDelete"
-        />
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -83,11 +71,9 @@ export default {
         return {
             code: "",
             loading: true,
-            showWorkout: false,
             autoSync: false,
             page: 1,
             per_page: 30,
-            workoutId: null,
             activities: [],
         };
     },
@@ -125,17 +111,9 @@ export default {
         },
     },
     methods: {
-        onDelete() {
-            const found = _.find(this.activities, (item) => item.workoutId == this.workoutId);
-            if (found) {
-                found.workoutId = null;
-                this.showWorkout = false;
-            }
-        },
-        viewWorkout(id) {
-            this.showWorkout = true;
-            this.workoutId = id;
-        },
+      viewWorkout (id) {
+        this.$router.push(`/workout/${id}`)
+      },
         async importActivity(activity) {
             activity.importing = true;
             this.$forceUpdate();
@@ -148,10 +126,6 @@ export default {
                 });
                 if (response && response.data) {
                     activity.workoutId = response.data.id;
-                    // this.prs = response.data.prs ?? []
-                    // if (this.prs && this.prs.length > 0) {
-                    //   this.showPrs = true;
-                    // }
                     await this.$store.dispatch("auth/getMe");
                 }
             }
