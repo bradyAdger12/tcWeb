@@ -146,6 +146,22 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+
+       <!-- Dates Fitness Load -->
+       <v-dialog
+        v-model="showTrainingLoad"
+        width="600"
+        @click:outside="showTrainingLoad = false"
+      >
+        <v-card v-if="dateSelected" class="white black--text" :key="dateSelected.toString()">
+          <v-card-title>
+            {{ 'Training load for ' + dateSelected.format('MMMM D, YYYY')}}
+          </v-card-title>
+          <v-card-text class="black--text">
+            <UserTrainingLoad :date="dateSelected" />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </div>
     <v-overlay v-if="loading">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -178,7 +194,9 @@ export default {
       summaries: [],
       selectedWorkout: null,
       selectedPlannedWorkout: null,
+      dateSelected: null,
       addDialog: false,
+      showTrainingLoad: false,
       addDate: null,
       showWorkout: false,
       expandRows: true,
@@ -279,6 +297,7 @@ export default {
         eventBackgroundColor: "#1976d299",
         eventBorderColor: "#1976d299",
         eventDisplay: "block",
+        dateClick: this.handleDateClick,
         windowResize: (e) => {
           setTimeout(() => {
             this.tableRows = $(".fc-scrollgrid-sync-table tr");
@@ -469,8 +488,10 @@ export default {
         endDate,
       });
     },
-    handleDateClick: function (arg) {
-      alert("date click! " + arg.dateStr);
+    handleDateClick (arg) {
+      const formattedDate = moment(arg.date).endOf('day')
+      this.showTrainingLoad = true
+      this.dateSelected = formattedDate
     },
   },
 };
