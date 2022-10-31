@@ -55,7 +55,10 @@
       </NuxtLink>
       <v-btn v-else text class="black--text" @click="logout"> Logout </v-btn>
     </v-app-bar>
-    <v-main class="my-10">
+    <v-main v-if="$route.name === 'index'" style="background-color: rgb(150, 150, 150)">
+      <Nuxt />
+    </v-main>
+    <v-main v-else class="my-10">
       <Nuxt />
     </v-main>
     <v-footer absolute app>
