@@ -13,7 +13,7 @@
           </div>
           <v-list-item v-else v-for="activity in activities" :key="activity.id">
             <div class="mr-3">
-              <WorkoutIcon :activity="activity.type.toLowerCase()" :size="'2.0em'" />
+              <WorkoutIcon :activity="formatActivity(activity.type)" :size="'2.0em'" />
             </div>
             <v-list-item-content>
               <v-list-item-title style="word-break: break-word">{{
@@ -113,6 +113,14 @@ export default {
     methods: {
       viewWorkout (id) {
         this.$router.push(`/workout/${id}`)
+      },
+      formatActivity (item) {
+        const activity = item.toLowerCase()
+        console.log(activity)
+        if (activity.includes('ride')) {
+          return 'ride'
+        }
+        return activity
       },
         async importActivity(activity) {
             activity.importing = true;
