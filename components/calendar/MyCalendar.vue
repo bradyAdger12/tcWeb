@@ -349,11 +349,9 @@ export default {
       editable: false,
       endTime: "23:59:00",
     });
-    this.loading = false;
     if (this.calendar) {
       await this.updateSummaries();
     }
-
   },
   methods: {
     toMiles: toMiles,

@@ -449,7 +449,7 @@ export default {
       this.$emit("onClose");
     },
     isDisabled() {
-      return this.activity !== "run" && this.addedBlocks == 0;
+      return this.addedBlocks == 0;
     },
     async save() {
       this.saving = true;

@@ -4,8 +4,9 @@
     light
     label="Activity"
     :value="activity"
-    :prepend-icon="getIcon()"
+    :append-outer-icon="getIcon()"
     @change="onActivityChange"
+    style="width: 50%"
   />
 </template>
 
