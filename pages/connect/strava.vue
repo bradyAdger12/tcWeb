@@ -116,7 +116,6 @@ export default {
       },
       formatActivity (item) {
         const activity = item.toLowerCase()
-        console.log(activity)
         if (activity.includes('ride')) {
           return 'ride'
         }
