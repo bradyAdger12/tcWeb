@@ -337,7 +337,6 @@ export default {
     },
   },
   async mounted() {
-    this.loading = true;
     this.calendar = this.$refs.fullCalendar.getApi();
     this.calendar.addEvent({
       id: "addEvent", // recurrent events in this group move together
@@ -350,10 +349,11 @@ export default {
       editable: false,
       endTime: "23:59:00",
     });
+    this.loading = false;
     if (this.calendar) {
       await this.updateSummaries();
     }
-    this.loading = false;
+
   },
   methods: {
     toMiles: toMiles,
@@ -448,7 +448,9 @@ export default {
       if (this.calendar) {
         this.updateSummaries();
       }
+      this.loading = true
       await this.getWorkouts();
+      this.loading = false
       this.tableRows = $(".fc-scrollgrid-sync-table tr");
     },
     onSuccessfullAddWorkout(e) {
