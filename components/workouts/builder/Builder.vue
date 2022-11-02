@@ -1,7 +1,14 @@
 <template>
   <v-container>
-    <div class="mt-2">
-      <v-row>
+    <div>
+      <div v-if="!workout" class="text-h2" style="font-weight: 800">
+        Workout Builder
+        <span class="text-h6" style="font-weight: 400">({{ date.format("MMMM D, YYYY")}})</span>
+      </div>
+      <div v-else class="text-h2" style="font-weight: 800">
+        Edit "{{ workout.name }}"
+      </div>
+      <v-row class="mt-5">
         <v-col cols="auto">
           <v-btn :disabled="isDisabled()" @click="save()"> Save </v-btn>
         </v-col>

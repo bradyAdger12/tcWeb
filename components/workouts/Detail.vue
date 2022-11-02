@@ -12,7 +12,7 @@
           </span>
         </div>
         <WorkoutIcon :activity="workout.activity" size="3em" />
-        <div class="text-h5 text-sm-h2 font-weight-bold">
+        <div class="text-h2 text-sm-h2" style="font-weight: 800">
           {{ workout.name }}
           <v-btn icon @click="openEditDialog = true">
             <v-icon class="mdi mdi-pencil" />
