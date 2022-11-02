@@ -427,15 +427,14 @@ export default {
     handleEventClick(e) {
       this.selectedPlannedWorkout = null;
       if (e.event.id === "addEvent") {
-        this.addDialog = true;
         this.addDate = moment(e.event.startStr);
+        this.$router.push(`/workout/builder?date=${this.addDate.format('M-D-YYYY')}`)
       } else if (
         e.event.extendedProps.planned &&
         !e.event.extendedProps.is_completed
       ) {
-        this.addDialog = true;
-        this.selectedPlannedWorkout = e.event.extendedProps;
         this.addDate = moment(e.event.startStr);
+        this.$router.push(`/workout/builder?date=${this.addDate.format('M-D-YYYY')}&id=${e.event.extendedProps.id}`)
       } else {
         this.$router.push('/workout/' + e.event.extendedProps.id)
       }
