@@ -6,7 +6,6 @@
     :value="activity"
     :append-outer-icon="getIcon()"
     @change="onActivityChange"
-    style="width: 50%"
   />
 </template>
 
