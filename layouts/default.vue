@@ -3,7 +3,7 @@
     <Snackbar />
     <v-app-bar :clipped-left="true" fixed app>
       <NuxtLink to="/" style="text-decoration: none" class="black--text ml-8">
-        <v-toolbar-title v-text="title" />
+        <img :src="require('../assets/logo.png')" style="width: 100px">
       </NuxtLink>
       <v-spacer />
 
