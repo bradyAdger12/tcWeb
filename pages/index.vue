@@ -51,7 +51,7 @@
 import moment from "moment";
 export default {
   head: {
-    titleTemplate: "Training Club",
+    titleTemplate: "ZON",
   },
   name: "IndexPage",
   computed: {

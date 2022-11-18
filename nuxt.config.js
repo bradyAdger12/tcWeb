@@ -4,8 +4,8 @@ require('dotenv').config()
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - Training Club',
-    title: 'Training Club',
+    titleTemplate: '%s - ZON',
+    title: 'ZON',
     htmlAttrs: {
       lang: 'en'
     },
