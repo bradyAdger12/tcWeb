@@ -84,6 +84,17 @@
           v-model="showZones"
           :label="`Show zones`"
         ></v-switch>
+        <v-row v-if="wattAvg || hrAvg">
+          <v-col v-if="timespan" cols="auto">
+            <strong>Timespan: </strong>{{ timespan }}
+          </v-col>
+          <v-col v-if="wattAvg" cols="auto">
+            <strong>Power Avg: </strong>{{ wattAvg }}w
+          </v-col>
+          <v-col v-if="hrAvg" cols="auto">
+            <strong>HR Avg: </strong> {{ hrAvg }}bpm
+          </v-col>
+        </v-row>
         <highchart
           v-if="workout.zones"
           class="mt-4"
@@ -129,8 +140,11 @@ export default {
   components: { ZoneDistribution, WorkoutIcon },
   data() {
     return {
-      chartsOptions: null,
+      chartOptions: null,
       stats: [],
+      hrAvg: null,
+      wattAvg: null,
+      timespan: null,
       deleting: false,
       updating: false,
       openDeleteDialog: false,
@@ -161,6 +175,9 @@ export default {
     onUpdatedWorkout(e) {
       this.workout = e;
       this.openEditDialog = false;
+    },
+    average (array) {
+      return array.reduce((a, b) => a + b) / array.length;
     },
     getActivity() {
       const activity = this.workout.activity;
@@ -247,6 +264,32 @@ export default {
         title: {
           text: "",
         },
+        chart: {
+        zoomType: 'x',
+        events: { 
+          selection: (event) => {
+            if (event.resetSelection) {
+              this.hrAvg = null
+              this.wattAvg = null
+              this.timespan = null
+            }
+            if (event?.xAxis) {
+              const min = Math.round(event.xAxis[0].min)
+              const max = Math.round(event.xAxis[0].max)
+              this.timespan = `${this.formatDuration(min)} - ${this.formatDuration(max)}`
+              const hrData = this.workout.streams.heartrate.data
+              const wattData = this.workout.streams.watts.data
+              if (hrData) {
+                const hrArray = hrData.slice(min, max)
+                this.hrAvg = Math.round(hrArray.reduce((a, b) => a + b) / hrArray.length)
+              } if (wattData) {
+                const wattArray = wattData.slice(min, max)
+                this.wattAvg = Math.round(wattArray.reduce((a, b) => a + b) / wattArray.length)
+              }
+            }
+          },
+        }
+      },
         tooltip: {
           formatter: function () {
             return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${

@@ -6,7 +6,7 @@
       </video>
       <div class="video-overlay" />
       <div style="position: absolute; top: 0; color: white; z-index: 2">
-        <v-container>
+        <v-container class="mx-8">
           <v-row justify="center" align="center" class="mt-16">
             <v-col cols="12">
               <p class="text-h1 font-weight-bold">
@@ -33,17 +33,6 @@
         </v-container>
       </div>
     </div>
-    <!-- <v-container class="white--text">
-      <div>
-        <p class="text-h1 font-weight-bold">How To Get Started</p>
-        <ol class="text-h6">
-          <li><NuxtLink to="/register" class="white--text">Register</NuxtLink> a new account.</li>
-          <li>Enter in training data so we can get you as much training feedback as possible.</li>
-          <li>Connect to Strava.</li>
-          <li>Plan some workouts for the week using our Calendar, or just get moving ASAP.</li>
-        </ol>
-      </div>
-    </v-container> -->
   </div>
 </template>
 
