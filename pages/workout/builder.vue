@@ -1,5 +1,5 @@
 <template>
-  <WorkoutsBuilder :date="date" :workout="workout" />
+  <WorkoutsBuilder :date="formatDate(date)" :workout="workout" />
 </template>
 
 
@@ -24,7 +24,6 @@ export default {
           }
         );
         workout = response.data;
-        console.log(workout)
       } catch (e) {
         console.log(e);
       }
@@ -37,5 +36,10 @@ export default {
   head: {
     title: "Calendar",
   },
+  methods: {
+    formatDate (date) {
+      return moment(date)
+    }
+  }
 };
 </script>

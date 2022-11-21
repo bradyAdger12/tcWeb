@@ -34,11 +34,11 @@
             <div v-if="workout.effort">
               <v-icon size="15" color="grey" class="mr-1"
                 >mdi-lightning-bolt</v-icon
-              >Effort: {{ workout.effort }}
+              >TSS: {{ workout.effort }}
             </div>
             <div v-if="workout.hr_effort">
               <v-icon size="14" color="grey" class="mr-1">mdi-heart</v-icon
-              >hrEffort:
+              >hrTSS:
               {{ workout.hr_effort }}
             </div>
           </div>

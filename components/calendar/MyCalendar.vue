@@ -240,13 +240,13 @@ export default {
             if (workout.effort) {
               efforts += `
                 <div>
-                  <span class="mdi mdi-lightning-bolt" /> effort: ${workout.effort}
+                  <span class="mdi mdi-lightning-bolt" /> TSS: ${workout.effort}
                 </div>
               `;
             } else {
             efforts += `
                 <div>
-                  <span class="mdi mdi-heart" /> hrEffort: ${workout.hr_effort}
+                  <span class="mdi mdi-heart" /> hrTSS: ${workout.hr_effort}
                 </div>
               `;
             }

@@ -179,17 +179,6 @@ export default {
     average (array) {
       return array.reduce((a, b) => a + b) / array.length;
     },
-    getActivity() {
-      const activity = this.workout.activity;
-      if (this.workout) {
-        if (activity === "ride") {
-          return "bike";
-        } else if (activity === "run") {
-          return "run";
-        }
-      }
-      return "bike";
-    },
     showChartZones(zones) {
       const activityZones = zones[this.workout.activity];
       return [
@@ -277,8 +266,8 @@ export default {
               const min = Math.round(event.xAxis[0].min)
               const max = Math.round(event.xAxis[0].max)
               this.timespan = `${this.formatDuration(min)} - ${this.formatDuration(max)}`
-              const hrData = this.workout.streams.heartrate.data
-              const wattData = this.workout.streams.watts.data
+              const hrData = this.workout.streams.heartrate?.data
+              const wattData = this.workout.streams.watts?.data
               if (hrData) {
                 const hrArray = hrData.slice(min, max)
                 this.hrAvg = Math.round(hrArray.reduce((a, b) => a + b) / hrArray.length)
