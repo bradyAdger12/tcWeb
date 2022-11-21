@@ -6,6 +6,11 @@ export const state = () => ({
 
 export const mutations = {
 
+  deleteSavedWorkout (state, id) {
+    _.remove(state.saved_workouts, (item) => item.id === id)
+    state.saved_workouts = [...state.saved_workouts]
+  },
+
   // set saved_workouts array
   setSavedWorkouts(state, workouts) {
     state.saved_workouts = workouts
@@ -18,6 +23,12 @@ export const mutations = {
 }
 
 export const actions = {
+  async deleteSavedWorkout({ commit, state }, { token, id }) {
+    const response = await this.$axios.delete(`/saved_workouts/${id}`, { headers: { 'Authorization': 'Bearer ' + token } })
+    if (response && response.data) {
+      commit('deleteSavedWorkout', id)
+    }
+  },
   async createSavedWorkout({ commit, state }, { token, savedWorkout }) {
     const response = await this.$axios.post('/saved_workouts/create', savedWorkout, { headers: { 'Authorization': 'Bearer ' + token } })
     if (response && response.data) {

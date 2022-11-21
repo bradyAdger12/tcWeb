@@ -32,13 +32,13 @@
       </div>
       <div>
         <WorkoutIcon :activity="savedWorkout.activity" size="1.0em" /> | {{ getDuration() }}<span v-if="savedWorkout.tss || savedWorkout.hrTss"> | {{ savedWorkout.tss || savedWorkout.hrTss }} {{ savedWorkout.tss ? 'TSS' : 'hrTSS'}}</span> 
-        | <v-btn icon @click="openDeleteDialog = true" class="btn-sm">
+        | <v-btn icon @click.stop="openDeleteDialog = true" x-small>
             <v-icon class="mdi mdi-delete" />
           </v-btn>
       </div>
     </div>
     <v-dialog v-model="openDeleteDialog" width="400" light>
-      <!-- <DialogsDeleteWorkout :workout="workout" @onDelete="onDelete" /> -->
+      <DialogsDeleteSavedWorkout :savedWorkout="savedWorkout" @onDelete="openDeleteDialog=false" />
     </v-dialog>
   </div>
 </template>

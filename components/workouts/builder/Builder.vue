@@ -2,7 +2,7 @@
   <v-row>
     <v-col cols="3" class="text-center">
       <v-container>
-        <div class="title mb-2">My Workouts</div>
+        <div class="title mb-2">My Saved Workouts</div>
         <div v-if="loadingSavedWorkouts">
           <v-progress-linear indeterminate />
         </div>
@@ -262,10 +262,13 @@
                   Duration: {{ formatDuration(totalDuration) }}
                 </div>
               </v-col>
-              <v-col>
+              <v-col cols="auto">
                 <div v-if="stress" class="font-weight-bold">
                   {{ isPower ? "TSS: " : "HR TSS: " }} {{ stress }}
                 </div>
+              </v-col>
+              <v-col v-if="addedBlocks.length > 0" cols="auto">
+                <a @click="addedBlocks = []" style="text-decoration: none;" class="blue--text">clear blocks</a>
               </v-col>
             </v-row>
 
