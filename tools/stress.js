@@ -47,9 +47,6 @@ export function findHRTSS({ me, values, activity }) {
       const lthrr = (thresholdhr - restinghr) / (maxhr - restinghr)
       const trimpthresh = (lthrr * 0.64 * Math.exp(k * lthrr)) * 3600
       hrtss = Math.round((sum / trimpthresh) * 100)
-      if (activity === 'run') {
-        return Math.round(hrtss * 1.20)
-      }
       return hrtss
     } else {
       return 0;

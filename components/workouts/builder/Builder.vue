@@ -560,7 +560,7 @@ export default {
         this.selectedSavedWorkout = { ...savedWorkout };
       }
       if (this.addedBlocks.length === 0) {
-        this.addedBlocks = [...this.selectedSavedWorkout.workout];
+        this.addedBlocks = JSON.parse(JSON.stringify(this.selectedSavedWorkout.workout));
         this.activity = this.selectedSavedWorkout.activity;
         this.workoutName = this.selectedSavedWorkout.name;
         this.description = this.selectedSavedWorkout.description;
