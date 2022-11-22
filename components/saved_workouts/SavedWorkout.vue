@@ -64,7 +64,7 @@ export default {
     };
   },
   mounted() {
-    this.zones = this.isPower
+    this.zones = this.savedWorkout.tss !== null
       ? this.me.power_zones["ride"]
       : this.me.hr_zones[this.savedWorkout.activity];
   },
