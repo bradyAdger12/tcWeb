@@ -281,8 +281,9 @@ export default {
       },
         tooltip: {
           formatter: function () {
+            const name = this.point.series.name
             return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${
-              this.color == "blue" ? "watts" : "bpm"
+              name === 'Power' ? "watts" : "bpm"
             }`;
           },
         },
