@@ -86,9 +86,11 @@
                 class="black--text"
                 label="Name"
               />
-              <v-text-field
+              <v-textarea
                 v-model="description"
-                class="black--text"
+                class="black--text rounded-sm"
+                rounded
+                filled
                 label="Description"
               />
               <WorkoutsActivityDropdown
