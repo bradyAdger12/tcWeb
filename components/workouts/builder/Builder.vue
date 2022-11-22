@@ -61,10 +61,10 @@
                         zwoFile(addedBlocks, thresholdValue, me, workout)
                       )}`"
                       :download="`${
-                        workout
-                          ? workout.name
-                          : 'my_spin_cycle_' + new Date().toString()
-                      } (via ${$app_config.title}).zwo`"
+                        workoutName
+                          ? workoutName.replaceAll(' ', '_').toLowerCase()
+                          : 'zon_' + workoutName.replaceAll(' ', '_').toLowerCase()
+                      }.zwo`"
                       style="text-decoration: none; color: black"
                     >
                       Zwift
