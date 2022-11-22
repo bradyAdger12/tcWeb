@@ -3,6 +3,9 @@
     <v-col cols="3" class="text-center">
       <v-container>
         <div class="title mb-2">My Saved Workouts</div>
+        <p>
+          Select a saved workout below, or create a new one.
+        </p>
         <div v-if="loadingSavedWorkouts">
           <v-progress-linear indeterminate />
         </div>
@@ -72,7 +75,7 @@
             </v-col>
             <v-col v-if="addedBlocks.length > 0" cols="auto" @click="addSavedWorkout">
               <v-btn color="primary" class="white--text">
-                Add to My Workouts
+                Add to My Saved Workouts
               </v-btn>
             </v-col>
             <v-col cols="auto" v-if="workout" @click="openDeleteDialog = true">
@@ -458,7 +461,6 @@ export default {
   watch: {
     "$store.state.saved_workouts.saved_workouts"() {
       this.savedWorkouts =  [...this.$store.state.saved_workouts.saved_workouts]
-      console.log(this.savedWorkouts)
     },
     activity() {
       this.zones = this.isPower
@@ -565,6 +567,7 @@ export default {
         this.addedBlocks = JSON.parse(JSON.stringify(this.selectedSavedWorkout.workout));
         this.activity = this.selectedSavedWorkout.activity;
         this.workoutName = this.selectedSavedWorkout.name;
+        this.isPower = this.selectedSavedWorkout.tss !== null
         this.description = this.selectedSavedWorkout.description;
         this.selectedSavedWorkout = null;
       } else {

@@ -43,6 +43,11 @@
               <v-list-item-title>Workouts</v-list-item-title>
             </v-list-item>
           </NuxtLink>
+          <NuxtLink to="/profile/saved_workouts" style="text-decoration: none">
+            <v-list-item>
+              <v-list-item-title>Saved Workouts</v-list-item-title>
+            </v-list-item>
+          </NuxtLink>
         </v-list>
       </v-menu>
       <NuxtLink

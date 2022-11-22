@@ -33,7 +33,7 @@
       <div>
         <WorkoutIcon :activity="savedWorkout.activity" size="1.0em" /> | {{ getDuration() }}<span v-if="savedWorkout.tss || savedWorkout.hrTss"> | {{ savedWorkout.tss || savedWorkout.hrTss }} {{ savedWorkout.tss ? 'TSS' : 'hrTSS'}}</span> 
         | <v-btn icon @click.stop="openDeleteDialog = true" x-small>
-            <v-icon class="mdi mdi-delete" />
+            <v-icon class="mdi mdi-delete pb-1" />
           </v-btn>
       </div>
     </div>

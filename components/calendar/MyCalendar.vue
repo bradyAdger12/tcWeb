@@ -87,7 +87,7 @@
                   </div>
                 </div>
                 <div :class="`${summaries[i + 1].total_distance > 0 ? 'mt-2' : ''}`">
-                  <span class="summary-title">Stress: </span
+                  <span class="summary-title">TSS: </span
                   >{{ summaries[i + 1].effort }}
                 </div>
                 <div class="text-center mt-5">
