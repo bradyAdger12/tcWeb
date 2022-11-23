@@ -320,7 +320,7 @@ export default {
           this.stats.push({ name: "hrTSS", value: this.workout.hr_effort });
         }
         if (this.workout.effort) {
-          this.stats.push({ name: "Effort", value: this.workout.effort });
+          this.stats.push({ name: "TSS", value: this.workout.effort });
         }
       }
     },
