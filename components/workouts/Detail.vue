@@ -20,6 +20,7 @@
           <v-btn icon @click="openDeleteDialog = true">
             <v-icon class="mdi mdi-delete" />
           </v-btn>
+          <a @click="resync" class="text-caption">resync</a>
         </div>
         <div class="subtitle-1">
           {{ formatDate(workout.started_at) }}
@@ -58,6 +59,7 @@
                   :me_zones="me.hr_zones"
                   :activity="workout.activity"
                   :zone_type="'hr'"
+                  :key="Date.now()"
                 />
               </v-col>
 
@@ -66,6 +68,7 @@
                 v-if="workout.zones && workout.zones.hasWatts"
                 cols="12"
                 :sm="workout.zones.hasHeartRate ? '6' : '12'"
+                :key="Date.now()"
               >
                 <p class="text-h5 text-sm-h4 font-weight-bold">Power Zones</p>
                 <ZoneDistribution
@@ -176,8 +179,26 @@ export default {
       this.workout = e;
       this.openEditDialog = false;
     },
-    average (array) {
+    average(array) {
       return array.reduce((a, b) => a + b) / array.length;
+    },
+    async resync() {
+      try {
+        const response = await this.$axios.patch(
+          this.$axios.defaults.baseURL + `/workouts/${this.workout.id}/resync`,
+          null,
+          {
+            headers: {
+              Authorization: "Bearer " + this.$store.state.auth.access_token,
+            },
+          }
+        );
+        if (response && response.data) {
+          this.$router.go()
+        }
+      } catch (e) {
+        console.log(e);
+      }
     },
     showChartZones(zones) {
       const activityZones = zones[this.workout.activity];
@@ -254,36 +275,43 @@ export default {
           text: "",
         },
         chart: {
-        zoomType: 'x',
-        events: { 
-          selection: (event) => {
-            if (event.resetSelection) {
-              this.hrAvg = null
-              this.wattAvg = null
-              this.timespan = null
-            }
-            if (event?.xAxis) {
-              const min = Math.round(event.xAxis[0].min)
-              const max = Math.round(event.xAxis[0].max)
-              this.timespan = `${this.formatDuration(min)} - ${this.formatDuration(max)}`
-              const hrData = this.workout.streams.heartrate?.data
-              const wattData = this.workout.streams.watts?.data
-              if (hrData) {
-                const hrArray = hrData.slice(min, max)
-                this.hrAvg = Math.round(hrArray.reduce((a, b) => a + b) / hrArray.length)
-              } if (wattData) {
-                const wattArray = wattData.slice(min, max)
-                this.wattAvg = Math.round(wattArray.reduce((a, b) => a + b) / wattArray.length)
+          zoomType: "x",
+          events: {
+            selection: (event) => {
+              if (event.resetSelection) {
+                this.hrAvg = null;
+                this.wattAvg = null;
+                this.timespan = null;
               }
-            }
+              if (event?.xAxis) {
+                const min = Math.round(event.xAxis[0].min);
+                const max = Math.round(event.xAxis[0].max);
+                this.timespan = `${this.formatDuration(
+                  min
+                )} - ${this.formatDuration(max)}`;
+                const hrData = this.workout.streams.heartrate?.data;
+                const wattData = this.workout.streams.watts?.data;
+                if (hrData) {
+                  const hrArray = hrData.slice(min, max);
+                  this.hrAvg = Math.round(
+                    hrArray.reduce((a, b) => a + b) / hrArray.length
+                  );
+                }
+                if (wattData) {
+                  const wattArray = wattData.slice(min, max);
+                  this.wattAvg = Math.round(
+                    wattArray.reduce((a, b) => a + b) / wattArray.length
+                  );
+                }
+              }
+            },
           },
-        }
-      },
+        },
         tooltip: {
           formatter: function () {
-            const name = this.point.series.name
+            const name = this.point.series.name;
             return `${duration(this.x * 1000)}<br><strong>${this.y}</strong>${
-              name === 'Power' ? "watts" : "bpm"
+              name === "Power" ? "watts" : "bpm"
             }`;
           },
         },

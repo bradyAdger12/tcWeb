@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="me_zones && me_zones[activity]">
     <div v-for="zone in zoneNames" :key="zone" style="position: relative">
       <div
         v-if="workout_zones[zone][`${zone_type}-percentage`] >= 0"
