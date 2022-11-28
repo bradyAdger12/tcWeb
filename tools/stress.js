@@ -18,11 +18,20 @@ function getNormalizedPower(watts) {
   return Math.round(Math.pow(fourthPowerAverages, .25))
 }
 
-export function findTSS({ me, values, duration }) {
+export function findTSS({ me, values, duration, activity, length }) {
   let tss = null
   const normalizedPower = getNormalizedPower(values)
   try {
-    tss = Math.round(((duration * (normalizedPower * (normalizedPower / me.threshold_power)) / (me.threshold_power * 3600))) * 100)
+    if (activity === 'run' && length) {
+      const ngp = duration / (length * 0.000621371)
+      const intensityFactor = me.running_threshold_pace / ngp
+      const numerator = (duration * me.running_threshold_pace * intensityFactor)
+      const denominator = (ngp * 3600)
+      tss = Math.round((numerator / denominator) * 100)
+    } else {
+      tss = Math.round(((duration * (normalizedPower * (normalizedPower / me.threshold_power)) / (me.threshold_power * 3600))) * 100)
+    }
+    console.log(tss)
     return tss
   } catch (e) {
     console.log(e)

@@ -3,9 +3,7 @@
     <v-col cols="3" class="text-center">
       <v-container>
         <div class="title mb-2">My Saved Workouts</div>
-        <p>
-          Select a saved workout below, or create a new one.
-        </p>
+        <p>Select a saved workout below, or create a new one.</p>
         <div v-if="loadingSavedWorkouts">
           <v-progress-linear indeterminate />
         </div>
@@ -63,7 +61,8 @@
                       :download="`${
                         workoutName
                           ? workoutName.replaceAll(' ', '_').toLowerCase()
-                          : 'zon_' + workoutName.replaceAll(' ', '_').toLowerCase()
+                          : 'zon_' +
+                            workoutName.replaceAll(' ', '_').toLowerCase()
                       }.zwo`"
                       style="text-decoration: none; color: black"
                     >
@@ -73,7 +72,11 @@
                 </v-list>
               </v-menu>
             </v-col>
-            <v-col v-if="addedBlocks.length > 0" cols="auto" @click="addSavedWorkout">
+            <v-col
+              v-if="addedBlocks.length > 0"
+              cols="auto"
+              @click="addSavedWorkout"
+            >
               <v-btn color="primary" class="white--text">
                 Add to My Saved Workouts
               </v-btn>
@@ -84,6 +87,13 @@
           </v-row>
           <v-row>
             <v-col>
+              <div style="width: 30%">
+                <WorkoutsActivityDropdown
+                  :currentActivity="activity"
+                  :key="activity"
+                  @onActivityChange="(e) => (activity = e)"
+                />
+              </div>
               <v-text-field
                 v-model="workoutName"
                 class="black--text"
@@ -96,20 +106,22 @@
                 filled
                 label="Description"
               />
-              <WorkoutsActivityDropdown
-                :currentActivity="activity"
-                :key="activity"
-                @onActivityChange="(e) => (activity = e)"
+              <v-text-field
+                v-if="!enduranceActivities.includes(activity)"
+                v-model="workoutDuration"
+                class="black--text"
+                label="Duration"
               />
               <v-text-field
                 v-if="activity === 'run'"
                 v-model="length"
                 class="black--text"
                 label="Distance (mi)"
+                @input="getStress()"
               />
             </v-col>
           </v-row>
-          <div>
+          <div v-if="enduranceActivities.includes(activity)">
             <v-row align="center">
               <v-col v-if="activity === 'ride'" cols="auto">
                 <v-select
@@ -269,11 +281,21 @@
               </v-col>
               <v-col cols="auto">
                 <div v-if="stress" class="font-weight-bold">
-                  {{ isPower ? "TSS: " : "HR TSS: " }} {{ stress }}
+                  {{
+                    isPower || (activity === "run" && length)
+                      ? "TSS: "
+                      : "HR TSS: "
+                  }}
+                  {{ stress }}
                 </div>
               </v-col>
               <v-col v-if="addedBlocks.length > 0" cols="auto">
-                <a @click="addedBlocks = []" style="text-decoration: none;" class="blue--text">clear blocks</a>
+                <a
+                  @click="addedBlocks = []"
+                  style="text-decoration: none"
+                  class="blue--text"
+                  >clear blocks</a
+                >
               </v-col>
             </v-row>
 
@@ -427,10 +449,12 @@ export default {
       description: "",
       showUseWorkoutDialog: false,
       isPercentage: false,
+      workoutDuration: '',
       stress: 0,
       thresholdValue: null,
       openDeleteDialog: false,
       blockBeingDragged: null,
+      enduranceActivities: ["run", "swim", "ride"],
       dataTypes: [
         {
           text: "Power",
@@ -460,7 +484,7 @@ export default {
   },
   watch: {
     "$store.state.saved_workouts.saved_workouts"() {
-      this.savedWorkouts =  [...this.$store.state.saved_workouts.saved_workouts]
+      this.savedWorkouts = [...this.$store.state.saved_workouts.saved_workouts];
     },
     activity() {
       this.zones = this.isPower
@@ -523,6 +547,8 @@ export default {
       this.activity = this.workout.activity;
       if (this.activity === "run") {
         this.isPower = false;
+      } else if (!this.enduranceActivities.includes(this.activity)) {
+        this.workoutDuration = new Date(this.workout.duration * 1000).toISOString().substring(14, 19)
       }
       this.length = (this.workout.length * 0.000621371).toFixed(1);
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
@@ -556,7 +582,7 @@ export default {
           token,
           savedWorkout,
         });
-        this.$forceUpdate()
+        this.$forceUpdate();
       } catch (e) {}
     },
     useSavedWorkout(savedWorkout) {
@@ -564,10 +590,12 @@ export default {
         this.selectedSavedWorkout = { ...savedWorkout };
       }
       if (this.addedBlocks.length === 0) {
-        this.addedBlocks = JSON.parse(JSON.stringify(this.selectedSavedWorkout.workout));
+        this.addedBlocks = JSON.parse(
+          JSON.stringify(this.selectedSavedWorkout.workout)
+        );
         this.activity = this.selectedSavedWorkout.activity;
         this.workoutName = this.selectedSavedWorkout.name;
-        this.isPower = this.selectedSavedWorkout.tss !== null
+        this.isPower = this.selectedSavedWorkout.tss !== null;
         this.description = this.selectedSavedWorkout.description;
         this.selectedSavedWorkout = null;
       } else {
@@ -590,7 +618,7 @@ export default {
       this.$emit("onClose");
     },
     isDisabled() {
-      return this.addedBlocks == 0;
+      return this.addedBlocks == 0 && (!this.activity === 'workout' || (this.activity === 'workout' && !this.workoutDuration));
     },
     async save() {
       this.saving = true;
@@ -601,6 +629,12 @@ export default {
           },
         };
 
+        let duration = null
+        if (!this.enduranceActivities.includes(this.activity)) {
+          const actualTime = this.workoutDuration.split(':')
+          duration = parseInt(actualTime[0]) * 60 + parseInt(actualTime[1]);
+        }
+
         // Create Workout
         if (!this.workout) {
           const response = await this.$axios.post(
@@ -609,6 +643,7 @@ export default {
               name: this.workoutName,
               description: this.description,
               isPower: this.isPower,
+              duration,
               hr_TSS: this.isPower ? null : this.stress,
               TSS: this.isPower ? this.stress : null,
               activity: this.activity,
@@ -638,6 +673,7 @@ export default {
               name: this.workoutName,
               description: this.description,
               isPower: this.isPower,
+              duration,
               hr_TSS: this.isPower ? null : this.stress,
               TSS: this.isPower ? this.stress : null,
               activity: this.activity,
@@ -682,9 +718,15 @@ export default {
           }
         }
       }
-      if (this.isPower) {
+      if (this.isPower || (this.activity === "run" && this.length)) {
         const duration = this.totalDuration;
-        this.stress = this.findTSS({ me, values, duration });
+        this.stress = this.findTSS({
+          me,
+          values,
+          duration,
+          length: Math.round(this.length * 1609.34),
+          activity: this.activity,
+        });
       } else {
         const activity = this.activity;
         this.stress = this.findHRTSS({ me, values, activity });
@@ -794,75 +836,79 @@ export default {
         : Math.round(found?.low);
     },
     init() {
-      this.zones = this.isPower
-        ? this.me.power_zones["ride"]
-        : this.me.hr_zones[this.activity];
-      this.blocks = [
-        {
-          type: "Recovery",
-          color: this.getColor("Recovery"),
-          numSets: 1,
-          sets: [
-            { value: this.getZoneDefault("Recovery"), duration: "00:10:00" },
-          ],
-        },
-        {
-          type: "Endurance",
-          color: this.getColor("Endurance"),
-          numSets: 1,
-          sets: [
-            { value: this.getZoneDefault("Endurance"), duration: "00:10:00" },
-          ],
-        },
-        {
-          type: "Tempo",
-          color: this.getColor("Tempo"),
-          numSets: 1,
-          sets: [{ value: this.getZoneDefault("Tempo"), duration: "00:10:00" }],
-        },
-        {
-          type: "Threshold",
-          color: this.getColor("Threshold"),
-          numSets: 1,
-          sets: [
-            { value: this.getZoneDefault("Threshold"), duration: "00:10:00" },
-          ],
-        },
-        {
-          type: "VO2 Max",
-          color: this.getColor("VO2 Max"),
-          numSets: 1,
-          sets: [
-            { value: this.getZoneDefault("VO2 Max"), duration: "00:20:00" },
-          ],
-        },
-        {
-          type: "Intervals",
-          color: "brown",
-          numSets: 2,
-          sets: [
-            {
-              type: "hard",
-              value: this.getZoneDefault("VO2 Max"),
-              duration: "00:04:00",
-            },
-            {
-              type: "easy",
-              value: this.getZoneDefault("Recovery"),
-              duration: "00:02:00",
-            },
-          ],
-        },
-      ];
-      if (this.isPower) {
-        this.blocks.splice(5, 0, {
-          type: "Anaerobic",
-          color: this.getColor("Anaerobic"),
-          numSets: 1,
-          sets: [
-            { value: this.getZoneDefault("Anaerobic"), duration: "00:20:00" },
-          ],
-        });
+      if (this.enduranceActivities.includes(this.activity)) {
+        this.zones = this.isPower
+          ? this.me.power_zones["ride"]
+          : this.me.hr_zones[this.activity];
+        this.blocks = [
+          {
+            type: "Recovery",
+            color: this.getColor("Recovery"),
+            numSets: 1,
+            sets: [
+              { value: this.getZoneDefault("Recovery"), duration: "00:10:00" },
+            ],
+          },
+          {
+            type: "Endurance",
+            color: this.getColor("Endurance"),
+            numSets: 1,
+            sets: [
+              { value: this.getZoneDefault("Endurance"), duration: "00:10:00" },
+            ],
+          },
+          {
+            type: "Tempo",
+            color: this.getColor("Tempo"),
+            numSets: 1,
+            sets: [
+              { value: this.getZoneDefault("Tempo"), duration: "00:10:00" },
+            ],
+          },
+          {
+            type: "Threshold",
+            color: this.getColor("Threshold"),
+            numSets: 1,
+            sets: [
+              { value: this.getZoneDefault("Threshold"), duration: "00:10:00" },
+            ],
+          },
+          {
+            type: "VO2 Max",
+            color: this.getColor("VO2 Max"),
+            numSets: 1,
+            sets: [
+              { value: this.getZoneDefault("VO2 Max"), duration: "00:20:00" },
+            ],
+          },
+          {
+            type: "Intervals",
+            color: "brown",
+            numSets: 2,
+            sets: [
+              {
+                type: "hard",
+                value: this.getZoneDefault("VO2 Max"),
+                duration: "00:04:00",
+              },
+              {
+                type: "easy",
+                value: this.getZoneDefault("Recovery"),
+                duration: "00:02:00",
+              },
+            ],
+          },
+        ];
+        if (this.isPower) {
+          this.blocks.splice(5, 0, {
+            type: "Anaerobic",
+            color: this.getColor("Anaerobic"),
+            numSets: 1,
+            sets: [
+              { value: this.getZoneDefault("Anaerobic"), duration: "00:20:00" },
+            ],
+          });
+        }
       }
     },
   },
