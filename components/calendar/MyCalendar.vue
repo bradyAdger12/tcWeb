@@ -476,7 +476,7 @@ export default {
   white-space: normal;
 }
 .fc-daygrid-day-frame {
-  min-height: 400px !important;
+  min-height: 440px !important;
 }
 .fc-day-today {
   background: #1976d233 !important;
