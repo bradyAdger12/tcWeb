@@ -1,9 +1,10 @@
 <template>
-  <span :class="`mdi mdi-${getActivity()}`" :style="`font-size: ${size}`"></span>
+  <span :class="`mdi ${activityReference[activity].icon}`" :style="`font-size: ${size}`"></span>
 </template>
 
 
 <script>
+import { activityReference } from '~/tools/activities'
 export default {
   props: {
     size: {
@@ -16,15 +17,10 @@ export default {
       required: true,
     },
   },
-  methods: {
-    getActivity() {
-      if (this.activity === 'ride') {
-        return "bike";
-      } else if (this.activity === "run") {
-        return "run";
-      }
-      return "dumbbell";
-    },
-  },
+  data () {
+    return {
+      activityReference
+    }
+  }
 };
 </script>

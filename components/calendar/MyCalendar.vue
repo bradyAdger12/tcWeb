@@ -56,7 +56,7 @@
                   )"
                   :key="`duration_${activity}`"
                 >
-                  <div v-if="summaries[i + 1].activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">                   
+                  <div v-if="summaries[i + 1].activity_duration[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${activityReference[activity].color}`">                   
                    <span style="margin-right: 1px"><WorkoutIcon :activity="activity" size="14px" /></span> 
                     {{
                       formatDuration(
@@ -76,7 +76,7 @@
                   )"
                   :key="`distance_${activity}`"
                 >
-                  <div v-if="summaries[i + 1].activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${getActivityBackgroundColor(activity)}`">
+                  <div v-if="summaries[i + 1].activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${activityReference[activity].color}`">
                     <span style="margin-right: 1px"><WorkoutIcon :activity="activity" size="14px" /></span>
                     {{
                       toMiles(
@@ -165,6 +165,7 @@ import { formatDuration } from "~/tools/format_moment";
 import moment from "moment";
 import FullCalendar from "@fullcalendar/vue";
 import WorkoutIcon from '~/components/WorkoutIcon.vue'
+import { activityReference } from '~/tools/activities'
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
@@ -181,6 +182,7 @@ export default {
       loading: true,
       tableRows: [],
       summaries: [],
+      activityReference: activityReference,
       selectedWorkout: null,
       selectedPlannedWorkout: null,
       dateSelected: null,
@@ -209,32 +211,17 @@ export default {
             workoutHeader += `
               <div style="width: 100%; background-color: ${
                 workout.is_completed ? "white" : "white"
-              }; color: ${this.getActivityBackgroundColor(workout.activity)}" class="text-center rounded px-2 py-1">
+              }; color: ${activityReference[workout.activity].color}" class="text-center rounded px-2 py-1">
                 ${workout.is_completed ? "completed" : "planned"} ${workout.is_completed ? '<span class="mdi mdi-check-circle-outline text-sm"></span>' : ''}
               </div>
             `;
           }
           if (workout.activity) {
-            if (workout.activity === "ride") {
               activity += `
                 <div>
-                  <span class="mdi mdi-bike" style="font-size: 16px" />
+                  <span class="mdi ${activityReference[workout.activity].icon}" style="font-size: 16px" /> ${workout.description ? '<span class="mdi mdi-message" />' : ''}
                 </div>
               `;
-            } else if (workout.activity === "run") {
-              activity += `
-                <div>
-                  <span class="mdi mdi-run" style="font-size: 16px" />
-                </div>
-              `;
-            }
-            else if (workout.activity === "workout") {
-              activity += `
-                <div>
-                  <span class="mdi mdi-dumbbell" style="font-size: 16px" />
-                </div>
-              `;
-            }
           }
           if (workout.hr_effort || workout.effort) {
             if (workout.effort) {
@@ -304,7 +291,7 @@ export default {
     "$store.state.calendar.workouts"() {
       const workouts = this.$store.state.calendar.workouts;
       for (const workout of workouts) {
-        const backgroundColor = this.getActivityBackgroundColor(workout.activity)
+        const backgroundColor = activityReference[workout.activity].color
         if (!this.calendar.getEventById(workout.id)) {
           this.calendar.addEvent({
             id: workout.id,
@@ -375,14 +362,6 @@ export default {
       }
       return ''
     },
-    getActivityBackgroundColor(activity) {
-      if (activity == 'run'){
-        return '#FE654F'
-      } else if (activity == 'ride'){
-        return '#7798AB'
-      }
-      return '#6BAB90'
-    },
     async updateSummaries() {
       if (this.calendar) {
         this.summaries = [];
@@ -404,6 +383,7 @@ export default {
           curr.add(1, "day");
         }
       }
+      console.log(this.summaries)
     },
     async handleEventDrop(e) {
       const id = parseInt(e.event.id);

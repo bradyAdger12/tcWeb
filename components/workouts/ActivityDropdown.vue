@@ -4,13 +4,14 @@
     light
     label="Activity"
     :value="activity"
-    :append-outer-icon="getIcon()"
+    :append-outer-icon="activityReference[currentActivity].icon"
     @change="onActivityChange"
   />
 </template>
 
 
 <script>
+import { activityReference } from '~/tools/activities'
 export default {
   props: {
     currentActivity: {
@@ -21,21 +22,14 @@ export default {
   data () {
     return {
       activity: 'ride',
-      activities: ['run', 'ride', 'workout']
+      activityReference: activityReference,
+      activities: Object.keys(activityReference)
     }
   },
   mounted () {
     this.activity = this.currentActivity
   } ,
   methods: {
-    getIcon () {
-      if (this.currentActivity === 'ride') {
-        return 'mdi-bike'
-      } else if (this.currentActivity === 'run') {
-        return 'mdi-run'
-      }
-      return 'mdi-dumbbell'
-    },
     onActivityChange (e) {
       this.$emit('onActivityChange', e)
     }

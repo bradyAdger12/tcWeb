@@ -325,25 +325,44 @@ export default {
         series: series,
       };
     },
+    getDistance () {
+      if (this.workout.activity === 'swim') {
+        return Math.round(this.workout.length * 1.09361).toLocaleString() + ' yds'
+      }
+      return toMiles(this.workout.length)
+    },
+    getPace () {
+      let pace = null
+      let name = 'Pace'
+      if (this.workout.activity === "run") {
+        pace = new Date(
+          (this.workout.duration / (this.workout.length * 0.000621371)) * 1000
+        )
+          .toISOString()
+          .substring(14, 19);
+      } else if (this.workout.activity === 'swim') {
+        name = 'Pace/100yd'
+        const yards = Math.round(this.workout.length * 1.09361)
+        pace = new Date(
+          (this.workout.duration / (yards / 100)) * 1000
+        )
+          .toISOString()
+          .substring(14, 19);
+      }
+      this.stats.push({ name, value: pace });
+    },
     buildStats() {
       if (this.workout) {
         this.stats = [
           { name: "Duration", value: formatDuration(this.workout.duration) },
         ];
-        if (this.workout.activity !== "workout") {
+        if (this.workout.activity !== "workout") { 
           this.stats.push({
             name: "Distance",
-            value: toMiles(this.workout.length),
+            value: this.getDistance()
           });
         }
-        if (this.workout.activity === "run") {
-          const pace = new Date(
-            (this.workout.duration / (this.workout.length * 0.000621371)) * 1000
-          )
-            .toISOString()
-            .substring(14, 19);
-          this.stats.push({ name: "Pace", value: pace });
-        }
+        this.getPace()
         if (this.workout.hr_effort) {
           this.stats.push({ name: "hrTSS", value: this.workout.hr_effort });
         }
