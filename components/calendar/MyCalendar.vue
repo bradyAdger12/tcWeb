@@ -79,8 +79,9 @@
                   <div v-if="summaries[i + 1].activity_distance[activity] > 0" class="activity_breakdown_container" :style="`background-color: ${activityReference[activity].color}`">
                     <span style="margin-right: 1px"><WorkoutIcon :activity="activity" size="14px" /></span>
                     {{
-                      toMiles(
-                        summaries[i + 1].activity_distance[activity]
+                      getDistance(
+                        summaries[i + 1].activity_distance[activity],
+                        activity
                       )
                     }}
                     <span class="activity_load_difference">{{ getActivityLoadDifference(i, activity, 'activity_distance') }}</span>
@@ -343,6 +344,12 @@ export default {
   methods: {
     toMiles: toMiles,
     formatDuration: formatDuration,
+    getDistance (value, activity) {
+      if (activity === 'swim') {
+        return Math.round(value * 1.09361).toLocaleString() + ' yds'
+      }
+      return toMiles(value)
+    },
     getActivityLoadDifference (index, activity, metric) {
       const previousWeek = this.summaries[index][metric][activity]
       const thisWeek = this.summaries[index + 1][metric][activity]
