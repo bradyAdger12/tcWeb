@@ -203,9 +203,10 @@ export default {
           let workoutLength = "";
           let workoutHeader = "";
           if (workout.activity !== 'workout' && workout.length) {
+            const length = workout.activity === 'swim' ? Math.round(workout.length * 1.09361).toLocaleString() + ' yds' : toMiles(workout.length)
             workoutLength += `
               <div>
-                <span class="mdi mdi-ruler" /> ${toMiles(workout.length)}
+                <span class="mdi mdi-ruler" /> ${length}
               </div>
             `;
           } if (workout.planned) {
