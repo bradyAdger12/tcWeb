@@ -693,7 +693,7 @@ export default {
               hr_TSS: this.isPower ? null : this.stress,
               TSS: this.isPower ? this.stress : null,
               activity: this.activity,
-              length: this.length ? Math.round(this.length * 1609.34) : 0,
+              length: this.getLength(),
               planned: this.addedBlocks,
             },
             headers
