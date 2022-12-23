@@ -113,10 +113,10 @@
                 label="Duration"
               />
               <v-text-field
-                v-if="activity === 'run'"
+                v-if="activity === 'run' || activity === 'swim'"
                 v-model="length"
                 class="black--text"
-                label="Distance (mi)"
+                :label="`Distance (${activity === 'run' ? 'mi' : 'yd'})`"
                 @input="getStress()"
               />
             </v-col>
@@ -547,10 +547,13 @@ export default {
       this.activity = this.workout.activity;
       if (this.activity === "run") {
         this.isPower = false;
+        this.length = (this.workout.length * 0.000621371).toFixed(1);
+      } else if (this.activity === 'swim') {
+        this.isPower = false
+        this.length = (this.workout.length * 1.09361).toFixed(0);
       } else if (!this.enduranceActivities.includes(this.activity)) {
         this.workoutDuration = new Date(this.workout.duration * 1000).toISOString().substring(14, 19)
       }
-      this.length = (this.workout.length * 0.000621371).toFixed(1);
       this.addedBlocks = JSON.parse(JSON.stringify(this.workout.planned));
       this.workoutName = this.workout.name;
       this.description = this.workout.description;
@@ -617,6 +620,16 @@ export default {
       this.openDeleteDialog = false;
       this.$emit("onClose");
     },
+    getLength () {
+      if (this.length) {
+        if (this.activity === 'run') {
+          return Math.round(this.length * 1609.34)
+        } else if (this.activity === 'swim') {
+          return Math.round(this.length * 0.9144)
+        }
+      }
+      return 0
+    },
     isDisabled() {
       return this.addedBlocks == 0 && (!this.activity === 'workout' || (this.activity === 'workout' && !this.workoutDuration));
     },
@@ -647,7 +660,7 @@ export default {
               hr_TSS: this.isPower ? null : this.stress,
               TSS: this.isPower ? this.stress : null,
               activity: this.activity,
-              length: this.length ? Math.round(this.length * 1609.34) : 0,
+              length: this.getLength(),
               planned: this.addedBlocks,
               startedAt: this.date.set({ hour: 12 }).toISOString(),
             },
