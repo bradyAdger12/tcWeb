@@ -7,7 +7,7 @@
         <div v-if="loadingSavedWorkouts">
           <v-progress-linear indeterminate />
         </div>
-        <div v-else>
+        <div v-else :style="`height: ${getWindowHeight}px; overflow: auto`">
           <div v-if="savedWorkouts.length > 0">
             <div
               v-for="savedWorkout of savedWorkouts"
@@ -475,6 +475,9 @@ export default {
     };
   },
   computed: {
+    getWindowHeight () {
+      return window?.innerHeight || 600
+    },
     me() {
       return this.$store.state.auth.me;
     },
